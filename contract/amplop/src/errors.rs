@@ -1,1 +1,11 @@
+pub const ERR_NOT_HOST: &str = "ERR_NOT_HOST";
+pub const ERR_NOT_OWNER: &str = "ERR_NOT_OWNER";
+pub const ERR_HAJAT_NOT_FOUND: &str = "ERR_HAJAT_NOT_FOUND";
+pub const ERR_HAJAT_NOT_OPEN: &str = "ERR_HAJAT_NOT_OPEN";
+pub const ERR_INVITE_ONLY: &str = "ERR_INVITE_ONLY";
+pub const ERR_ALREADY_INVITED: &str = "ERR_ALREADY_INVITED";
+pub const ERR_QUOTA_FULL: &str = "ERR_QUOTA_FULL";
 pub const ERR_BAD_INPUT: &str = "ERR_BAD_INPUT";
+pub const ERR_BAD_TIME: &str = "ERR_BAD_TIME";
+pub const ERR_DEPOSIT_TOO_LOW: &str = "ERR_DEPOSIT_TOO_LOW";
+pub const ERR_OVERFLOW: &str = "ERR_OVERFLOW";

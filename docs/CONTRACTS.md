@@ -48,12 +48,14 @@ pub struct Contract {
     app_url: String,                           // for NEP-177 `reference`
     next_hajat: u64,                           // starts at 1
     next_token: u64,                           // starts at 1
-    hajats: IterableMap<u64, Hajat>,
-    tokens: IterableMap<u64, Invitation>,
-    tokens_by_hajat: LookupMap<u64, Vector<u64>>,
-    tokens_by_owner: LookupMap<AccountId, IterableSet<u64>>,
-    hajats_by_host: LookupMap<AccountId, IterableSet<u64>>,
+    hajats: LookupMap<u64, Hajat>,                 // ids are 1..next_hajat
+    tokens: LookupMap<u64, Invitation>,            // ids are 1..next_token
+    hajat_tokens: LookupMap<(u64, u32), u64>,      // (hajat, position) -> token, length = invite_count
     invite_of: LookupMap<(u64, AccountId), u64>,   // dedupe: (hajat, guest) -> token
+    owner_count: LookupMap<AccountId, u32>,        // tokens are soulbound, so lists are append-only
+    owner_tokens: LookupMap<(AccountId, u32), u64>,
+    host_count: LookupMap<AccountId, u32>,
+    host_hajats: LookupMap<(AccountId, u32), u64>,
     pairs: LookupMap<String, PairLedger>,          // key "giver|receiver"
     owed_to: LookupMap<AccountId, IterableSet<AccountId>>,  // giver -> receivers with remaining > 0
     owes: LookupMap<AccountId, IterableSet<AccountId>>,     // receiver -> givers with remaining > 0
@@ -91,6 +93,10 @@ pub enum HajatStatus { Open, Cancelled }
 pub enum InvState { Invited, Sealed, Opening, Opened, Refunding, Refunded }
 pub enum CardStatus { Invited, Sealed, Opened, PartiallyRepaid, Repaid, Reply, Refunded, Void }
 ```
+
+Why flat maps: `near_sdk::store` collections write lazily, so storage usage measured inside a method is only exact after `flush()`. Nested collections (a set inside a map) cannot be flushed from outside, which would break the storage deposit rule in section 5. Every collection here is flat and `settle_storage` flushes them all before measuring. The `owed_to` and `owes` ledger indexes in section 6 must follow the same rule.
+
+All amounts in stored types are `U128` (decimal strings in JSON). Ids and timestamps are plain numbers.
 
 `CardStatus` is derived for display only:
 
@@ -151,6 +157,15 @@ Storage rule for every method marked payable: measure `env::storage_usage()` bef
 | `refund(token_id)` | any | no | see time table, gas >= MIN_GAS_REFUND | state Refunding, FT transfer to owner | none until callback |
 | `on_open_resolved(token_id, amount)` | self | no | `#[private]` | see 6 | `opened`, `repaid` |
 | `on_refund_resolved(token_id, amount)` | self | no | `#[private]` | state Refunded or back to Sealed | `refunded` |
+
+Behavior notes for the implemented writes:
+
+- A host cannot invite themselves or `join` their own hajat (`ERR_BAD_INPUT`). Their own envelope would repay themselves.
+- Titles and labels must contain a non-blank character. Venue may be empty.
+- `invite_many` requires 1 to 20 items and is all or nothing.
+- `create_hajat` accepts `event_at_ms` equal to now. Past dates give `ERR_BAD_TIME`.
+- Views take optional `from` (offset) and `limit` (default 50, max 50). `get_hajats` and `get_hajats_by_host` are newest first, `get_invitations` is oldest first.
+- `get_config` returns an object `{owner, ft, app_url, hajat_count, token_count}`.
 
 `check_in` on an Invited token (guest came but sealed nothing) only records attendance. It does not move money.
 
