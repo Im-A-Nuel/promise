@@ -1,0 +1,34 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# rust
+target/
+**/*.rs.bk
+
+# next.js
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo
+
+# env: only .env.example files are committed
+.env
+.env.*
+!.env.example
+!.env.deploy.example
+
+# deploy artifacts
+scripts/.keys/
+*.wasm
+
+# os / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
