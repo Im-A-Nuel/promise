@@ -81,9 +81,9 @@ Every persona in demo mode (Ayu, Budi, Citra, Dewi, Eko) is a testnet account co
 ## Repo layout
 
 ```
-contracts/amplop     main contract (Rust, near-sdk)
-contracts/tusdc      test stablecoin with a faucet
-web                  Next.js app and API routes
+contract/amplop     main contract (Rust, near-sdk)
+contract/tusdc      test stablecoin with a faucet
+frontend                  Next.js app and API routes
 scripts              deploy, seed, demo (TypeScript)
 docs                 requirements, architecture, contract spec, runbooks
 ```
@@ -95,8 +95,8 @@ Needs Rust stable with `wasm32-unknown-unknown`, `cargo-near`, `near-cli-rs`, No
 ```bash
 pnpm install
 pnpm contracts:test      # unit + sandbox tests
-pnpm contracts:build     # wasm into contracts/*/target/near
-cp web/.env.example web/.env.local
+pnpm contracts:build     # wasm into contract/*/target/near
+cp frontend/.env.example frontend/.env.local
 pnpm dev                 # http://localhost:3000
 ```
 

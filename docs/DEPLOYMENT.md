@@ -54,7 +54,7 @@ pnpm demo                                  # smoke test, prints explorer links
 3. Deploy `amplop` and call `new(owner_id, ft_id, app_url)`.
 4. Register `amplop`, the host personas and the relayer on `tusdc` with `storage_deposit`.
 5. `mint` 500 tUSDC to each persona.
-6. Write `web/.env.local` and `web/src/lib/demo/personas.public.json`.
+6. Write `frontend/.env.local` and `frontend/src/lib/demo/personas.public.json`.
 7. Call `get_config` on `amplop` and `ft_metadata` on `tusdc` and fail loudly if either is wrong.
 
 `scripts/seed.ts` creates the story in DEMO.md section 1 with event times relative to now (host window already open), then prints the transaction list to paste into DEMO.md.
@@ -70,7 +70,7 @@ near account create-account fund-myself tusdc.promisedemo.testnet '3 NEAR' autog
 Build and deploy with init (flag names may differ, run `cargo near deploy --help`):
 
 ```bash
-cd contracts/tusdc
+cd contract/tusdc
 cargo near deploy build-non-reproducible-wasm tusdc.promisedemo.testnet \
   with-init-call new json-args '{"owner_id":"promisedemo.testnet"}' \
   prepaid-gas '100 Tgas' attached-deposit '0 NEAR' network-config testnet sign-with-keychain send
@@ -98,11 +98,11 @@ near contract call-function as-read-only amplop.promisedemo.testnet get_config j
 Local:
 
 ```bash
-cp web/.env.example web/.env.local
+cp frontend/.env.example frontend/.env.local
 pnpm dev
 ```
 
-Vercel: import the GitHub repo, set Root Directory to `web`, framework Next.js, install command `pnpm install`, add the variables from SCHEMA.md. Use the Vercel production URL as `NEXT_PUBLIC_APP_URL`, redeploy the web app, then point the contract at it with `set_app_url` (owner only): `near contract call-function as-transaction amplop.promisedemo.testnet set_app_url json-args '{"url":"https://YOUR_APP_URL"}' prepaid-gas '30 Tgas' attached-deposit '0 NEAR' sign-as promisedemo.testnet network-config testnet sign-with-keychain send`.
+Vercel: import the GitHub repo, set Root Directory to `frontend`, framework Next.js, install command `pnpm install`, add the variables from SCHEMA.md. Use the Vercel production URL as `NEXT_PUBLIC_APP_URL`, redeploy the web app, then point the contract at it with `set_app_url` (owner only): `near contract call-function as-transaction amplop.promisedemo.testnet set_app_url json-args '{"url":"https://YOUR_APP_URL"}' prepaid-gas '30 Tgas' attached-deposit '0 NEAR' sign-as promisedemo.testnet network-config testnet sign-with-keychain send`.
 
 Custom domain is optional. Prefer the default `*.vercel.app` URL to avoid DNS surprises on deadline day.
 
@@ -121,8 +121,8 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with: { targets: wasm32-unknown-unknown }
       - run: cargo install cargo-near --locked
-      - run: cd contracts && cargo test --workspace
-  web:
+      - run: cd contract && cargo test --workspace
+  frontend:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

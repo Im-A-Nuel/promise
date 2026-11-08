@@ -1,6 +1,6 @@
 # Smart Contract Specification
 
-Last updated: 2026-11-09. Applies to `contracts/amplop` and `contracts/tusdc`. If code and this file disagree, fix one of them in the same commit.
+Last updated: 2026-11-09. Applies to `contract/amplop` and `contract/tusdc`. If code and this file disagree, fix one of them in the same commit.
 
 Snippets below show shape, not final code. near-sdk 5.x APIs: `#[near(contract_state)]`, `#[near(serializers=[json, borsh])]`, `near_sdk::store` collections, `env::block_timestamp_ms()`, `NearToken`.
 

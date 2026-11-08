@@ -103,7 +103,7 @@ Account id, NEAR balance, tUSDC balance, "Get 100 tUSDC" (calls `faucet`, shows 
 ## 6. Folder structure
 
 ```
-web/src/
+frontend/src/
   app/                       routes above
   components/
     envelope-card.tsx        <img> of on-chain media with skeleton and alt text

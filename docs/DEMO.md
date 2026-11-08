@@ -81,7 +81,7 @@ Record at 1080p with the phone frame in a desktop browser or a real phone screen
 - Fastest check: `pnpm demo`. No wallet, no setup beyond `pnpm install` and a root key for the demo personas (their keys are in the repo).
 - No-install check: open `/demo`.
 - Contract check: `near contract call-function as-read-only amplop.promisedemo.testnet nft_token json-args '{"token_id":"1"}' network-config testnet now`, decode `media`.
-- Where to look for depth: `contracts/amplop/src/ledger.rs` (settlement and invariants), `svg.rs` (card), `escrow.rs` (two-phase transfer and rollback), `tests/` (T-01 to T-40).
+- Where to look for depth: `contract/amplop/src/ledger.rs` (settlement and invariants), `svg.rs` (card), `escrow.rs` (two-phase transfer and rollback), `tests/` (T-01 to T-40).
 
 ## 6. Post on X (the human writes and publishes it)
 
