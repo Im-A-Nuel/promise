@@ -74,3 +74,61 @@ pub fn nft_mint(owner: &AccountId, token_id: u64) {
         json!({ "owner_id": owner, "token_ids": [token_id.to_string()] }),
     );
 }
+
+pub fn sealed(hajat_id: u64, token_id: u64, guest: &AccountId, amount: u128, total: u128) {
+    emit(
+        STANDARD,
+        VERSION,
+        "sealed",
+        json!({
+            "hajat_id": hajat_id.to_string(),
+            "token_id": token_id.to_string(),
+            "guest": guest,
+            "amount": amount.to_string(),
+            "sealed_total": total.to_string(),
+        }),
+    );
+}
+
+pub fn checked_in(hajat_id: u64, token_id: u64, host: &AccountId, guest: &AccountId) {
+    emit(
+        STANDARD,
+        VERSION,
+        "checked_in",
+        json!({
+            "hajat_id": hajat_id.to_string(),
+            "token_id": token_id.to_string(),
+            "host": host,
+            "guest": guest,
+        }),
+    );
+}
+
+pub fn opened(hajat_id: u64, token_id: u64, host: &AccountId, guest: &AccountId, amount: u128) {
+    emit(
+        STANDARD,
+        VERSION,
+        "opened",
+        json!({
+            "hajat_id": hajat_id.to_string(),
+            "token_id": token_id.to_string(),
+            "host": host,
+            "guest": guest,
+            "amount": amount.to_string(),
+        }),
+    );
+}
+
+pub fn open_failed(hajat_id: u64, token_id: u64, host: &AccountId, amount: u128) {
+    emit(
+        STANDARD,
+        VERSION,
+        "open_failed",
+        json!({
+            "hajat_id": hajat_id.to_string(),
+            "token_id": token_id.to_string(),
+            "host": host,
+            "amount": amount.to_string(),
+        }),
+    );
+}

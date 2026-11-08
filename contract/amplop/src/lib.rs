@@ -2,6 +2,7 @@
 
 mod constants;
 mod errors;
+mod escrow;
 mod events;
 mod hajat;
 mod types;

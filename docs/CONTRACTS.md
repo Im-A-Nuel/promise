@@ -166,6 +166,13 @@ Behavior notes for the implemented writes:
 - `create_hajat` accepts `event_at_ms` equal to now. Past dates give `ERR_BAD_TIME`.
 - Views take optional `from` (offset) and `limit` (default 50, max 50). `get_hajats` and `get_hajats_by_host` are newest first, `get_invitations` is oldest first.
 - `get_config` returns an object `{owner, ft, app_url, hajat_count, token_count}`.
+- `msg` of `ft_transfer_call` carries `token_id` as a decimal string, as in the example in 5.2. A bare number is rejected as `ERR_BAD_MSG`.
+- `check_in` and `open` need the hajat to be `Open`. After `cancel_hajat` the host can no longer pull sealed money; guests get it back through `refund`.
+- `check_in` and `open` assert `prepaid_gas >= MIN_GAS_OPEN` on every call, including a `check_in` that only records attendance.
+- A top-up while a token is `Opening` is a soft rejection (`ERR_BAD_STATE`), so the tokens go back to the sender.
+- `on_open_resolved` never panics. A panic there would leave the token stuck in `Opening`. If the token is not `Opening`, it does nothing and returns `false`.
+- The `#[private]` guard lives in the generated wrapper, so it is checked in the sandbox test `callback_is_private`, not in unit tests.
+- The contract pays for the bytes a seal adds (the note and `sealed_at_ms`, at most about 150 bytes per token), because `ft_on_transfer` cannot receive a deposit. Keep the contract account funded as described in section 11.
 
 `check_in` on an Invited token (guest came but sealed nothing) only records attendance. It does not move money.
 
@@ -372,7 +379,7 @@ Unit tests (pure functions, no VM): `settle`, `render_svg` escaping and size, `c
 | T-15 | `ft_on_transfer` called by a stranger | panic `ERR_WRONG_TOKEN` |
 | T-16 | host check_in before window | `ERR_TOO_EARLY` |
 | T-17 | host check_in in window | Opened, host balance +amount, `released_total` updated |
-| T-18 | stranger opens before auto window | `ERR_TOO_EARLY`; after fast-forward past `event_at + 24h` succeeds |
+| T-18 | stranger opens before auto window | `ERR_TOO_EARLY`; at `event_at + 24h` succeeds. Sandbox checks the rejection, the exact boundary is a unit test because `fast_forward` over 24 hours of blocks does not finish in reasonable time |
 | T-19 | host not registered on tusdc | open fails, state back to Sealed, tokens still in contract |
 | T-20 | first gift, no older claim | credit = amount, pair created, `owed_to`/`owes` linked |
 | T-21 | reply exactly equals debt | `settled` = amount, credit 0, status Reply, older token Repaid, pair removed |
