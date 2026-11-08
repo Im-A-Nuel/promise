@@ -1,0 +1,60 @@
+{
+  "_note": "Demo personas. Keys are published on purpose and control testnet accounts that hold only test tokens. secret_key stays null until scripts/deploy.ts generates the keys.",
+  "personas": [
+    {
+      "id": "ayu",
+      "name": "Ayu",
+      "account_id": "ayu.promisedemo.testnet",
+      "role": { "en": "Host of the wedding", "id": "Tuan rumah pernikahan" },
+      "blurb": {
+        "en": "Hosts \"Pernikahan Ayu & Bima\" and later goes to Budi's event to pay back.",
+        "id": "Menjadi tuan rumah \"Pernikahan Ayu & Bima\", lalu datang ke acara Budi untuk membalas."
+      },
+      "secret_key": null
+    },
+    {
+      "id": "budi",
+      "name": "Budi",
+      "account_id": "budi.promisedemo.testnet",
+      "role": { "en": "Guest, then host", "id": "Tamu, lalu tuan rumah" },
+      "blurb": {
+        "en": "Gives 5 at Ayu's wedding, then hosts \"Syukuran khitanan Raka\".",
+        "id": "Memberi 5 di pernikahan Ayu, lalu menjadi tuan rumah \"Syukuran khitanan Raka\"."
+      },
+      "secret_key": null
+    },
+    {
+      "id": "citra",
+      "name": "Citra",
+      "account_id": "citra.promisedemo.testnet",
+      "role": { "en": "Guest who never repays", "id": "Tamu yang belum membalas" },
+      "blurb": {
+        "en": "Gives 2 at Ayu's wedding and leaves an open debt on the ledger.",
+        "id": "Memberi 2 di pernikahan Ayu dan meninggalkan utang terbuka di neraca."
+      },
+      "secret_key": null
+    },
+    {
+      "id": "dewi",
+      "name": "Dewi",
+      "account_id": "dewi.promisedemo.testnet",
+      "role": { "en": "Invited, has not sealed", "id": "Diundang, belum menyegel" },
+      "blurb": {
+        "en": "Used live in the demo: seals 5 tUSDC with a note.",
+        "id": "Dipakai langsung di demo: menyegel 5 tUSDC dengan catatan."
+      },
+      "secret_key": null
+    },
+    {
+      "id": "eko",
+      "name": "Eko",
+      "account_id": "eko.promisedemo.testnet",
+      "role": { "en": "Cancelled host", "id": "Tuan rumah yang membatalkan" },
+      "blurb": {
+        "en": "Cancels \"Selamatan rumah baru\", so guests get refunds.",
+        "id": "Membatalkan \"Selamatan rumah baru\", sehingga tamu menerima pengembalian."
+      },
+      "secret_key": null
+    }
+  ]
+}

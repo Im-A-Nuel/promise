@@ -1,0 +1,100 @@
+@import "tailwindcss";
+
+/* Tokens from DESIGN.md. Gold is decoration only: 2.3:1 on paper, never used for text. */
+@theme {
+  --color-paper: #fbf7f0;
+  --color-paper-deep: #f3ebdd;
+  --color-ink: #3a2a1a;
+  --color-ink-soft: #6b5a48;
+  --color-red: #9b1c1c;
+  --color-red-dark: #7a1414;
+  --color-gold: #c9a227;
+  --color-green: #2f6b3f;
+  --color-line: #e6dccb;
+
+  --font-display: var(--font-fraunces), Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-inter), system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --radius-card: 16px;
+  --radius-input: 12px;
+}
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.12;
+  letter-spacing: -0.012em;
+  text-wrap: balance;
+}
+
+p,
+li {
+  text-wrap: pretty;
+}
+
+/* Money lines up in columns. */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Visible focus for keyboard users on every interactive element. */
+:focus-visible {
+  outline: 3px solid var(--color-red-dark);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+::selection {
+  background: var(--color-gold);
+  color: var(--color-ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* One card state replaces the previous one. Fade in only: there is no exit animation to get stuck. */
+@keyframes card-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.card-in {
+  animation: card-in 0.22s ease-out both;
+}

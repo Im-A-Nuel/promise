@@ -123,7 +123,7 @@ Codes: `BAD_REQUEST` (400), `NOT_FOUND` (404), `RATE_LIMITED` (429), `RPC_ERROR`
 ### GET /api/health
 
 - Description: liveness and chain wiring check.
-- Response 200: `{ "ok": true, "network": "testnet", "amplop": "amplop.promisedemo.testnet", "ft": "tusdc.promisedemo.testnet", "block_height": 123456789 }`
+- Response 200: `{ "ok": true, "network": "testnet", "amplop": "amplop.promisedemo.testnet", "ft": "tusdc.promisedemo.testnet", "block_height": 123456789, "deployed": true }`. `deployed` is false while the amplop account does not exist on testnet yet, so the UI can say so instead of showing an error.
 - Errors: 502 if the RPC is unreachable.
 
 ### GET /api/hajat/:id/summary
