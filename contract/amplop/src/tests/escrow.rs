@@ -4,12 +4,17 @@
 use super::*;
 use near_sdk::{Gas, PromiseOrValue, PromiseResult, VMContext};
 
-const TUSDC: &str = "tusdc.testnet";
-const AMPLOP: &str = "amplop.testnet";
-const FIVE: u128 = 5_000_000;
-const HOURS_12_MS: u64 = 12 * 3_600_000;
+pub(super) const TUSDC: &str = "tusdc.testnet";
+pub(super) const AMPLOP: &str = "amplop.testnet";
+pub(super) const FIVE: u128 = 5_000_000;
+pub(super) const HOURS_12_MS: u64 = 12 * 3_600_000;
 
-fn ctx_at(pred: &str, now_ms: u64, deposit_millinear: u64, gas: Gas) -> VMContextBuilder {
+pub(super) fn ctx_at(
+    pred: &str,
+    now_ms: u64,
+    deposit_millinear: u64,
+    gas: Gas,
+) -> VMContextBuilder {
     let mut b = VMContextBuilder::new();
     b.current_account_id(acct(AMPLOP))
         .predecessor_account_id(acct(pred))
@@ -19,12 +24,12 @@ fn ctx_at(pred: &str, now_ms: u64, deposit_millinear: u64, gas: Gas) -> VMContex
     b
 }
 
-fn gas150() -> Gas {
+pub(super) fn gas150() -> Gas {
     Gas::from_tgas(150)
 }
 
 /// Hajat whose host window is already open: the event is 12 hours away.
-fn setup_open_window() -> (Contract, u64, u64) {
+pub(super) fn setup_open_window() -> (Contract, u64, u64) {
     let mut c = fresh();
     testing_env!(ctx("ayu.testnet", 50).build());
     let h = c
@@ -40,7 +45,7 @@ fn setup_open_window() -> (Contract, u64, u64) {
     (c, h, t)
 }
 
-fn seal_msg(token: u64, note: Option<&str>) -> String {
+pub(super) fn seal_msg(token: u64, note: Option<&str>) -> String {
     match note {
         Some(n) => format!(r#"{{"token_id":"{token}","note":"{n}"}}"#),
         None => format!(r#"{{"token_id":"{token}"}}"#),
@@ -48,7 +53,13 @@ fn seal_msg(token: u64, note: Option<&str>) -> String {
 }
 
 /// Calls ft_on_transfer as `pred`. Returns the unused amount.
-fn on_transfer(c: &mut Contract, pred: &str, sender: &str, amount: u128, msg: String) -> u128 {
+pub(super) fn on_transfer(
+    c: &mut Contract,
+    pred: &str,
+    sender: &str,
+    amount: u128,
+    msg: String,
+) -> u128 {
     testing_env!(ctx_at(pred, NOW_MS, 0, Gas::from_tgas(100)).build());
     match c.ft_on_transfer(acct(sender), U128(amount), msg) {
         PromiseOrValue::Value(v) => v.0,
@@ -56,7 +67,7 @@ fn on_transfer(c: &mut Contract, pred: &str, sender: &str, amount: u128, msg: St
     }
 }
 
-fn seal(c: &mut Contract, token: u64, amount: u128) -> u128 {
+pub(super) fn seal(c: &mut Contract, token: u64, amount: u128) -> u128 {
     on_transfer(c, TUSDC, "budi.testnet", amount, seal_msg(token, None))
 }
 
@@ -396,6 +407,6 @@ fn on_open_resolved_ignores_tokens_not_opening() {
 /// Switches the mocked environment to a callback context with one promise result.
 /// The `testing_env!` replacement needs runtime configs that have no `Default`.
 #[allow(deprecated)]
-fn with_result(context: VMContext, result: PromiseResult) {
+pub(super) fn with_result(context: VMContext, result: PromiseResult) {
     near_sdk::test_utils::testing_env_with_promise_results(context, result);
 }

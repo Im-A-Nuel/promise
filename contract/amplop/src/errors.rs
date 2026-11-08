@@ -18,3 +18,6 @@ pub const ERR_TOO_SMALL: &str = "ERR_TOO_SMALL";
 pub const ERR_TOO_EARLY: &str = "ERR_TOO_EARLY";
 pub const ERR_TOO_LATE: &str = "ERR_TOO_LATE";
 pub const ERR_GAS: &str = "ERR_GAS";
+pub const ERR_HAS_OPENED: &str = "ERR_HAS_OPENED";
+pub const ERR_NOT_REFUNDABLE: &str = "ERR_NOT_REFUNDABLE";
+pub const ERR_SOULBOUND: &str = "ERR_SOULBOUND";

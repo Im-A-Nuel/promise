@@ -172,6 +172,11 @@ Behavior notes for the implemented writes:
 - A top-up while a token is `Opening` is a soft rejection (`ERR_BAD_STATE`), so the tokens go back to the sender.
 - `on_open_resolved` never panics. A panic there would leave the token stuck in `Opening`. If the token is not `Opening`, it does nothing and returns `false`.
 - The `#[private]` guard lives in the generated wrapper, so it is checked in the sandbox test `callback_is_private`, not in unit tests.
+- `cancel_hajat` loops over the hajat's tokens (at most 200) and refuses with `ERR_HAS_OPENED` if any is `Opened` or `Opening`. It moves no money; guests (or anyone) then call `refund`.
+- `refund` needs `prepaid_gas >= MIN_GAS_REFUND` and sends the tokens to the owner. `on_refund_resolved` never panics either; a failed transfer puts the token back to `Sealed` so the refund can be retried.
+- `nft_transfer` and `nft_transfer_call` are `#[payable]` so a standard wallet call with 1 yoctoNEAR reaches `ERR_SOULBOUND`.
+- `nft_token(token_id)` takes the id as a string and returns `None` for an unknown or malformed id. Until the SVG renderer lands, `metadata.media` is `null`. The amount is only in `extra` once the envelope is `Opened`.
+- `nft_tokens` and `nft_tokens_for_owner` take `from_index` and `limit` (capped at 50).
 - The contract pays for the bytes a seal adds (the note and `sealed_at_ms`, at most about 150 bytes per token), because `ft_on_transfer` cannot receive a deposit. Keep the contract account funded as described in section 11.
 
 `check_in` on an Invited token (guest came but sealed nothing) only records attendance. It does not move money.

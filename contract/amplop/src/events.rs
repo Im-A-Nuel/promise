@@ -132,3 +132,40 @@ pub fn open_failed(hajat_id: u64, token_id: u64, host: &AccountId, amount: u128)
         }),
     );
 }
+
+pub fn hajat_cancelled(hajat_id: u64, host: &AccountId) {
+    emit(
+        STANDARD,
+        VERSION,
+        "hajat_cancelled",
+        json!({ "hajat_id": hajat_id.to_string(), "host": host }),
+    );
+}
+
+pub fn refunded(hajat_id: u64, token_id: u64, owner: &AccountId, amount: u128) {
+    emit(
+        STANDARD,
+        VERSION,
+        "refunded",
+        json!({
+            "hajat_id": hajat_id.to_string(),
+            "token_id": token_id.to_string(),
+            "owner": owner,
+            "amount": amount.to_string(),
+        }),
+    );
+}
+
+pub fn refund_failed(hajat_id: u64, token_id: u64, owner: &AccountId, amount: u128) {
+    emit(
+        STANDARD,
+        VERSION,
+        "refund_failed",
+        json!({
+            "hajat_id": hajat_id.to_string(),
+            "token_id": token_id.to_string(),
+            "owner": owner,
+            "amount": amount.to_string(),
+        }),
+    );
+}
