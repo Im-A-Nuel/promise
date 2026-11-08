@@ -15,9 +15,7 @@ use near_sdk::borsh::BorshSerialize;
 use near_sdk::collections::LazyOption;
 use near_sdk::json_types::{U128, U64};
 use near_sdk::store::LookupMap;
-use near_sdk::{
-    env, near, require, AccountId, BorshStorageKey, PanicOnDefault, PromiseOrValue,
-};
+use near_sdk::{env, near, require, AccountId, BorshStorageKey, PanicOnDefault, PromiseOrValue};
 
 /// 100 tUSDC with 6 decimals.
 pub const FAUCET_AMOUNT: u128 = 100_000_000;
@@ -72,7 +70,7 @@ impl Contract {
         let now = env::block_timestamp_ms();
         let next = self.next_claim_at.get(&caller).copied().unwrap_or(0);
         require!(now >= next, ERR_COOLDOWN);
-        let next_allowed = now.checked_add(FAUCET_COOLDOWN_MS).unwrap_or(u64::MAX);
+        let next_allowed = now.saturating_add(FAUCET_COOLDOWN_MS);
         self.next_claim_at.insert(caller.clone(), next_allowed);
         self.mint_to(&caller, FAUCET_AMOUNT, "faucet");
         U128(FAUCET_AMOUNT)
@@ -191,7 +189,9 @@ impl StorageManagement for Contract {
 #[near]
 impl FungibleTokenMetadataProvider for Contract {
     fn ft_metadata(&self) -> FungibleTokenMetadata {
-        self.metadata.get().unwrap_or_else(|| env::panic_str(ERR_BAD_INPUT))
+        self.metadata
+            .get()
+            .unwrap_or_else(|| env::panic_str(ERR_BAD_INPUT))
     }
 }
 

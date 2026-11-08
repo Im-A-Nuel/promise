@@ -10,7 +10,11 @@ fn wasm_path() -> String {
     std::env::var("TUSDC_WASM").unwrap_or_else(|_| "../target/near/tusdc/tusdc.wasm".to_string())
 }
 
-async fn setup() -> TestResult<(near_workspaces::Worker<near_workspaces::network::Sandbox>, Contract, Account)> {
+async fn setup() -> TestResult<(
+    near_workspaces::Worker<near_workspaces::network::Sandbox>,
+    Contract,
+    Account,
+)> {
     let worker = near_workspaces::sandbox().await?;
     let wasm = std::fs::read(wasm_path())?;
     let contract = worker.dev_deploy(&wasm).await?;
@@ -38,7 +42,10 @@ async fn t37_faucet_twice_within_cooldown_fails() -> TestResult<()> {
     let (_worker, contract, owner) = setup().await?;
     let budi = new_user(&owner, "budi").await?;
 
-    budi.call(contract.id(), "faucet").transact().await?.into_result()?;
+    budi.call(contract.id(), "faucet")
+        .transact()
+        .await?
+        .into_result()?;
     let second = budi.call(contract.id(), "faucet").transact().await?;
     assert!(second.is_failure());
     let msg = format!("{:?}", second.into_result().unwrap_err());
@@ -58,7 +65,11 @@ async fn t38_faucet_registers_new_account() -> TestResult<()> {
         .json()?;
     assert!(before.is_none());
 
-    citra.call(contract.id(), "faucet").transact().await?.into_result()?;
+    citra
+        .call(contract.id(), "faucet")
+        .transact()
+        .await?
+        .into_result()?;
 
     let balance: String = contract
         .view("ft_balance_of")
