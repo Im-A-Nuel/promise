@@ -10,8 +10,8 @@
         "id": "Tuan rumah pernikahan"
       },
       "blurb": {
-        "en": "Hosts \"Pernikahan Ayu & Bima\" and later goes to Budi's event to pay back.",
-        "id": "Menjadi tuan rumah \"Pernikahan Ayu & Bima\", lalu datang ke acara Budi untuk membalas."
+        "en": "Hosts \"Ayu & Bima's Wedding\" and later goes to Budi's event to pay back.",
+        "id": "Menjadi tuan rumah \"Ayu & Bima's Wedding\", lalu datang ke acara Budi untuk membalas."
       },
       "secret_key": "ed25519:4nGHoyuBFvQdc3kRPap9jJTwH16V37TFsfa72gBDwttSQE2usxXApDrqM4zHLqLSZeWMFinfDftW5yjEyT58Rn5w"
     },
@@ -24,8 +24,8 @@
         "id": "Tamu, lalu tuan rumah"
       },
       "blurb": {
-        "en": "Gives 5 at Ayu's wedding, then hosts \"Syukuran khitanan Raka\".",
-        "id": "Memberi 5 di pernikahan Ayu, lalu menjadi tuan rumah \"Syukuran khitanan Raka\"."
+        "en": "Gives 5 at Ayu's wedding, then hosts \"Raka's Celebration\".",
+        "id": "Memberi 5 di pernikahan Ayu, lalu menjadi tuan rumah \"Raka's Celebration\"."
       },
       "secret_key": "ed25519:kTMdCeXsoYMPD84ZhZ4ty5ujqpxkgES21714s4wC52EV98oc2WkyqkMdBwHJtTiFL99cHFAXfLepkWBjNgpE1Wv"
     },
@@ -66,8 +66,8 @@
         "id": "Tuan rumah yang membatalkan"
       },
       "blurb": {
-        "en": "Cancels \"Selamatan rumah baru\", so guests get refunds.",
-        "id": "Membatalkan \"Selamatan rumah baru\", sehingga tamu menerima pengembalian."
+        "en": "Cancels \"Eko's Housewarming\", so guests get refunds.",
+        "id": "Membatalkan \"Eko's Housewarming\", sehingga tamu menerima pengembalian."
       },
       "secret_key": "ed25519:4v26E1pfi8sbf5vRvEs1cVDhhugx7BEuPr6H4A7hmE6Uf26nwjXZSdiYP1qEYmXwYKryt8WjDXgf9mikm1gEqxkU"
     }

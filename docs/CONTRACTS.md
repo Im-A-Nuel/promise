@@ -288,7 +288,7 @@ Standards: NEP-171 (`nft_token`, `nft_tokens_for_owner`, `nft_tokens`, `nft_tota
   "token_id": "7",
   "owner_id": "dewi.promisedemo.testnet",
   "metadata": {
-    "title": "Invitation #7: Pernikahan Ayu & Bima",
+    "title": "Invitation #7: Ayu & Bima's Wedding",
     "description": "Sealed. Opens at the event.",
     "media": "data:image/svg+xml;base64,PHN2Zy...",
     "reference": "https://TODO(deploy)/api/nft/7",

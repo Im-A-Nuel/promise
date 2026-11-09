@@ -27,11 +27,11 @@ Open `TODO(deploy): APP_URL/demo`. No wallet needed. Demo mode signs with pre-fu
 
 | Step | Do | See |
 | --- | --- | --- |
-| 1 | Pick **Ayu** (host). Open the hajat "Pernikahan Ayu & Bima". | Three invitations: Budi, Citra, Dewi. Dewi has not sealed yet. |
+| 1 | Pick **Ayu** (host). Open the hajat "Ayu & Bima's Wedding". | Three invitations: Budi, Citra, Dewi. Dewi has not sealed yet. |
 | 2 | Switch to **Dewi**. Open her invitation. Seal 5 tUSDC with a short note. | The card changes from "Invited" to "Sealed". The amount stays hidden. The tx link opens on NearBlocks. |
 | 3 | Switch back to **Ayu**. Press "Check in" on Dewi's invitation. | Card turns "Opened" and shows 5.00. Ayu's tUSDC balance goes up by 5. |
 | 4 | Open **Neraca** (ledger) as Ayu. | "You owe Dewi 5.00", "You owe Budi 5.00", "You owe Citra 2.00". |
-| 5 | Switch to **Budi**. Open his hajat "Syukuran khitanan Raka". | Budi is the host now. Ayu and Citra are invited as guests. |
+| 5 | Switch to **Budi**. Open his hajat "Raka's Celebration". | Budi is the host now. Ayu and Citra are invited as guests. |
 | 6 | Switch to **Ayu**. Open Budi's invitation. Press "Pay back what I owe" and confirm. | Suggested amount is 5.00, taken from the ledger. |
 | 7 | As Budi, check Ayu in. Open Neraca for Ayu. | Ayu's debt to Budi is 0. Budi's original card in Ayu's hajat now reads "Repaid". |
 

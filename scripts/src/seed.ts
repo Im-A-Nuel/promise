@@ -9,7 +9,7 @@ import { join } from "node:path";
 import { bootstrap, fail, preflight } from "./bootstrap.js";
 import { Reporter, UNIT, tusdc } from "./story.js";
 
-export const SEED_TITLE = "Pernikahan Ayu & Bima";
+export const SEED_TITLE = "Ayu & Bima's Wedding";
 
 const PLAN = [
   "Ayu creates the wedding hajat (open link)",
@@ -67,8 +67,8 @@ async function main() {
   r.step("Ayu checks in Budi, the envelope opens", await story.checkIn(ayu, tBudi));
   r.step("Ayu checks in Citra, the envelope opens", await story.checkIn(ayu, tCitra));
 
-  const h2 = await story.createHajat(budi, { title: "Syukuran khitanan Raka", kind: "Khitan", venue: "Rumah Budi", hoursAhead: hours, policy: "InviteOnly" });
-  r.step(`Budi creates hajat ${h2.id} "Syukuran khitanan Raka"`, h2.tx);
+  const h2 = await story.createHajat(budi, { title: "Raka's Celebration", kind: "Khitan", venue: "Rumah Budi", hoursAhead: hours, policy: "InviteOnly" });
+  r.step(`Budi creates hajat ${h2.id} "Raka's Celebration"`, h2.tx);
   const inv2 = await story.inviteMany(budi, h2.id, [
     { account: ayu.accountId, label: "Ayu" },
     { account: citra.accountId, label: "Citra" },
@@ -76,8 +76,8 @@ async function main() {
   r.step("Budi invites Ayu and Citra", inv2.tx);
   const [tAyuAtBudi, tCitraAtBudi] = inv2.ids as [number, number];
 
-  const h3 = await story.createHajat(eko, { title: "Selamatan rumah baru", kind: "Syukuran", venue: "Rumah Eko", hoursAhead: hours, policy: "InviteOnly" });
-  r.step(`Eko creates hajat ${h3.id} "Selamatan rumah baru"`, h3.tx);
+  const h3 = await story.createHajat(eko, { title: "Eko's Housewarming", kind: "Syukuran", venue: "Rumah Eko", hoursAhead: hours, policy: "InviteOnly" });
+  r.step(`Eko creates hajat ${h3.id} "Eko's Housewarming"`, h3.tx);
   const inv3 = await story.inviteMany(eko, h3.id, [{ account: dewi.accountId, label: "Dewi" }]);
   r.step("Eko invites Dewi", inv3.tx);
   const [tDewiAtEko] = inv3.ids as [number];

@@ -143,7 +143,7 @@ Codes: `BAD_REQUEST` (400), `NOT_FOUND` (404), `RATE_LIMITED` (429), `RPC_ERROR`
 ### GET /api/nft/:tokenId
 
 - Description: NEP-177 style JSON for wallets and marketplaces. This is the URL stored in the token's `reference` field.
-- Response 200: `{ "title", "description", "media": "https://APP/api/nft/{id}/image.svg", "attributes": [{ "trait_type": "status", "value": "Sealed" }, { "trait_type": "hajat", "value": "Pernikahan Ayu & Bima" }] }`
+- Response 200: `{ "title", "description", "media": "https://APP/api/nft/{id}/image.svg", "attributes": [{ "trait_type": "status", "value": "Sealed" }, { "trait_type": "hajat", "value": "Ayu & Bima's Wedding" }] }`
 - Errors: 404 if the token does not exist.
 
 ### GET /api/nft/:tokenId/image.svg

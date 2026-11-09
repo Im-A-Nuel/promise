@@ -28,7 +28,7 @@
   "card.sample.hajat": "Undangan pernikahan",
 
   "problem.title": "Catatannya ada di buku kertas.",
-  "problem.p1": "Di Indonesia dan banyak negara Asia, amplop di pernikahan adalah utang kehormatan, bukan hadiah. Kalau seseorang memberi 100 di pernikahanmu, kamu diharapkan memberi 100 atau lebih di pernikahannya. Semua orang tahu itu.",
+  "problem.p1": "Di pernikahan di berbagai negara Asia dan di banyak keluarga perantauan, amplop adalah utang kehormatan, bukan hadiah. Namanya berbeda (angpao, hongbao, amplop), kewajibannya sama. Kalau seseorang memberi 100 di pernikahanmu, kamu diharapkan memberi 100 atau lebih di pernikahannya. Semua orang tahu itu.",
   "problem.p2": "Catatannya tersimpan di buku tamu yang bisa hilang, tertukar, atau diperdebatkan keluarga dua puluh tahun kemudian.",
   "problem.p3": "Aplikasi angpao digital hanya mengirim uang. Tidak ada yang mencatat apa yang masih kamu utang.",
 
@@ -66,7 +66,7 @@
   "limits.2": "Nominal bisa dilihat publik di blockchain. Lapisan privasi ada di rencana, belum dibangun.",
   "limits.3": "Hanya testnet. Uangnya tUSDC uji dari faucet kami sendiri. Tidak ada dana sungguhan yang tersentuh.",
   "limits.4": "Satu kontrak memegang semua saldo. Undangan bukan sub-akun.",
-  "limits.5": "Kripto bukan alat pembayaran sah di Indonesia, jadi Promise dibingkai sebagai tradisi memberi, bukan metode pembayaran.",
+  "limits.5": "Kripto bukan alat pembayaran sah di banyak negara, jadi Promise dibingkai sebagai tradisi memberi, bukan metode pembayaran.",
 
   "cta.title": "Jalankan seluruh ceritanya dalam lima menit.",
   "cta.body": "Tanpa dompet. Mode demo menandatangani dengan akun uji yang kuncinya sengaja dipublikasikan.",
@@ -83,11 +83,11 @@
   "demo.none_selected": "Belum ada akun yang dipilih.",
   "demo.walkthrough.title": "Cerita tujuh langkah",
   "demo.walkthrough.lead": "Ganti akun sambil berjalan. Tiap langkah menunjukkan apa yang seharusnya tertulis di kartu dan neraca.",
-  "demo.step.1": "Ayu membuka hajatnya \"Pernikahan Ayu & Bima\". Ada tiga undangan: Budi, Citra, Dewi. Dewi belum menyegel.",
+  "demo.step.1": "Ayu membuka hajatnya \"Ayu & Bima's Wedding\". Ada tiga undangan: Budi, Citra, Dewi. Dewi belum menyegel.",
   "demo.step.2": "Dewi membuka undangannya dan menyegel 5 tUSDC dengan catatan singkat. Kartu berubah dari Diundang ke Disegel dan nominal tersembunyi.",
   "demo.step.3": "Ayu mencatat kehadiran Dewi. Kartu menjadi Dibuka dan menampilkan 5.00. Saldo Ayu naik 5.",
   "demo.step.4": "Ayu membuka neraca: ia berutang 5.00 kepada Dewi, 5.00 kepada Budi, dan 2.00 kepada Citra.",
-  "demo.step.5": "Budi membuka hajatnya \"Syukuran khitanan Raka\". Ayu dan Citra diundang sebagai tamu.",
+  "demo.step.5": "Budi membuka hajatnya \"Raka's Celebration\". Ayu dan Citra diundang sebagai tamu.",
   "demo.step.6": "Ayu membuka undangan Budi dan menekan \"Bayar balasan\". Nominal yang disarankan 5.00, diambil dari neraca.",
   "demo.step.7": "Budi mencatat kehadiran Ayu. Utang Ayu ke Budi 0 dan kartu pertama Budi sekarang tertulis Lunas.",
   "persona.role": "Peran",

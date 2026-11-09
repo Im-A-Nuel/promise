@@ -16,9 +16,9 @@ Last updated: 2026-11-09. Read https://nearhackathon.com/HACKATHON.md again befo
 
 | Hajat | Host | Title | Policy | Seeded state |
 | --- | --- | --- | --- | --- |
-| 1 | Ayu | Pernikahan Ayu & Bima | OpenLink | Budi sealed 5 and opened, Citra sealed 2 and opened, Dewi Invited |
-| 2 | Budi | Syukuran khitanan Raka | InviteOnly | Ayu Invited, Citra Invited. Nothing sealed |
-| 3 | Eko | Selamatan rumah baru | InviteOnly | Dewi sealed 3, hajat Cancelled, refund not yet claimed |
+| 1 | Ayu | Ayu & Bima's Wedding | OpenLink | Budi sealed 5 and opened, Citra sealed 2 and opened, Dewi Invited |
+| 2 | Budi | Raka's Celebration | InviteOnly | Ayu Invited, Citra Invited. Nothing sealed |
+| 3 | Eko | Eko's Housewarming | InviteOnly | Dewi sealed 3, hajat Cancelled, refund not yet claimed |
 
 After seeding, the ledger reads: Ayu owes Budi 5.00 and Citra 2.00. Dewi's 3.00 sits in hajat 3 waiting for a refund call.
 

@@ -4,7 +4,7 @@ Visual direction for Promise. Source: the owner's tokens in `docs/FRONTEND.md` s
 
 ## Reading
 
-Reading this as: a consumer web app and story page for Indonesian and Asian families who already understand the envelope tradition, in a warm paper-and-ink visual language, dial **ENERGY 2 / RHYTHM 3 / MOTION 2**.
+Reading this as: a consumer web app and story page for families around the world who already know the wedding envelope tradition (angpao, hongbao, amplop), in a warm paper-and-ink visual language, dial **ENERGY 2 / RHYTHM 3 / MOTION 2**.
 
 ## Identity
 
@@ -61,7 +61,7 @@ Each section has its own composition because each carries different content:
 
 ## Voice
 
-Plain, specific, no marketing words. Amounts always with the unit (`5.00 tUSDC`). No em dashes. Indonesian copy is written for the same reader, not translated word for word.
+Plain, specific, no marketing words. Amounts always with the unit (`5.00 tUSDC`). No em dashes. The Indonesian dictionary is an option, written for the same reader and not translated word for word. English is the default.
 
 ## What we do not have yet (honest placeholders)
 
