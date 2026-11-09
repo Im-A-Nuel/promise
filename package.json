@@ -13,6 +13,7 @@
     "typecheck": "pnpm --filter @promise/frontend typecheck",
     "lint": "pnpm --filter @promise/frontend lint",
     "test:web": "pnpm --filter @promise/frontend test",
+    "deploy:testnet": "pnpm --filter @promise/scripts run deploy:testnet",
     "contracts:build": "cd contract/tusdc && cargo near build non-reproducible-wasm --no-abi && cd ../amplop && cargo near build non-reproducible-wasm --no-abi",
     "contracts:test": "cd contract && cargo test --workspace --lib && cd tusdc && cargo near build non-reproducible-wasm --no-abi && cd ../amplop && cargo near build non-reproducible-wasm --no-abi && cd .. && cargo test --workspace --tests"
   }
