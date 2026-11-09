@@ -32,6 +32,10 @@ export interface Config {
   amplop: string;
   personas: { id: string; account: string }[];
   execute: boolean;
+  /** seed and demo: print the plan and send nothing */
+  dryRun: boolean;
+  /** seed and demo: how many hours ahead the events are */
+  hours: number;
   rpcUrl: string;
   appUrl: string;
   tusdcWasm: string;
@@ -52,6 +56,8 @@ export function loadConfig(argv: string[], env: NodeJS.ProcessEnv, repoRoot: str
       root: { type: "string" },
       execute: { type: "boolean", default: false },
       "app-url": { type: "string" },
+      "dry-run": { type: "boolean", default: false },
+      hours: { type: "string" },
     },
     allowPositionals: false,
   });
@@ -64,6 +70,9 @@ export function loadConfig(argv: string[], env: NodeJS.ProcessEnv, repoRoot: str
   const rpcUrl = env.RPC_URL ?? "https://test.rpc.fastnear.com";
   if (/mainnet/i.test(rpcUrl)) throw new Error(`Refusing to use an RPC url that looks like mainnet: ${rpcUrl}`);
 
+  const hours = Number(values.hours ?? env.EVENT_HOURS ?? "12");
+  if (!Number.isFinite(hours) || hours < 1 || hours > 300) throw new Error("--hours must be between 1 and 300");
+
   const wasm = (name: string) => join(repoRoot, "contract", "target", "near", name, `${name}.wasm`);
 
   return {
@@ -72,6 +81,8 @@ export function loadConfig(argv: string[], env: NodeJS.ProcessEnv, repoRoot: str
     amplop: `amplop.${root}`,
     personas: PERSONA_IDS.map((id) => ({ id, account: `${id}.${root}` })),
     execute: values.execute === true,
+    dryRun: values["dry-run"] === true,
+    hours,
     rpcUrl,
     appUrl: values["app-url"] ?? env.APP_URL ?? "http://localhost:3000",
     tusdcWasm: env.TUSDC_WASM ?? wasm("tusdc"),

@@ -10,6 +10,8 @@
   "scripts": {
     "deploy:testnet": "tsx src/deploy.ts",
     "rotate-key": "tsx src/rotate-key.ts",
+    "seed": "tsx src/seed.ts",
+    "demo": "tsx src/demo.ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
