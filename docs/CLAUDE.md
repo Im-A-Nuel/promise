@@ -71,4 +71,4 @@ docs                     all specs. Read docs/CONTRACTS.md before touching contr
 - Docs updated if behavior changed
 
 ## Current focus
-Contracts: phases 1 to 3 done (tusdc, hajat, invite, join, seal, open, cancel, refund, soulbound). Next: ledger settlement and the SVG card (phase 4), then first testnet deploy. Frontend: shell, landing and /demo exist; app pages wait for phase 4. Direction is in DESIGN.md. Priorities are in docs/ROADMAP.md.
+Contracts: phases 1 to 4 done (tusdc, hajat, invite, join, seal, open, cancel, refund, soulbound, ledger, SVG card). Next: first testnet deploy (needs the owner to approve a root account), then scripts/deploy.ts, seed.ts, demo.ts. Frontend: shell, landing and /demo exist; app pages (hajat, invitation, neraca, profile) and signing come after the deploy. Direction is in DESIGN.md. Priorities are in docs/ROADMAP.md.

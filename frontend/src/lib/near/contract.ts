@@ -5,11 +5,15 @@ import {
   configSchema,
   hajatSchema,
   invitationSchema,
+  ledgerSchema,
   nftTokenSchema,
+  pairSchema,
   type Config,
   type Hajat,
   type InvitationView,
+  type Ledger,
   type NftToken,
+  type Pair,
 } from "@/lib/near/types";
 
 // Every read of the amplop contract goes through this file. Components never call RPC directly.
@@ -91,4 +95,24 @@ export function getNftTokensForOwner(account: string, page: Page = {}, options?:
 export async function getTusdcBalance(account: string, options?: RpcOptions): Promise<string> {
   const raw = await viewCall(env.ftId, "ft_balance_of", { account_id: account }, options);
   return z.string().regex(/^\d+$/).parse(raw);
+}
+
+/** Who owes me and whom I owe. Each list is paged separately (limit max 50). */
+export function getLedger(account: string, page: Page = {}, options?: RpcOptions): Promise<Ledger> {
+  return view(
+    ledgerSchema,
+    "get_ledger",
+    { account_id: account, from: page.from ?? 0, limit: page.limit ?? 50 },
+    options,
+  );
+}
+
+/** What `receiver` owes `giver`. */
+export function getPair(giver: string, receiver: string, options?: RpcOptions): Promise<Pair> {
+  return view(pairSchema, "get_pair", { giver, receiver }, options);
+}
+
+/** What `guest` still owes the host of this hajat, in base units. Prefills "Pay back what I owe". */
+export function suggestReply(hajatId: number, guest: string, options?: RpcOptions): Promise<string> {
+  return view(z.string().regex(/^\d+$/), "suggest_reply", { hajat_id: hajatId, guest }, options);
 }

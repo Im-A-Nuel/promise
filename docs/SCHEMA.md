@@ -58,7 +58,7 @@ export interface InvitationView {
 export interface LedgerRow {
   counterparty: string;
   remaining: string;
-  token_ids: number[];
+  token_ids: string[];   // U64 values are decimal strings in JSON
 }
 
 export interface Ledger {

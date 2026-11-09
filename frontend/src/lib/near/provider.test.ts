@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getConfig, getHajats } from "@/lib/near/contract";
+import { getConfig, getHajats, getLedger, getPair, suggestReply } from "@/lib/near/contract";
 import { ContractMissingError, ContractPanicError, RpcUnreachableError, viewCall } from "@/lib/near/provider";
 
 type Handler = (url: string, body: { params: { method_name?: string; args_base64?: string } }) => Response | Promise<Response>;
@@ -99,5 +99,36 @@ describe("typed contract reads", () => {
     });
     await getHajats({ from: 20, limit: 10 }, { fetchImpl: impl });
     expect(args).toEqual({ from: 20, limit: 10 });
+  });
+});
+
+describe("ledger reads", () => {
+  it("parses get_ledger and passes the account", async () => {
+    let args: unknown;
+    const ledger = {
+      owed_to_me: [],
+      i_owe: [{ counterparty: "budi.testnet", remaining: "5000000", token_ids: ["1"] }],
+    };
+    const { impl } = fakeFetch((_u, body) => {
+      args = JSON.parse(atob(body.params.args_base64 ?? ""));
+      return ok(ledger);
+    });
+    await expect(getLedger("ayu.testnet", {}, { fetchImpl: impl })).resolves.toEqual(ledger);
+    expect(args).toEqual({ account_id: "ayu.testnet", from: 0, limit: 50 });
+  });
+
+  it("parses get_pair and suggest_reply", async () => {
+    const pair = fakeFetch(() => ok({ remaining: "5000000", open: ["1", "4"] }));
+    await expect(getPair("budi.testnet", "ayu.testnet", { fetchImpl: pair.impl })).resolves.toEqual({
+      remaining: "5000000",
+      open: ["1", "4"],
+    });
+    const suggest = fakeFetch(() => ok("5000000"));
+    await expect(suggestReply(2, "ayu.testnet", { fetchImpl: suggest.impl })).resolves.toBe("5000000");
+  });
+
+  it("rejects a ledger whose amount is not a decimal string", async () => {
+    const { impl } = fakeFetch(() => ok({ owed_to_me: [{ counterparty: "x", remaining: 5, token_ids: [] }], i_owe: [] }));
+    await expect(getLedger("x.testnet", {}, { fetchImpl: impl })).rejects.toThrow();
   });
 });

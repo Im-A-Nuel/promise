@@ -94,3 +94,24 @@ export const healthSchema = z.object({
   deployed: z.boolean(),
 });
 export type Health = z.infer<typeof healthSchema>;
+
+export const ledgerRowSchema = z.object({
+  counterparty: z.string(),
+  remaining: amount,
+  token_ids: z.array(z.string().regex(/^\d+$/)),
+});
+export type LedgerRow = z.infer<typeof ledgerRowSchema>;
+
+export const ledgerSchema = z.object({
+  /** The counterparty owes me. */
+  owed_to_me: z.array(ledgerRowSchema),
+  /** I owe the counterparty. */
+  i_owe: z.array(ledgerRowSchema),
+});
+export type Ledger = z.infer<typeof ledgerSchema>;
+
+export const pairSchema = z.object({
+  remaining: amount,
+  open: z.array(z.string().regex(/^\d+$/)),
+});
+export type Pair = z.infer<typeof pairSchema>;
