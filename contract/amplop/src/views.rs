@@ -21,6 +21,7 @@ impl Contract {
             app_url: self.app_url.clone(),
             hajat_count: self.next_hajat - 1,
             token_count: self.next_token - 1,
+            spare_balance: near_sdk::json_types::U128(self.spare_balance()),
         }
     }
 

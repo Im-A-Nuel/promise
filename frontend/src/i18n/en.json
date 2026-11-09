@@ -132,5 +132,6 @@
   "err.ERR_PRIVATE": "This method is internal.",
   "err.ERR_GAS": "Not enough gas was attached. Try again.",
   "err.ERR_OVERFLOW": "That amount is too large.",
+  "err.ERR_LOW_BALANCE": "The contract is low on NEAR for storage, so nothing was moved. Ask the owner to top it up.",
   "err.ERR_COOLDOWN": "You can use the faucet again in a few hours."
 }

@@ -182,6 +182,13 @@ impl Contract {
         token_id
     }
 
+    /// NEAR left after storage staking. Seals and callbacks grow storage the contract pays for.
+    pub(crate) fn spare_balance(&self) -> u128 {
+        let locked = u128::from(env::storage_usage())
+            .saturating_mul(env::storage_byte_cost().as_yoctonear());
+        env::account_balance().as_yoctonear().saturating_sub(locked)
+    }
+
     fn flush_all(&mut self) {
         self.hajats.flush();
         self.tokens.flush();

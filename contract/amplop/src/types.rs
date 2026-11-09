@@ -131,6 +131,8 @@ pub struct Config {
     pub app_url: String,
     pub hajat_count: u64,
     pub token_count: u64,
+    /// NEAR left after storage staking, in yocto. Keep it above `MIN_SPARE_BALANCE`.
+    pub spare_balance: U128,
 }
 
 /// Display status derived from stored state (docs/CONTRACTS.md section 3).

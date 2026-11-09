@@ -31,3 +31,6 @@ pub const MIN_GAS_REFUND: Gas = Gas::from_tgas(80);
 pub const GAS_CALLBACK_OPEN: Gas = Gas::from_tgas(60);
 pub const MAX_SETTLE: usize = 10;
 pub const MAX_PAIR_OPEN: usize = 50;
+/// 0.1 NEAR. Storage the contract itself pays for (seal notes, ledger entries added in a
+/// callback) must always have room, or the open callback could fail after the tUSDC moved.
+pub const MIN_SPARE_BALANCE: u128 = 100_000_000_000_000_000_000_000;

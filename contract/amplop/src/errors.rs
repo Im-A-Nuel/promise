@@ -21,3 +21,4 @@ pub const ERR_GAS: &str = "ERR_GAS";
 pub const ERR_HAS_OPENED: &str = "ERR_HAS_OPENED";
 pub const ERR_NOT_REFUNDABLE: &str = "ERR_NOT_REFUNDABLE";
 pub const ERR_SOULBOUND: &str = "ERR_SOULBOUND";
+pub const ERR_LOW_BALANCE: &str = "ERR_LOW_BALANCE";

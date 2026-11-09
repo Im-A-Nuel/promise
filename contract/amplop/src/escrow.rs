@@ -74,6 +74,10 @@ impl Contract {
         if amount.0 < MIN_AMPLOP {
             return reject(ERR_TOO_SMALL, amount);
         }
+        // Sealing grows storage that the contract pays for. Hand the tokens back when it is low.
+        if self.spare_balance() < MIN_SPARE_BALANCE {
+            return reject(ERR_LOW_BALANCE, amount);
+        }
         let (Some(sealed), Some(sealed_total)) = (
             token.sealed.0.checked_add(amount.0),
             hajat.sealed_total.0.checked_add(amount.0),
@@ -202,6 +206,9 @@ impl Contract {
 
     /// Locks the token and starts the FT transfer to the host. The callback finishes the job.
     fn start_open(&mut self, token_id: u64) -> near_sdk::Promise {
+        // The callback adds ledger entries that this account pays for. Refuse before any money
+        // moves, because a callback that cannot pay would leave the token stuck in Opening.
+        require!(self.spare_balance() >= MIN_SPARE_BALANCE, ERR_LOW_BALANCE);
         let mut token = self.token_or_panic(token_id);
         let hajat = self.hajat_or_panic(token.hajat_id);
         let amount = token.sealed;

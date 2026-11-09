@@ -26,6 +26,7 @@ export const ERROR_CODES = [
   "ERR_PRIVATE",
   "ERR_GAS",
   "ERR_OVERFLOW",
+  "ERR_LOW_BALANCE",
   "ERR_COOLDOWN",
 ] as const;
 

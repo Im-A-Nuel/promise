@@ -2,6 +2,7 @@
 //! The sandbox tests in tests/sandbox.rs cover the real token transfers (T-17, T-19).
 
 use super::*;
+use crate::constants::MIN_SPARE_BALANCE;
 use near_sdk::{Gas, PromiseOrValue, PromiseResult, VMContext};
 
 pub(super) const TUSDC: &str = "tusdc.testnet";
@@ -409,4 +410,52 @@ fn on_open_resolved_ignores_tokens_not_opening() {
 #[allow(deprecated)]
 pub(super) fn with_result(context: VMContext, result: PromiseResult) {
     near_sdk::test_utils::testing_env_with_promise_results(context, result);
+}
+
+// ---------------------------------------------------------------- low balance guard (F-1)
+
+fn low_balance_ctx(pred: &str) -> VMContextBuilder {
+    let mut b = ctx_at(pred, NOW_MS, 0, gas150());
+    b.account_balance(NearToken::from_millinear(1));
+    b
+}
+
+#[test]
+#[should_panic(expected = "ERR_LOW_BALANCE")]
+fn open_is_refused_before_any_state_change_when_the_contract_is_low_on_near() {
+    let (mut c, _h, t) = setup_open_window();
+    seal(&mut c, t, FIVE);
+    testing_env!(low_balance_ctx("ayu.testnet").build());
+    let _ = c.check_in(t);
+}
+
+#[test]
+fn a_refused_open_leaves_the_token_sealed() {
+    let (mut c, _h, t) = setup_open_window();
+    seal(&mut c, t, FIVE);
+    testing_env!(low_balance_ctx("ayu.testnet").build());
+    let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        let _ = c.open(t);
+    }));
+    assert!(result.is_err());
+    // the real runtime reverts the whole call; here we check no promise was created first
+    assert!(get_created_receipts().is_empty());
+}
+
+#[test]
+fn seal_is_handed_back_when_the_contract_is_low_on_near() {
+    let (mut c, h, t) = setup_open_window();
+    let mut b = ctx_at(TUSDC, NOW_MS, 0, Gas::from_tgas(100));
+    b.account_balance(NearToken::from_millinear(1));
+    testing_env!(b.build());
+    let r = c.ft_on_transfer(acct("budi.testnet"), U128(FIVE), seal_msg(t, None));
+    assert!(matches!(r, PromiseOrValue::Value(U128(v)) if v == FIVE));
+    assert_eq!(c.get_invitation(t).unwrap().state, InvState::Invited);
+    assert_eq!(c.get_hajat(h).unwrap().sealed_total, U128(0));
+}
+
+#[test]
+fn get_config_reports_the_spare_balance() {
+    let c = fresh();
+    assert!(c.get_config().spare_balance.0 > MIN_SPARE_BALANCE);
 }

@@ -439,3 +439,19 @@ No burn, no pause, no upgrade path. Testnet toy.
 - Card layout: SVG viewBox 360x220 using the palette in section 7. The `Opened` and `PartiallyRepaid` footer shows the released amount; `Reply` shows "Repaid N envelope(s)". Label is cut to 16 characters and the hajat title to 28, then escaped. If the result would reach 2048 bytes a minimal card with no user text is returned instead.
 - Measured: `nft_token` size and the worst case escaping case are tests (T-30). Wasm size after this phase: `amplop` 307 KB.
 - T-26 is four tests (one per seed). The mocked storage of unit tests lives per thread, so a second `Contract::new` inside one test would start on the first one's data.
+
+## 16. Pre-deploy review (self-review, not an independent audit)
+
+| ID | Finding | Status |
+| --- | --- | --- |
+| F-1 | The open callback grows storage that the contract account pays for. With a thin balance it fails after the tUSDC already moved, and the token is stuck in `Opening` with no way out. Reproduced in `sandbox_security.rs` (host received 5 tUSDC, state `Opening`). | Fixed. `start_open` requires `MIN_SPARE_BALANCE` (0.1 NEAR) of spare balance and fails with `ERR_LOW_BALANCE` before any state change. `ft_on_transfer` hands the tokens back for the same reason. `get_config().spare_balance` exposes the number so a monitor can top up. |
+| F-2 | Gas of the heaviest view. | `nft_tokens(limit 50)` burns 15 Tgas, far below the 200 Tgas view limit. No change. |
+| F-3 | The contract owner keeps the full access key of the `amplop` account, so the owner could redeploy code and move escrowed tUSDC. | Accepted for testnet and stated in the README. Optional: delete the key after the final deploy (irreversible, section 14). |
+| F-4 | The `tusdc` faucet registers each new account at the contract's cost (about 0.00125 NEAR). Many throwaway accounts can drain it. | Accepted, testnet token. Fund `tusdc` with at least 4 NEAR and top it up if the faucet stops answering. |
+| F-5 | A host can invite any account, so a victim sees an unwanted soulbound card in their wallet. The host pays the storage. | Accepted. No transfer or approval can move it, and it holds no money. |
+| F-6 | A guest can fill their own pair with 50 dust claims, after which a further gift is not recorded (`claim_skipped`). | Accepted, documented limit. Only the filling guest loses the record. |
+| F-7 | A seal adds at most about 150 bytes (note and timestamp) paid by the contract. | Accepted. A joined guest pays about three times that for the invitation itself, so this cannot drain the contract, and F-1 stops sealing when the balance is low. |
+
+Checked and found sound: `ft_on_transfer` accepts only the configured token and only the invitation owner; no method can move money to anyone but the host (open) or the token owner (refund); `Opening` and `Refunding` block seal, cancel, a second open and a second refund; callbacks are `#[private]`, never panic on a failed transfer, and are idempotent on a token that is no longer locked; settlement is bounded (10 claims, 50 per pair, 200 invitations); all counters use checked or saturating arithmetic with release overflow checks on (the only overflow found was in the card progress bar, fixed earlier).
+
+Funding rule for deploy: `amplop` needs about 3.1 NEAR just to hold its code, plus at least 0.1 NEAR spare (F-1). The runbook budget of 8 NEAR leaves enough room.

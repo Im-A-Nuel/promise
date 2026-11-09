@@ -24,12 +24,12 @@ Names assume `promisedemo.testnet` is free. If not, choose another root and set 
 | Account | Role | Funding (NEAR) |
 | --- | --- | --- |
 | `promisedemo.testnet` | root, deployer, pays for sub-accounts | from faucet |
-| `tusdc.promisedemo.testnet` | token contract | 3 |
-| `amplop.promisedemo.testnet` | main contract | 8 |
+| `tusdc.promisedemo.testnet` | token contract. Code locks about 1.7 NEAR and every new faucet user costs about 0.00125 NEAR | 4 |
+| `amplop.promisedemo.testnet` | main contract. The code alone locks about 3.1 NEAR and `ERR_LOW_BALANCE` stops openings below 0.1 NEAR spare | 8 |
 | `ayu` `budi` `citra` `dewi` `eko` `.promisedemo.testnet` | personas | 1 each |
 | `relayer.promisedemo.testnet` (P2) | pays gas for delegates | 5 |
 
-Budget: about 16 NEAR for P0, 21 with the relayer. Contract accounts need headroom because storage staking locks NEAR, and the `tusdc` faucet pays registration for new users. If the faucet gives less, fund personas with 0.5 NEAR and shrink the headroom, then top up later. Create the root through the faucet (verified):
+Budget: about 17 NEAR for P0, 22 with the relayer. Contract accounts need headroom because storage staking locks NEAR, and the `tusdc` faucet pays registration for new users. If the faucet gives less, fund personas with 0.5 NEAR and shrink the headroom, then top up later. Create the root through the faucet (verified):
 
 ```bash
 near account create-account sponsor-by-faucet-service promisedemo.testnet autogenerate-new-keypair save-to-keychain network-config testnet create
