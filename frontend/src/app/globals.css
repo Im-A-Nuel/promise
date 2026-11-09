@@ -265,3 +265,27 @@ li {
     animation: none;
   }
 }
+
+@layer components {
+  /* Text inputs, selects and text areas. */
+  .input {
+    width: 100%;
+    min-height: 48px;
+    border-radius: var(--radius-control);
+    border: 2px solid var(--color-line);
+    background: #fff;
+    padding: 0 1rem;
+    color: var(--color-ink);
+    font: inherit;
+    transition: border-color 0.12s ease;
+  }
+  .input:hover {
+    border-color: var(--color-peach);
+  }
+  .input:focus-visible {
+    border-color: var(--color-red);
+  }
+  .input[aria-invalid="true"] {
+    border-color: var(--color-red);
+  }
+}

@@ -116,3 +116,9 @@ export function getPair(giver: string, receiver: string, options?: RpcOptions): 
 export function suggestReply(hajatId: number, guest: string, options?: RpcOptions): Promise<string> {
   return view(z.string().regex(/^\d+$/), "suggest_reply", { hajat_id: hajatId, guest }, options);
 }
+
+/** Whether the account has a tUSDC storage account. Unregistered accounts cannot receive tUSDC. */
+export async function isTusdcRegistered(account: string, options?: RpcOptions): Promise<boolean> {
+  const raw = await viewCall(env.ftId, "storage_balance_of", { account_id: account }, options);
+  return raw !== null && raw !== undefined;
+}

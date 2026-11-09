@@ -7,7 +7,10 @@ import { getJson, ApiError } from "@/lib/api-client";
 import { findPersona } from "@/lib/demo/personas";
 import { useI18n } from "@/lib/i18n/client";
 import { formatDate, formatTusdc, shortAccount } from "@/lib/near/format";
-import { eventSummarySchema, eventsSchema, type Hajat } from "@/lib/near/types";
+import { canSeal } from "@/lib/near/rules";
+import { balanceSchema, eventSummarySchema, eventsSchema, type Hajat } from "@/lib/near/types";
+import { usePersona } from "@/lib/persona";
+import { CancelControl, CheckInButton, InviteForm, RefundButton, RsvpForm, SealForm } from "./event-actions";
 import { Avatar, Empty, ErrorBox, Loading, PageTitle } from "./states";
 
 function hostName(account: string): string {
@@ -22,14 +25,21 @@ function StatusChip({ status }: { status: Hajat["status"] }) {
 
 export function EventsList() {
   const { t, locale } = useI18n();
+  const { persona } = usePersona();
   const query = useQuery({ queryKey: ["events"], queryFn: () => getJson("/api/events", eventsSchema), refetchInterval: 20_000 });
 
   return (
     <>
-      <PageTitle title={t("events.title")} lead={t("events.lead")} />
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <PageTitle title={t("events.title")} lead={t("events.lead")} />
+        <Link href="/events/new" className="btn-primary">
+          {t("events.new")}
+        </Link>
+      </div>
+      {!persona && <p className="surface mb-4 px-5 py-4 text-ink-soft">{t("event.pick_account")}</p>}
       {query.isPending && <Loading label={t("events.loading")} />}
       {query.isError && <ErrorBox message={t("events.error")} onRetry={() => void query.refetch()} />}
-      {query.data && query.data.events.length === 0 && <Empty title={t("events.empty")} />}
+      {query.data && query.data.events.length === 0 && <Empty title={t("events.empty")} href="/events/new" cta={t("events.new")} />}
       {query.data && query.data.events.length > 0 && (
         <ul className="grid gap-3">
           {query.data.events.map((e) => (
@@ -59,16 +69,23 @@ export function EventsList() {
 
 export function EventDetail() {
   const { t, locale } = useI18n();
+  const { persona } = usePersona();
   const params = useParams<{ id: string }>();
   const id = Number(params.id);
   const valid = Number.isInteger(id) && id > 0;
+  const account = persona?.account_id ?? null;
 
   const query = useQuery({
-    queryKey: ["event", id],
-    queryFn: () => getJson(`/api/events/${id}`, eventSummarySchema),
+    queryKey: ["event", id, account],
+    queryFn: () => getJson(`/api/events/${id}${account ? `?viewer=${account}` : ""}`, eventSummarySchema),
     enabled: valid,
     retry: (count, error) => !(error instanceof ApiError && error.status === 404) && count < 1,
     refetchInterval: 15_000,
+  });
+  const balance = useQuery({
+    queryKey: ["balance", account],
+    queryFn: () => getJson(`/api/balance/${account}`, balanceSchema),
+    enabled: account !== null,
   });
 
   const back = (
@@ -87,51 +104,97 @@ export function EventDetail() {
     );
   }
 
+  const data = query.data;
+  const hajat = data?.hajat;
+  const isHost = hajat !== undefined && account === hajat.host;
+  const mine = data?.invitations.find((i) => i.owner === account);
+  const now = Date.now();
+  const suggested = data?.suggested_reply ? BigInt(data.suggested_reply) : 0n;
+  const tusdcBalance = balance.data ? BigInt(balance.data.tusdc) : null;
+
   return (
     <>
       {back}
       {query.isPending && <Loading label={t("event.loading")} />}
       {query.isError && <ErrorBox message={t("event.error")} onRetry={() => void query.refetch()} />}
-      {query.data && (
+      {data && hajat && (
         <>
           <div className="flex flex-wrap items-center gap-2">
-            <span className="chip">{t(`kind.${query.data.hajat.kind}`)}</span>
-            <StatusChip status={query.data.hajat.status} />
-            <span className="ml-auto text-sm text-ink-soft">{formatDate(query.data.hajat.event_at_ms, locale)}</span>
+            <span className="chip">{t(`kind.${hajat.kind}`)}</span>
+            <StatusChip status={hajat.status} />
+            {isHost && <span className="chip chip-quiet">{t("event.you_host")}</span>}
+            <span className="ml-auto text-sm text-ink-soft">{formatDate(hajat.event_at_ms, locale)}</span>
           </div>
-          <h1 className="mt-3 text-4xl sm:text-5xl">{query.data.hajat.title}</h1>
+          <h1 className="mt-3 text-4xl sm:text-5xl">{hajat.title}</h1>
           <p className="mt-2 flex items-center gap-2 text-ink-soft">
-            <Avatar name={hostName(query.data.hajat.host)} className="h-8 w-8 text-sm" />
-            {t("events.host", { host: hostName(query.data.hajat.host) })}
+            <Avatar name={hostName(hajat.host)} className="h-8 w-8 text-sm" />
+            {t("events.host", { host: hostName(hajat.host) })}
           </p>
           <p className="tabular mt-3 font-bold">
-            {t("events.invited", { count: query.data.hajat.invite_count })}
+            {t("events.invited", { count: hajat.invite_count })}
             {" · "}
-            {t("events.released", { amount: formatTusdc(query.data.hajat.released_total) })}
-            {BigInt(query.data.hajat.sealed_total) > 0n && ` · ${t("events.waiting", { amount: formatTusdc(query.data.hajat.sealed_total) })}`}
+            {t("events.released", { amount: formatTusdc(hajat.released_total) })}
+            {BigInt(hajat.sealed_total) > 0n && ` · ${t("events.waiting", { amount: formatTusdc(hajat.sealed_total) })}`}
           </p>
 
+          {!persona && (
+            <p className="surface mt-6 flex flex-wrap items-center gap-3 px-5 py-4">
+              <span className="flex-1">{t("event.pick_account")}</span>
+              <Link href="/demo" className="btn-soft">
+                {t("ledgerPage.pick_cta")}
+              </Link>
+            </p>
+          )}
+
+          {persona && isHost && hajat.status === "Open" && (
+            <section aria-label={t("event.host_tools")} className="mt-6 grid gap-4">
+              <InviteForm hajat={hajat} owners={data.invitations.map((i) => i.owner)} />
+              <CancelControl hajat={hajat} invitations={data.invitations} />
+            </section>
+          )}
+
+          {persona && !isHost && !mine && hajat.join_policy === "OpenLink" && hajat.status === "Open" && (
+            <div className="mt-6">
+              <RsvpForm hajat={hajat} defaultLabel={persona.name} />
+            </div>
+          )}
+
           <h2 className="mb-3 mt-10 text-2xl">{t("event.guests")}</h2>
-          {query.data.invitations.length === 0 ? (
+          {data.invitations.length === 0 ? (
             <p className="surface px-5 py-4 text-ink-soft">{t("event.no_guests")}</p>
           ) : (
             <ul className="grid gap-4 sm:grid-cols-2">
-              {query.data.invitations.map((inv) => {
+              {data.invitations.map((inv) => {
                 const status = t(`cardstatus.${inv.card_status}`);
                 const amount = BigInt(inv.released) > 0n ? `, ${formatTusdc(inv.released)}` : "";
+                const isMine = inv.owner === account;
                 return (
-                  <li key={inv.token_id} className="surface overflow-hidden p-3">
+                  <li key={inv.token_id} className={`surface overflow-hidden p-3 ${isMine ? "ring-[3px] ring-red/70 sm:col-span-2" : ""}`}>
                     {inv.media ? (
                       // The card is a data URI drawn by the contract, so it cannot go through next/image.
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={inv.media} alt={`${t("event.card_of", { name: inv.label })}, ${status}${amount}`} className="block h-auto w-full rounded-[20px]" />
+                      <img src={inv.media} alt={`${t("event.card_of", { name: inv.label })}, ${status}${amount}`} className={`block h-auto w-full rounded-[20px] ${isMine ? "mx-auto max-w-md" : ""}`} />
                     ) : (
                       <div aria-hidden="true" className="skeleton aspect-[360/220]" />
                     )}
                     <div className="flex items-center justify-between gap-2 px-2 pb-1 pt-3">
-                      <p className="truncate font-display text-xl">{inv.label}</p>
+                      <p className="truncate font-display text-xl">
+                        {inv.label}
+                        {isMine && <span className="ml-2 text-sm font-bold text-red-dark">{t("event.you")}</span>}
+                      </p>
                       <span className={`chip ${inv.card_status === "Repaid" || inv.card_status === "Reply" ? "chip-good" : ""}`}>{status}</span>
                     </div>
+
+                    {persona && (
+                      <div className="px-1 pb-1">
+                        {isMine && canSeal(hajat, inv, now) && <SealForm invitation={inv} suggested={suggested} balance={tusdcBalance} />}
+                        {isMine && !canSeal(hajat, inv, now) && inv.state === "Invited" && hajat.status === "Open" && (
+                          <p className="mt-3 text-sm text-ink-soft">{t("seal.closed")}</p>
+                        )}
+                        {isHost && <CheckInButton hajat={hajat} invitation={inv} />}
+                        <RefundButton hajat={hajat} invitation={inv} />
+                      </div>
+                    )}
                   </li>
                 );
               })}

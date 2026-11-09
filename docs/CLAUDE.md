@@ -71,4 +71,4 @@ docs                     all specs. Read docs/CONTRACTS.md before touching contr
 - Docs updated if behavior changed
 
 ## Current focus
-Contracts: phases 1 to 4 done (tusdc, hajat, invite, join, seal, open, cancel, refund, soulbound, ledger, SVG card). Next: first testnet deploy (needs the owner to approve a root account), then scripts/deploy.ts, seed.ts, demo.ts. Frontend: shell, landing and /demo exist; app pages (hajat, invitation, neraca, profile) and signing come after the deploy. Direction is in DESIGN.md. Priorities are in docs/ROADMAP.md.
+Contracts: phases 1 to 4 done and deployed to testnet (amplop.promisedemo.testnet, tusdc.promisedemo.testnet). Frontend: soft UI (DESIGN.md v2) with real actions: a demo persona signs in the browser (DemoSigner behind the AppSigner interface), and the event pages let a guest seal, a host invite, check in or cancel, anyone refund, and Ayu pay back what suggest_reply says. Next: QR door mode, activity feed (needs get_activity in the contract before the 13 Nov freeze), a real wallet signer. Direction is in DESIGN.md. Priorities are in docs/ROADMAP.md.

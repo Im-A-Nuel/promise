@@ -121,3 +121,15 @@ export async function blockHeight(options: RpcOptions = {}): Promise<number> {
   if (typeof height !== "number") throw new RpcUnreachableError("RPC answer has no block height");
   return height;
 }
+
+/**
+ * A transaction went through but one of its receipts reported a problem the caller must see,
+ * for example the host is not registered on tUSDC so the envelope stayed sealed.
+ * `key` is an i18n key.
+ */
+export class TxProblemError extends Error {
+  constructor(public readonly key: string) {
+    super(key);
+    this.name = "TxProblemError";
+  }
+}

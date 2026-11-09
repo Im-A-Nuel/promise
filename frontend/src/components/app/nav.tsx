@@ -84,7 +84,7 @@ export function SiteHeader() {
   const pathname = usePathname();
 
   return (
-    <header className="sticky top-0 z-30 bg-cream/95">
+    <header className="sticky top-0 z-30 bg-cream">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-2.5 sm:px-6">
         <Link href="/" className="flex min-h-[44px] items-center gap-2.5">
           <Image src="/brand/mark-128.png" width={40} height={40} alt="" priority className="h-10 w-10" />

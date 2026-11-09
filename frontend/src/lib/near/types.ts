@@ -126,5 +126,10 @@ export type EventInvitation = z.infer<typeof eventInvitationSchema>;
 export const eventSummarySchema = z.object({
   hajat: hajatSchema,
   invitations: z.array(eventInvitationSchema),
+  /** What the viewer still owes this event's host, in base units. Null when no viewer was given. */
+  suggested_reply: amount.nullable(),
 });
 export type EventSummary = z.infer<typeof eventSummarySchema>;
+
+export const balanceSchema = z.object({ tusdc: amount, registered: z.boolean() });
+export type BalanceResponse = z.infer<typeof balanceSchema>;

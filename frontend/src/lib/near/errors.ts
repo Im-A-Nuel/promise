@@ -1,4 +1,4 @@
-import { ContractMissingError, ContractPanicError, RpcUnreachableError } from "@/lib/near/provider";
+import { ContractMissingError, ContractPanicError, RpcUnreachableError, TxProblemError } from "@/lib/near/provider";
 
 /** Every ERR_* code in docs/CONTRACTS.md section 10, plus ERR_COOLDOWN from the tUSDC faucet. */
 export const ERROR_CODES = [
@@ -54,6 +54,7 @@ export interface FriendlyError {
 export function toFriendlyError(error: unknown): FriendlyError {
   if (error instanceof RpcUnreachableError) return { key: "err.rpc", code: null };
   if (error instanceof ContractMissingError) return { key: "err.not_deployed", code: null };
+  if (error instanceof TxProblemError) return { key: error.key, code: null };
 
   const message = error instanceof Error ? error.message : typeof error === "string" ? error : "";
   const code = error instanceof ContractPanicError ? error.code : extractErrorCode(message);

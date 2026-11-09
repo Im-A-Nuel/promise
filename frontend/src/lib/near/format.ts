@@ -56,3 +56,15 @@ export function formatDate(ms: number, locale: "en" | "id"): string {
     timeZone: "UTC",
   }).format(new Date(ms));
 }
+
+/** Date and time in UTC, for check-in windows. */
+export function formatDateTime(ms: number, locale: "en" | "id"): string {
+  return new Intl.DateTimeFormat(locale === "id" ? "id-ID" : "en-GB", {
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "UTC",
+    timeZoneName: "short",
+  }).format(new Date(ms));
+}

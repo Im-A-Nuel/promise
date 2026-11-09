@@ -5,6 +5,7 @@ import { useState, type ReactNode } from "react";
 import { I18nProvider } from "@/lib/i18n/client";
 import type { Locale } from "@/lib/i18n";
 import { PersonaProvider } from "@/lib/persona";
+import { TxProvider } from "@/components/app/tx-provider";
 
 export function Providers({ locale, children }: { locale: Locale; children: ReactNode }) {
   const [client] = useState(
@@ -13,7 +14,9 @@ export function Providers({ locale, children }: { locale: Locale; children: Reac
   return (
     <I18nProvider locale={locale}>
       <QueryClientProvider client={client}>
-        <PersonaProvider>{children}</PersonaProvider>
+        <PersonaProvider>
+          <TxProvider>{children}</TxProvider>
+        </PersonaProvider>
       </QueryClientProvider>
     </I18nProvider>
   );
