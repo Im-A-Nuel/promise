@@ -174,7 +174,18 @@ impl Contract {
         token.opened_at_ms = Some(env::block_timestamp_ms());
         hajat.sealed_total = U128(hajat.sealed_total.0.saturating_sub(amount.0));
         hajat.released_total = U128(hajat.released_total.0.saturating_add(amount.0));
+        let repays = self.settle(&mut token, &hajat.host);
         events::opened(hajat.id, token_id, &hajat.host, &token.owner, amount.0);
+        for (older_id, paid) in repays {
+            events::repaid(
+                hajat.id,
+                token_id,
+                older_id,
+                &token.owner,
+                &hajat.host,
+                paid,
+            );
+        }
         self.tokens.insert(token_id, token);
         self.hajats.insert(hajat.id, hajat);
         true
@@ -203,7 +214,7 @@ impl Contract {
             .ft_transfer(hajat.host, amount, Some("amplop".to_string()))
             .then(
                 Self::ext(env::current_account_id())
-                    .with_static_gas(GAS_CALLBACK)
+                    .with_static_gas(GAS_CALLBACK_OPEN)
                     .on_open_resolved(token_id, amount),
             )
     }

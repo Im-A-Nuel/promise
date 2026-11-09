@@ -1,7 +1,7 @@
 //! NEP-171 (core views, transfers disabled) and NEP-177 (metadata) for invitations.
 //!
 //! Invitations are soulbound: `nft_transfer` and `nft_transfer_call` always panic.
-//! Approvals are not implemented. The `media` card is added with the SVG renderer.
+//! Approvals are not implemented. `media` is the card drawn by `svg.rs` on every call.
 
 use crate::constants::*;
 use crate::errors::*;
@@ -88,7 +88,7 @@ impl Contract {
             metadata: TokenMetadata {
                 title: format!("Invitation #{}: {}", inv.token_id, title),
                 description: describe(status, inv),
-                media: None,
+                media: Some(crate::svg::data_uri(inv, hajat)),
                 issued_at: Some(inv.created_at_ms.to_string()),
                 reference: Some(format!("{}/api/nft/{}", self.app_url, inv.token_id)),
                 extra: Some(extra),

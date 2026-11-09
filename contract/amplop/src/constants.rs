@@ -27,3 +27,7 @@ pub const MIN_GAS_OPEN: Gas = Gas::from_tgas(120);
 /// 30 days after `event_at`, an owner may pull a still-sealed envelope back.
 pub const ABANDON_MS: u64 = 2_592_000_000;
 pub const MIN_GAS_REFUND: Gas = Gas::from_tgas(80);
+/// Callback of `open` settles up to `MAX_SETTLE` claims, so it needs more than a plain callback.
+pub const GAS_CALLBACK_OPEN: Gas = Gas::from_tgas(60);
+pub const MAX_SETTLE: usize = 10;
+pub const MAX_PAIR_OPEN: usize = 50;

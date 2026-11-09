@@ -169,3 +169,47 @@ pub fn refund_failed(hajat_id: u64, token_id: u64, owner: &AccountId, amount: u1
         }),
     );
 }
+
+pub fn repaid(
+    hajat_id: u64,
+    token_id: u64,
+    older_token_id: u64,
+    giver: &AccountId,
+    receiver: &AccountId,
+    amount: u128,
+) {
+    emit(
+        STANDARD,
+        VERSION,
+        "repaid",
+        json!({
+            "hajat_id": hajat_id.to_string(),
+            "token_id": token_id.to_string(),
+            "older_token_id": older_token_id.to_string(),
+            "giver": giver,
+            "receiver": receiver,
+            "amount": amount.to_string(),
+        }),
+    );
+}
+
+pub fn claim_skipped(
+    hajat_id: u64,
+    token_id: u64,
+    giver: &AccountId,
+    receiver: &AccountId,
+    amount: u128,
+) {
+    emit(
+        STANDARD,
+        VERSION,
+        "claim_skipped",
+        json!({
+            "hajat_id": hajat_id.to_string(),
+            "token_id": token_id.to_string(),
+            "giver": giver,
+            "receiver": receiver,
+            "amount": amount.to_string(),
+        }),
+    );
+}

@@ -34,7 +34,8 @@ Snippets below show shape, not final code. near-sdk 5.x APIs: `#[near(contract_s
 | `ABANDON_MS` | 2_592_000_000 | 30 days after `event_at`, owner may refund a still-sealed envelope |
 | `MAX_EVENT_AHEAD_MS` | 31_536_000_000 | event date at most 365 days ahead |
 | `GAS_FT_TRANSFER` | 30 Tgas | |
-| `GAS_CALLBACK` | 25 Tgas | |
+| `GAS_CALLBACK` | 25 Tgas | callbacks of `refund` |
+| `GAS_CALLBACK_OPEN` | 60 Tgas | `on_open_resolved`, which also settles up to `MAX_SETTLE` claims. A callback that runs out of gas would leave the token in `Opening`, so this is deliberately generous (measured: the whole `check_in` with 10 repayments burns 12 Tgas) |
 | `MIN_GAS_OPEN` | 120 Tgas | `check_in`, `open` assert `prepaid_gas` at least this |
 | `MIN_GAS_REFUND` | 80 Tgas | |
 
@@ -56,9 +57,9 @@ pub struct Contract {
     owner_tokens: LookupMap<(AccountId, u32), u64>,
     host_count: LookupMap<AccountId, u32>,
     host_hajats: LookupMap<(AccountId, u32), u64>,
-    pairs: LookupMap<String, PairLedger>,          // key "giver|receiver"
-    owed_to: LookupMap<AccountId, IterableSet<AccountId>>,  // giver -> receivers with remaining > 0
-    owes: LookupMap<AccountId, IterableSet<AccountId>>,     // receiver -> givers with remaining > 0
+    pairs: LookupMap<(AccountId, AccountId), PairLedger>,  // key (giver, receiver): what the receiver owes the giver
+    owed_to: PairIndex,   // giver -> receivers that owe them. Three flat maps (len, items, position), O(1) add and remove
+    owes: PairIndex,      // receiver -> givers they owe
     activity: Vector<ActivityEntry>,
 }
 
@@ -175,7 +176,7 @@ Behavior notes for the implemented writes:
 - `cancel_hajat` loops over the hajat's tokens (at most 200) and refuses with `ERR_HAS_OPENED` if any is `Opened` or `Opening`. It moves no money; guests (or anyone) then call `refund`.
 - `refund` needs `prepaid_gas >= MIN_GAS_REFUND` and sends the tokens to the owner. `on_refund_resolved` never panics either; a failed transfer puts the token back to `Sealed` so the refund can be retried.
 - `nft_transfer` and `nft_transfer_call` are `#[payable]` so a standard wallet call with 1 yoctoNEAR reaches `ERR_SOULBOUND`.
-- `nft_token(token_id)` takes the id as a string and returns `None` for an unknown or malformed id. Until the SVG renderer lands, `metadata.media` is `null`. The amount is only in `extra` once the envelope is `Opened`.
+- `nft_token(token_id)` takes the id as a string and returns `None` for an unknown or malformed id. `metadata.media` is the card from `svg.rs` as a base64 data URI, built on every call. The amount is only in `extra` and on the card once the envelope is `Opened`.
 - `nft_tokens` and `nft_tokens_for_owner` take `from_index` and `limit` (capped at 50).
 - The contract pays for the bytes a seal adds (the note and `sealed_at_ms`, at most about 150 bytes per token), because `ft_on_transfer` cannot receive a deposit. Keep the contract account funded as described in section 11.
 
@@ -337,7 +338,7 @@ On-chain log: `ActivityEntry { idx: u32, at_ms: u64, kind: String, hajat_id: u64
 | `get_invitations(hajat_id, from, limit)` | `Vec<InvitationView>` (token plus `card_status`) |
 | `get_invitation(token_id)` | `Option<InvitationView>` |
 | `get_invitation_for(hajat_id, account)` | `Option<InvitationView>` |
-| `get_ledger(account_id)` | `{ owed_to_me: Vec<LedgerRow>, i_owe: Vec<LedgerRow> }` |
+| `get_ledger(account_id, from?, limit?)` | `{ owed_to_me: Vec<LedgerRow>, i_owe: Vec<LedgerRow> }`. `from` and `limit` page each list separately (limit max 50) |
 | `get_pair(giver, receiver)` | `{ remaining: U128, open: Vec<U64> }` |
 | `suggest_reply(hajat_id, guest)` | `U128`, equals `get_pair(host_of_hajat, guest).remaining` |
 | `get_activity(from, limit)` | `Vec<ActivityEntry>` |
@@ -427,3 +428,14 @@ No burn, no pause, no upgrade path. Testnet toy.
 - Build with `cargo near build non-reproducible-wasm` during development. Final submission build can be reproducible if Docker is available, but this is optional.
 - State is not migrated. A redeploy during the hackathon means re-running `seed.ts`. Freeze the contract on 2026-11-13 and do not touch it after.
 - After the final deploy, deleting the full access key of `amplop` is optional and irreversible. Only do it if you are sure no further deploys are needed.
+
+## 15. Notes from implementing the ledger and the card
+
+- Settlement runs in `on_open_resolved` after the FT transfer succeeded. A failed transfer leaves the ledger untouched (sandbox test `host_not_registered_leaves_the_ledger_untouched`).
+- The contract account pays for the ledger bytes, because a callback cannot receive a deposit. This is at most one pair entry, two index entries and the changes to older tokens per opening. Keep the contract account funded as in section 11.
+- A claim that cannot be added because the pair already has `MAX_PAIR_OPEN` open claims is not recorded. The card of that token then stays `Opened` and is never repaid. This is the documented limit; the `claim_skipped` event marks it.
+- `repaid` event data: `hajat_id`, `token_id` (the new token), `older_token_id`, `giver`, `receiver`, `amount`.
+- Both directions of a pair can hold claims at the same time. When a reply is larger than `MAX_SETTLE` claims can absorb, the old pair keeps its remainder and the leftover credit opens the opposite pair (unit test T-25).
+- Card layout: SVG viewBox 360x220 using the palette in section 7. The `Opened` and `PartiallyRepaid` footer shows the released amount; `Reply` shows "Repaid N envelope(s)". Label is cut to 16 characters and the hajat title to 28, then escaped. If the result would reach 2048 bytes a minimal card with no user text is returned instead.
+- Measured: `nft_token` size and the worst case escaping case are tests (T-30). Wasm size after this phase: `amplop` 307 KB.
+- T-26 is four tests (one per seed). The mocked storage of unit tests lives per thread, so a second `Contract::new` inside one test would start on the first one's data.

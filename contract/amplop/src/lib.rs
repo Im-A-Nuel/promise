@@ -5,8 +5,10 @@ mod errors;
 mod escrow;
 mod events;
 mod hajat;
+mod ledger;
 mod nft;
 mod refund;
+mod svg;
 mod types;
 mod views;
 
@@ -15,6 +17,7 @@ mod tests;
 
 use constants::*;
 use errors::*;
+use ledger::{PairIndex, PairLedger};
 use near_sdk::borsh::BorshSerialize;
 use near_sdk::json_types::U128;
 use near_sdk::store::LookupMap;
@@ -34,6 +37,13 @@ enum StorageKey {
     OwnerTokens,
     HostCount,
     HostHajats,
+    Pairs,
+    OwedLen,
+    OwedItems,
+    OwedPos,
+    OwesLen,
+    OwesItems,
+    OwesPos,
 }
 
 /// All collections are flat maps (no nested collections) so storage usage can be
@@ -59,6 +69,12 @@ pub struct Contract {
     owner_tokens: LookupMap<(AccountId, u32), u64>,
     host_count: LookupMap<AccountId, u32>,
     host_hajats: LookupMap<(AccountId, u32), u64>,
+    /// key (giver, receiver): what the receiver owes the giver
+    pairs: LookupMap<(AccountId, AccountId), PairLedger>,
+    /// giver -> receivers that owe them
+    owed_to: PairIndex,
+    /// receiver -> givers they owe
+    owes: PairIndex,
 }
 
 #[near]
@@ -81,6 +97,17 @@ impl Contract {
             owner_tokens: LookupMap::new(StorageKey::OwnerTokens),
             host_count: LookupMap::new(StorageKey::HostCount),
             host_hajats: LookupMap::new(StorageKey::HostHajats),
+            pairs: LookupMap::new(StorageKey::Pairs),
+            owed_to: PairIndex::new(
+                StorageKey::OwedLen,
+                StorageKey::OwedItems,
+                StorageKey::OwedPos,
+            ),
+            owes: PairIndex::new(
+                StorageKey::OwesLen,
+                StorageKey::OwesItems,
+                StorageKey::OwesPos,
+            ),
         }
     }
 
@@ -164,6 +191,9 @@ impl Contract {
         self.owner_tokens.flush();
         self.host_count.flush();
         self.host_hajats.flush();
+        self.pairs.flush();
+        self.owed_to.flush();
+        self.owes.flush();
     }
 
     /// Requires the attached deposit to cover the bytes added since `start_usage`
