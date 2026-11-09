@@ -9,6 +9,7 @@
   },
   "scripts": {
     "deploy:testnet": "tsx src/deploy.ts",
+    "rotate-key": "tsx src/rotate-key.ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },

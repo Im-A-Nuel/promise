@@ -61,15 +61,20 @@ export function credentialDirs(env: NodeJS.ProcessEnv, platform: NodeJS.Platform
   return dirs;
 }
 
-export function loadRootKey(account: string, env: NodeJS.ProcessEnv = process.env): RootKey {
+/** Path of the key file for `account` and the folder that holds it. */
+export function locateKeyFile(account: string, env: NodeJS.ProcessEnv = process.env): { file: string; dir: string } {
   const tried: string[] = [];
   for (const dir of credentialDirs(env, process.platform)) {
     const file = join(dir, `${account}.json`);
     tried.push(file);
-    if (existsSync(file)) return parseCredentialFile(readFileSync(file, "utf8"), account);
+    if (existsSync(file)) return { file, dir };
   }
   throw new Error(
     `No key file for ${account}. Looked in:\n  ${tried.join("\n  ")}\n` +
       "Set NEAR_CREDENTIALS_DIR to the folder that holds the .json file.",
   );
+}
+
+export function loadRootKey(account: string, env: NodeJS.ProcessEnv = process.env): RootKey {
+  return parseCredentialFile(readFileSync(locateKeyFile(account, env).file, "utf8"), account);
 }

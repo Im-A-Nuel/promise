@@ -41,9 +41,9 @@ Prefer the terminal? `pnpm demo` runs the same story against testnet and prints 
 
 | Item | Value |
 | --- | --- |
-| Main contract | `TODO(deploy): amplop.promisedemo.testnet` |
-| Token (tUSDC) | `TODO(deploy): tusdc.promisedemo.testnet` |
-| Explorer | `https://testnet.nearblocks.io/address/TODO(deploy)` |
+| Main contract | `amplop.promisedemo.testnet` |
+| Token (tUSDC) | `tusdc.promisedemo.testnet` |
+| Explorer | `https://testnet.nearblocks.io/address/amplop.promisedemo.testnet` |
 | Seed transactions | `TODO(deploy): list in docs/DEMO.md` |
 
 Read the state yourself, no UI needed:
