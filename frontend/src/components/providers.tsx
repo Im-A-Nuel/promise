@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState, type ReactNode } from "react";
 import { I18nProvider } from "@/lib/i18n/client";
 import type { Locale } from "@/lib/i18n";
+import { PersonaProvider } from "@/lib/persona";
 
 export function Providers({ locale, children }: { locale: Locale; children: ReactNode }) {
   const [client] = useState(
@@ -11,7 +12,9 @@ export function Providers({ locale, children }: { locale: Locale; children: Reac
   );
   return (
     <I18nProvider locale={locale}>
-      <QueryClientProvider client={client}>{children}</QueryClientProvider>
+      <QueryClientProvider client={client}>
+        <PersonaProvider>{children}</PersonaProvider>
+      </QueryClientProvider>
     </I18nProvider>
   );
 }

@@ -12,6 +12,8 @@ Last updated: 2026-11-09. Next.js 15 App Router, TypeScript strict, Tailwind CSS
 
 ## 2. Design tokens
 
+> Superseded by `DESIGN.md` version 2: soft and cute, Pao the envelope character, Fredoka and Nunito, a cream glow. The tokens and routes in this file describe the first version. Current routes: `/`, `/ledger`, `/events`, `/events/[id]` and `/demo` (accounts), with `/api/events`, `/api/events/[id]`, `/api/ledger/[account]` and `/api/health`.
+
 Warm paper, red envelope, gold trim. Different from generic crypto dashboards on purpose.
 
 | Token | Value | Use |

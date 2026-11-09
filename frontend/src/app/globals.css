@@ -1,22 +1,30 @@
 @import "tailwindcss";
 
-/* Tokens from DESIGN.md. Gold is decoration only: 2.3:1 on paper, never used for text. */
+/* Tokens from DESIGN.md (version 2). Gold is decoration only: 2.3:1 on cream, never text. */
 @theme {
-  --color-paper: #fbf7f0;
-  --color-paper-deep: #f3ebdd;
+  --color-cream: #fff8f1;
+  --color-blush: #ffe9e3;
+  --color-peach: #ffd8c7;
   --color-ink: #3a2a1a;
   --color-ink-soft: #6b5a48;
   --color-red: #9b1c1c;
+  --color-red-bright: #d8453b;
   --color-red-dark: #7a1414;
   --color-gold: #c9a227;
+  --color-gold-soft: #f6dc84;
+  --color-mint: #dff3e4;
   --color-green: #2f6b3f;
-  --color-line: #e6dccb;
+  --color-line: #f0ddd0;
 
-  --font-display: var(--font-fraunces), Georgia, "Times New Roman", serif;
-  --font-sans: var(--font-inter), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: var(--font-fredoka), "Trebuchet MS", system-ui, sans-serif;
+  --font-sans: var(--font-nunito), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-note: var(--font-caveat), "Comic Sans MS", cursive;
 
-  --radius-card: 16px;
-  --radius-input: 12px;
+  --radius-card: 28px;
+  --radius-control: 18px;
+
+  --shadow-soft: 0 18px 40px -22px rgb(155 28 28 / 0.35), 0 2px 6px -2px rgb(122 20 20 / 0.08);
+  --shadow-float: 0 20px 50px -18px rgb(122 20 20 / 0.35), 0 4px 14px -6px rgb(122 20 20 / 0.12);
 }
 
 :root {
@@ -28,8 +36,15 @@ html {
   scroll-padding-top: 5rem;
 }
 
+/* The page glow: three soft radial gradients behind everything. Calm and low contrast on purpose. */
 body {
-  background: var(--color-paper);
+  min-height: 100vh;
+  background-color: var(--color-cream);
+  background-image:
+    radial-gradient(900px 620px at 12% -8%, #ffe2d6 0%, transparent 62%),
+    radial-gradient(800px 600px at 100% 8%, #ffe8f0 0%, transparent 58%),
+    radial-gradient(760px 540px at 55% 108%, #ffefd6 0%, transparent 62%);
+  background-attachment: fixed;
   color: var(--color-ink);
   font-family: var(--font-sans);
   font-size: 1rem;
@@ -43,7 +58,7 @@ h2,
 h3 {
   font-family: var(--font-display);
   font-weight: 600;
-  line-height: 1.12;
+  line-height: 1.1;
   letter-spacing: -0.012em;
   text-wrap: balance;
 }
@@ -53,21 +68,184 @@ li {
   text-wrap: pretty;
 }
 
-/* Money lines up in columns. */
 .tabular {
   font-variant-numeric: tabular-nums;
 }
 
-/* Visible focus for keyboard users on every interactive element. */
 :focus-visible {
   outline: 3px solid var(--color-red-dark);
   outline-offset: 3px;
-  border-radius: 4px;
+  border-radius: 10px;
 }
 
 ::selection {
-  background: var(--color-gold);
+  background: var(--color-gold-soft);
   color: var(--color-ink);
+}
+
+@layer components {
+  /* A soft white card. Depth comes from the colored shadow, not from a border. */
+  .surface {
+    background: rgb(255 255 255 / 0.82);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+  }
+
+  /* Backdrop blur is used on exactly two things: this class (status pill, tab bar) and nothing else. */
+  .glass {
+    background: rgb(255 255 255 / 0.72);
+    -webkit-backdrop-filter: blur(14px) saturate(1.2);
+    backdrop-filter: blur(14px) saturate(1.2);
+    box-shadow: var(--shadow-float);
+  }
+
+  /* The one chunky element on a screen. */
+  .btn-primary {
+    display: inline-flex;
+    min-height: 52px;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: var(--radius-control);
+    padding: 0 1.6rem;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.05rem;
+    color: #fff;
+    background: linear-gradient(180deg, var(--color-red-bright) 0%, var(--color-red) 70%);
+    box-shadow:
+      inset 0 2px 0 rgb(255 255 255 / 0.28),
+      inset 0 -3px 0 rgb(0 0 0 / 0.12),
+      0 14px 24px -12px rgb(155 28 28 / 0.7);
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+  }
+  .btn-primary:hover {
+    background: linear-gradient(180deg, #e2564c 0%, #a61f1f 70%);
+  }
+  .btn-primary:active {
+    transform: translateY(1px);
+    box-shadow:
+      inset 0 2px 0 rgb(255 255 255 / 0.2),
+      0 6px 12px -8px rgb(155 28 28 / 0.7);
+  }
+
+  .btn-soft {
+    display: inline-flex;
+    min-height: 48px;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-control);
+    padding: 0 1.25rem;
+    font-weight: 700;
+    color: var(--color-red-dark);
+    background: var(--color-blush);
+    transition: background 0.12s ease;
+  }
+  .btn-soft:hover {
+    background: var(--color-peach);
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: 30px;
+    border-radius: 999px;
+    padding: 0 0.8rem;
+    font-size: 0.8rem;
+    font-weight: 800;
+    background: var(--color-blush);
+    color: var(--color-red-dark);
+  }
+  .chip-good {
+    background: var(--color-mint);
+    color: var(--color-green);
+  }
+  .chip-quiet {
+    background: #f1e9e2;
+    color: var(--color-ink-soft);
+  }
+
+  .note {
+    font-family: var(--font-note);
+    font-size: 1.3rem;
+    line-height: 1.1;
+    color: var(--color-red-dark);
+  }
+
+  .skeleton {
+    border-radius: 18px;
+    background: linear-gradient(90deg, #fbe9e2 0%, #fff3ee 50%, #fbe9e2 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.6s ease-in-out infinite;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Pao: a gentle float and a blink. These are the only looping animations in the app. */
+@keyframes pao-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes pao-blink {
+  0%,
+  92%,
+  100% {
+    transform: scaleY(1);
+  }
+  95% {
+    transform: scaleY(0.1);
+  }
+}
+
+@keyframes sparkle {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.pao-float {
+  animation: pao-float 4.6s ease-in-out infinite;
+}
+
+.pao-blink {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: pao-blink 5.2s ease-in-out infinite;
+}
+
+.sparkle {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sparkle 3.2s ease-in-out infinite;
+}
+
+/* Hide the horizontal scrollbar of the carousel but keep it scrollable. */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -81,20 +259,9 @@ li {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-}
-
-/* One card state replaces the previous one. Fade in only: there is no exit animation to get stuck. */
-@keyframes card-in {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
+  .pao-float,
+  .pao-blink,
+  .sparkle {
+    animation: none;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.card-in {
-  animation: card-in 0.22s ease-out both;
 }

@@ -1,69 +1,78 @@
 # DESIGN.md
 
-Visual direction for Promise. Source: the owner's tokens in `docs/FRONTEND.md` section 2. This file adds the reasons (antislop R-31) and the dials. It does not change the direction.
+Visual direction for Promise. Version 2, replacing the flat paper direction. The owner asked for a soft, cute, app-like feel in the style of a calm onboarding screen: pastel glow, a friendly character, big rounded shapes, dots for a carousel and a floating tab bar. The brand colors stay the same (red envelope, gold seal, cream paper).
 
 ## Reading
 
-Reading this as: a consumer web app and story page for families around the world who already know the wedding envelope tradition (angpao, hongbao, amplop), in a warm paper-and-ink visual language, dial **ENERGY 2 / RHYTHM 3 / MOTION 2**.
+Reading this as: a consumer app and story site for anyone who knows the wedding red envelope tradition (angpao, hongbao, amplop), international, English first with an Indonesian option, in a soft and playful 3D-pastel style, dial **ENERGY 2 / RHYTHM 2 / MOTION 2**.
 
 ## Identity
 
-Promise is a guest book that cannot be edited. Everything should feel like paper, ink, a red envelope and a gold seal, and not like a crypto dashboard.
+Promise feels like a warm gift, not a finance tool. The one motif is **Pao**, a small red envelope character with a gold seal that doubles as its button nose. Pao changes mood with the state of the card:
 
-**Motif (one, repeated):** the envelope with a gold wax seal. It is the product object (the NFT card), so it appears as the hero, as the state strip, and as the small mark beside the wordmark. A ruled guest-book line is a supporting rule, used only where the ledger is shown.
+| State | Pao |
+| --- | --- |
+| Invited | flap open, looking up, waiting |
+| Sealed | flap shut with the gold seal, eyes closed in a content smile |
+| Opened | flap open, a gold coin pops out, big smile |
+| Repaid | green check badge, happy eyes, sparkles |
+
+Pao appears in the hero, in empty states and on the account screens. The real invitation card, drawn by the contract, is never replaced by Pao: it is shown as it is.
+
+The app icon is the glossy red squircle envelope with a gold seal (`design/`). It is the favicon and the header mark.
 
 ## Palette
 
-Core: ink and paper (neutrals), red (core). Accent: gold. Green is semantic (a repaid state), never decoration.
-
 | Token | Value | Use | Reason |
 | --- | --- | --- | --- |
-| `--paper` | `#FBF7F0` | page background | The page is the guest book page |
-| `--paper-deep` | `#F3EBDD` | raised panels, table bands | One step darker than paper, replaces shadows for grouping |
-| `--ink` | `#3A2A1A` | body text | 12.9:1 on paper |
-| `--ink-soft` | `#6B5A48` | secondary text | 6.2:1 on paper (5.6:1 on paper-deep) |
-| `--red` | `#9B1C1C` | primary action, envelope | 7.6:1 on paper, 8.2:1 for white on red |
-| `--red-dark` | `#7A1414` | pressed, focus ring, flap | 10.2:1 on paper |
-| `--gold` | `#C9A227` | seal, coin, rules | 2.3:1 on paper, so it is never used for text |
-| `--green` | `#2F6B3F` | Repaid only | 6.0:1 on paper |
-| `--line` | `#E6DCCB` | borders, ruled lines | decorative, no text on it |
+| `--cream` | `#FFF8F1` | page | Warm paper, the base of the glow |
+| `--blush` | `#FFE9E3` | soft panels, active tab | Gentle second layer |
+| `--peach` | `#FFD8C7` | glow, illustration | Warmth behind Pao |
+| `--ink` | `#3A2A1A` | text | High contrast on cream |
+| `--ink-soft` | `#6B5A48` | secondary text | Readable small text |
+| `--red` | `#9B1C1C` | actions, Pao | The envelope |
+| `--red-bright` | `#D8453B` | Pao highlights | Soft 3D light side |
+| `--red-dark` | `#7A1414` | pressed, focus | Shadow side |
+| `--gold` | `#C9A227` | seal, coin | Decoration only, never text |
+| `--gold-soft` | `#F6DC84` | sparkles | Light accent |
+| `--mint` | `#DFF3E4` | repaid chip | Calm success |
+| `--green` | `#2F6B3F` | repaid text and badge | Success |
+| `--line` | `#F0DDD0` | borders | Warm hairline |
 
-Single light theme. Reason: the identity is paper. A dark theme would need a second identity, so no theme toggle is shipped (R-21, R-34).
+One light theme. A theme toggle is not shipped, because the cream glow is the identity.
 
-## Typography
+## Type
 
-- Headings: **Fraunces**, because its soft serif forms read as printed invitation lettering and carry the wedding tradition without script-font clichés.
-- Body and UI: **Inter**, because the door check-in is used on a phone in bad light, and Inter has tabular figures for the tUSDC amounts (`font-variant-numeric: tabular-nums`) so columns of money line up. Chosen by the owner in `FRONTEND.md`; this is the reason.
-- Body 16px, line height 1.55. Headings tight at 1.1 to 1.2.
-- No wide-tracked uppercase labels. The only uppercase is the status stamp on the card, which mirrors a postmark and is drawn by the contract.
+- Headings: **Fredoka**, a rounded friendly sans that matches the soft shapes.
+- Body and UI: **Nunito**, rounded terminals, readable on a phone, tabular figures available for amounts.
+- Notes: **Caveat**, only for the short handwritten notes next to Pao (one line, one place per screen).
+- Body 16 px, line height 1.55.
 
 ## Shape and depth
 
-- Radius: 16px cards, 12px inputs and buttons, 4px for status stamps. Stamps are rectangular on purpose (postmark), so not everything is a pill.
-- Shadow: only on the envelope card, because it is an object lying on the paper. Panels group with `--paper-deep` and a 1px `--line` border, not shadow.
-- No glass, no glow, no gradients, no grid backgrounds.
+- Cards and panels 28 px radius, inputs and buttons 18 px, chips and the tab bar fully round. Round everything softly, but keep hierarchy: the primary button is the only chunky red element on a screen.
+- Depth comes from soft colored shadows and inner highlights, not from borders. Backdrop blur is used on exactly two things: the floating tab bar and the status pill.
+- The page glow is three soft radial gradients (peach, blush, cream gold) behind everything. It is the one place gradients cover a whole surface, and it is the brand mood, so it stays calm and low contrast.
 
-## Layout and rhythm (RHYTHM 3)
+## Layout
 
-Each section has its own composition because each carries different content:
+- Mobile first, 390 px. Order on the home screen: status pill, headline, line of copy, the card carousel scene with dots, the primary button, then the story sections.
+- A floating tab bar at the bottom on phones: Home, Ledger, Events, Accounts. On desktop the same four links sit in the header.
+- Desktop (from 768 px): the headline and button on the left, the carousel scene on the right in a larger rounded stage. Story sections alternate between a text column and a card column.
+- Each section has its own composition (RHYTHM 2): the problem is a single warm note card, the states are a carousel on mobile and a row on desktop, the ledger is a soft table card, the limits are plain text.
 
-1. Hero: asymmetric, headline left, the card right, overlapping the fold.
-2. The problem: a single narrow text column beside a wide empty margin, set like a book page.
-3. States: four cards staggered vertically (they are a sequence, not a feature grid).
-4. Ledger: a ruled table, the only place the guest-book lines appear.
-5. Limits: plain list, no cards, no icons.
+## Motion
 
-## Motion (MOTION 2)
-
-- The hero card plays its four states once on load and rests on Repaid. A "Replay" text button repeats it. No loops.
-- States cards and ledger rows reveal once on scroll (8px, 250ms).
-- Everything respects `prefers-reduced-motion`: the hero shows the final state, no reveals.
+- Pao floats gently and blinks every few seconds. Nothing else loops.
+- The carousel scrolls with snap. Cards rise 8 px once on scroll into view.
+- `prefers-reduced-motion`: no float, no blink, no smooth scrolling, no rise.
 
 ## Voice
 
-Plain, specific, no marketing words. Amounts always with the unit (`5.00 tUSDC`). No em dashes. The Indonesian dictionary is an option, written for the same reader and not translated word for word. English is the default.
+Friendly, plain, specific. Amounts always with the unit (`5.00 tUSDC`). No em dashes. No emoji in the interface; Pao and the sparkles carry the charm. English first. "Event" in every user-facing text, even though the contract calls it a hajat.
 
-## What we do not have yet (honest placeholders)
+## Honest placeholders
 
-- Logo: the wordmark "Promise" set in Fraunces, plus the envelope mark drawn from the card. Placeholder until the owner supplies a logo.
-- No testimonials, statistics, partner logos or FAQ, because none are real.
+- Pao is the character, not a logo. The icon is the logo mark.
+- No testimonials, statistics, partner logos or FAQ.
+- The four cards on the home page are drawings of the states. Real cards, drawn by the contract, appear on the event pages.

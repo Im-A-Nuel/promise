@@ -17,7 +17,7 @@ export function LocaleSwitch() {
   }
 
   return (
-    <div role="group" aria-label={t("locale.label")} className="flex items-center rounded-input border border-line">
+    <div role="group" aria-label={t("locale.label")} className="flex items-center rounded-full bg-blush p-0.5">
       {LOCALES.map((code) => (
         <button
           key={code}
@@ -26,8 +26,8 @@ export function LocaleSwitch() {
           aria-pressed={code === locale}
           aria-label={t(`locale.${code}`)}
           onClick={() => choose(code)}
-          className={`min-h-[44px] min-w-[44px] px-3 text-sm font-semibold first:rounded-l-[11px] last:rounded-r-[11px] ${
-            code === locale ? "bg-ink text-paper" : "text-ink-soft hover:bg-paper-deep hover:text-ink"
+          className={`min-h-[44px] min-w-[44px] rounded-full px-2 text-sm font-extrabold ${
+            code === locale ? "bg-red text-white shadow-soft" : "text-red-dark hover:bg-white/60"
           }`}
         >
           {SHORT[code]}

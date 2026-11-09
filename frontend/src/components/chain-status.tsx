@@ -1,59 +1,41 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { StatusPill } from "@/components/app/status-pill";
 import { useI18n } from "@/lib/i18n/client";
 import { explorerAccountUrl } from "@/lib/near/format";
-import { healthSchema, type Health } from "@/lib/near/types";
+import { useHealth } from "@/lib/use-health";
 
-async function fetchHealth(): Promise<Health> {
-  const res = await fetch("/api/health", { cache: "no-store" });
-  if (!res.ok) throw new Error(`health ${res.status}`);
-  return healthSchema.parse(await res.json());
-}
-
-/** Shows whether testnet answers and whether the Promise contracts exist there. */
+/** Whether testnet answers and where the Promise contracts live. */
 export function ChainStatus() {
   const { t } = useI18n();
-  const { data, isPending, isError, refetch, isFetching } = useQuery({ queryKey: ["health"], queryFn: fetchHealth });
+  const { data, isError, refetch, isFetching } = useHealth();
 
   return (
-    <section aria-live="polite" className="rounded-card border border-line bg-paper-deep p-5">
-      {isPending && <p className="text-ink-soft">{t("chain.checking")}</p>}
-
+    <section className="surface p-5">
+      <StatusPill />
       {isError && (
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-          <p>{t("chain.unreachable")}</p>
-          <button
-            type="button"
-            onClick={() => void refetch()}
-            disabled={isFetching}
-            className="min-h-[44px] rounded-input border border-ink px-4 text-sm font-semibold hover:bg-paper disabled:opacity-60"
-          >
-            {t("chain.retry")}
-          </button>
-        </div>
+        <button type="button" onClick={() => void refetch()} disabled={isFetching} className="btn-soft ml-3 disabled:opacity-60">
+          {t("chain.retry")}
+        </button>
       )}
-
-      {data && !data.deployed && <p>{t("chain.not_deployed")}</p>}
-
+      {data && !data.deployed && <p className="mt-3">{t("chain.not_deployed")}</p>}
       {data?.deployed && (
-        <div>
-          <p>{t("chain.ok", { height: data.block_height })}</p>
-          <dl className="mt-3 grid gap-x-8 gap-y-1 text-sm sm:grid-cols-[auto_1fr]">
-            <dt className="text-ink-soft">{t("chain.amplop")}</dt>
-            <dd>
-              <a className="break-all underline underline-offset-4" href={explorerAccountUrl(data.amplop)}>
-                {data.amplop}
-              </a>
-            </dd>
-            <dt className="text-ink-soft">{t("chain.ft")}</dt>
-            <dd>
-              <a className="break-all underline underline-offset-4" href={explorerAccountUrl(data.ft)}>
-                {data.ft}
-              </a>
-            </dd>
-          </dl>
-        </div>
+        <dl className="mt-4 grid gap-x-6 gap-y-1 text-sm sm:grid-cols-[auto_1fr]">
+          <dt className="text-ink-soft">{t("chain.block")}</dt>
+          <dd className="tabular">{data.block_height}</dd>
+          <dt className="text-ink-soft">{t("chain.amplop")}</dt>
+          <dd>
+            <a className="break-all underline underline-offset-4" href={explorerAccountUrl(data.amplop)}>
+              {data.amplop}
+            </a>
+          </dd>
+          <dt className="text-ink-soft">{t("chain.ft")}</dt>
+          <dd>
+            <a className="break-all underline underline-offset-4" href={explorerAccountUrl(data.ft)}>
+              {data.ft}
+            </a>
+          </dd>
+        </dl>
       )}
     </section>
   );

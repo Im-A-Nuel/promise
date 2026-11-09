@@ -1,81 +1,59 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { personas, findPersona } from "@/lib/demo/personas";
+import Link from "next/link";
+import { Avatar } from "@/components/app/states";
+import { personas } from "@/lib/demo/personas";
 import { useI18n } from "@/lib/i18n/client";
 import { explorerAccountUrl } from "@/lib/near/format";
+import { usePersona } from "@/lib/persona";
 
-const STORAGE_KEY = "promise:persona";
-
-function readStored(): string | null {
-  try {
-    return window.localStorage.getItem(STORAGE_KEY);
-  } catch {
-    return null;
-  }
-}
-
-function writeStored(id: string) {
-  try {
-    window.localStorage.setItem(STORAGE_KEY, id);
-  } catch {
-    // Private windows can block storage. The selection then lasts for this visit only.
-  }
-}
-
-/** Picks which demo account the app acts as. The choice is the only thing kept outside the chain. */
+/** Picks which demo account the app acts as. Once chosen, the ledger and events open from it. */
 export function PersonaSwitcher() {
   const { locale, t } = useI18n();
-  const [selected, setSelected] = useState<string | null>(null);
-
-  useEffect(() => {
-    const stored = readStored();
-    if (findPersona(stored)) setSelected(stored);
-  }, []);
-
-  function choose(id: string) {
-    setSelected(id);
-    writeStored(id);
-  }
-
-  const current = findPersona(selected);
+  const { persona, select } = usePersona();
 
   return (
     <div>
       <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {personas.map((p) => {
-          const active = p.id === selected;
+          const active = p.id === persona?.id;
           return (
-            <li
-              key={p.id}
-              className={`flex flex-col rounded-card border bg-paper p-5 ${active ? "border-2 border-red" : "border-line"}`}
-            >
-              <h3 className="text-2xl">{p.name}</h3>
-              <p className="mt-1 text-sm font-semibold text-ink-soft">{p.role[locale]}</p>
+            <li key={p.id} className={`surface flex flex-col p-5 ${active ? "ring-[3px] ring-red" : ""}`}>
+              <div className="flex items-center gap-3">
+                <Avatar name={p.name} className="h-12 w-12 text-2xl" />
+                <div>
+                  <h3 className="text-2xl">{p.name}</h3>
+                  <p className="text-sm font-bold text-ink-soft">{p.role[locale]}</p>
+                </div>
+              </div>
               <p className="mt-3 flex-1">{p.blurb[locale]}</p>
-              <p className="mt-4 text-sm text-ink-soft">
+              <p className="mt-3 break-all text-sm text-ink-soft">
                 {t("persona.account")}:{" "}
-                <a className="break-all underline underline-offset-4" href={explorerAccountUrl(p.account_id)}>
+                <a className="underline underline-offset-4" href={explorerAccountUrl(p.account_id)}>
                   {p.account_id}
                 </a>
               </p>
-              <button
-                type="button"
-                aria-pressed={active}
-                onClick={() => choose(p.id)}
-                className={`mt-4 min-h-[44px] rounded-input px-4 font-semibold ${
-                  active ? "border border-red text-red-dark" : "bg-red text-white hover:bg-red-dark"
-                }`}
-              >
-                {active ? t("demo.active") : t("demo.use", { name: p.name })}
-              </button>
+              {active ? (
+                <div className="mt-4 grid grid-cols-2 gap-2">
+                  <Link href="/ledger" className="btn-soft">
+                    {t("nav.ledger")}
+                  </Link>
+                  <Link href="/events" className="btn-soft">
+                    {t("nav.events")}
+                  </Link>
+                </div>
+              ) : (
+                <button type="button" aria-pressed={false} onClick={() => select(p.id)} className="btn-primary mt-4 min-h-[48px] w-full">
+                  {t("demo.use", { name: p.name })}
+                </button>
+              )}
             </li>
           );
         })}
       </ul>
 
       <p className="mt-5 text-ink-soft" aria-live="polite">
-        {current ? t("demo.selected_line", { name: current.name }) : t("demo.none_selected")}
+        {persona ? t("demo.selected_line", { name: persona.name }) : t("demo.none_selected")}
       </p>
     </div>
   );

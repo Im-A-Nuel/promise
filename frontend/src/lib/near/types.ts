@@ -115,3 +115,16 @@ export const pairSchema = z.object({
   open: z.array(z.string().regex(/^\d+$/)),
 });
 export type Pair = z.infer<typeof pairSchema>;
+
+export const eventsSchema = z.object({ events: z.array(hajatSchema) });
+export type EventsResponse = z.infer<typeof eventsSchema>;
+
+/** An invitation plus the card the contract drew for it (a data URI), or null if it could not be read. */
+export const eventInvitationSchema = invitationSchema.extend({ media: z.string().nullable() });
+export type EventInvitation = z.infer<typeof eventInvitationSchema>;
+
+export const eventSummarySchema = z.object({
+  hajat: hajatSchema,
+  invitations: z.array(eventInvitationSchema),
+});
+export type EventSummary = z.infer<typeof eventSummarySchema>;
