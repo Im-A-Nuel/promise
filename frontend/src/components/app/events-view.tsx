@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
+import type { CSSProperties } from "react";
 import { useParams } from "next/navigation";
 import { getJson, ApiError } from "@/lib/api-client";
 import { findPersona } from "@/lib/demo/personas";
@@ -36,22 +37,25 @@ export function EventsList() {
           {t("events.new")}
         </Link>
       </div>
-      {!persona && <p className="surface mb-4 px-5 py-4 text-ink-soft">{t("event.pick_account")}</p>}
+      {!persona && <p className="surface mb-4 p-4 text-ink-soft">{t("event.pick_account")}</p>}
       {query.isPending && <Loading label={t("events.loading")} />}
       {query.isError && <ErrorBox message={t("events.error")} onRetry={() => void query.refetch()} />}
       {query.data && query.data.events.length === 0 && <Empty title={t("events.empty")} href="/events/new" cta={t("events.new")} />}
       {query.data && query.data.events.length > 0 && (
-        <ul className="grid gap-3">
-          {query.data.events.map((e) => (
-            <li key={e.id}>
-              <Link href={`/events/${e.id}`} className="surface block p-5 transition-transform hover:-translate-y-0.5">
+        <ul className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {query.data.events.map((e, i) => (
+            <li key={e.id} className="rise" style={{ "--delay": `${Math.min(i, 8) * 50}ms` } as CSSProperties}>
+              <Link href={`/events/${e.id}`} className="surface surface-link block h-full p-6">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="chip">{t(`kind.${e.kind}`)}</span>
                   <StatusChip status={e.status} />
-                  <span className="ml-auto text-sm text-ink-soft">{formatDate(e.event_at_ms, locale)}</span>
                 </div>
                 <h2 className="mt-3 text-2xl">{e.title}</h2>
-                <p className="mt-1 text-ink-soft">{t("events.host", { host: hostName(e.host) })}</p>
+                <p className="mt-1 text-ink-soft">
+                  {formatDate(e.event_at_ms, locale)}
+                  {" · "}
+                  {t("events.host", { host: hostName(e.host) })}
+                </p>
                 <p className="tabular mt-3 text-sm font-bold">
                   {t("events.invited", { count: e.invite_count })}
                   {" · "}
@@ -89,7 +93,7 @@ export function EventDetail() {
   });
 
   const back = (
-    <Link href="/events" className="mb-4 inline-flex min-h-[44px] items-center gap-2 font-bold text-red-dark">
+    <Link href="/events" className="link mb-4 inline-flex min-h-[44px] items-center gap-2 no-underline">
       <span aria-hidden="true">&larr;</span>
       {t("event.back")}
     </Link>
@@ -138,7 +142,7 @@ export function EventDetail() {
           </p>
 
           {!persona && (
-            <p className="surface mt-6 flex flex-wrap items-center gap-3 px-5 py-4">
+            <p className="surface mt-6 flex flex-wrap items-center gap-3 p-4">
               <span className="flex-1">{t("event.pick_account")}</span>
               <Link href="/demo" className="btn-soft">
                 {t("ledgerPage.pick_cta")}
@@ -147,7 +151,7 @@ export function EventDetail() {
           )}
 
           {persona && isHost && hajat.status === "Open" && (
-            <section aria-label={t("event.host_tools")} className="mt-6 grid gap-4">
+            <section aria-label={t("event.host_tools")} className="mt-6 grid items-start gap-4 lg:grid-cols-2">
               <InviteForm hajat={hajat} owners={data.invitations.map((i) => i.owner)} />
               <CancelControl hajat={hajat} invitations={data.invitations} />
             </section>
@@ -161,15 +165,15 @@ export function EventDetail() {
 
           <h2 className="mb-3 mt-10 text-2xl">{t("event.guests")}</h2>
           {data.invitations.length === 0 ? (
-            <p className="surface px-5 py-4 text-ink-soft">{t("event.no_guests")}</p>
+            <p className="surface p-4 text-ink-soft">{t("event.no_guests")}</p>
           ) : (
-            <ul className="grid gap-4 sm:grid-cols-2">
+            <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {data.invitations.map((inv) => {
                 const status = t(`cardstatus.${inv.card_status}`);
                 const amount = BigInt(inv.released) > 0n ? `, ${formatTusdc(inv.released)}` : "";
                 const isMine = inv.owner === account;
                 return (
-                  <li key={inv.token_id} className={`surface overflow-hidden p-3 ${isMine ? "ring-[3px] ring-red/70 sm:col-span-2" : ""}`}>
+                  <li key={inv.token_id} className={`surface overflow-hidden p-3 ${isMine ? "ring-[3px] ring-red/70 sm:col-span-2 lg:col-span-3" : ""}`}>
                     {inv.media ? (
                       // The card is a data URI drawn by the contract, so it cannot go through next/image.
                       // eslint-disable-next-line @next/next/no-img-element

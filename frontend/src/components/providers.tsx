@@ -1,5 +1,6 @@
 "use client";
 
+import { MotionConfig } from "framer-motion";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState, type ReactNode } from "react";
 import { I18nProvider } from "@/lib/i18n/client";
@@ -15,7 +16,9 @@ export function Providers({ locale, children }: { locale: Locale; children: Reac
     <I18nProvider locale={locale}>
       <QueryClientProvider client={client}>
         <PersonaProvider>
-          <TxProvider>{children}</TxProvider>
+          <MotionConfig reducedMotion="user">
+            <TxProvider>{children}</TxProvider>
+          </MotionConfig>
         </PersonaProvider>
       </QueryClientProvider>
     </I18nProvider>

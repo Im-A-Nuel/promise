@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Shell } from "@/components/app/shell";
 import { ChainStatus } from "@/components/chain-status";
 import { PersonaSwitcher } from "@/components/persona-switcher";
 import { makeT } from "@/lib/i18n";
@@ -15,7 +14,7 @@ export default async function DemoPage() {
   const { t } = await getT();
 
   return (
-    <Shell>
+    <>
       <div className="mx-auto max-w-6xl px-4 pb-8 pt-4 sm:px-6 sm:pt-8">
         <h1 className="text-4xl sm:text-5xl">{t("demo.title")}</h1>
         <p className="mt-3 max-w-2xl text-lg text-ink-soft">{t("demo.lead")}</p>
@@ -43,6 +42,6 @@ export default async function DemoPage() {
           </ol>
         </section>
       </div>
-    </Shell>
+    </>
   );
 }

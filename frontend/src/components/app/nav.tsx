@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -57,6 +58,18 @@ const ITEMS: Item[] = [
   { href: "/demo", key: "nav.accounts", Icon: AccountIcon },
 ];
 
+/** The highlight that slides from one item to the next instead of jumping. One layoutId per bar. */
+function ActivePill({ id }: { id: string }) {
+  return (
+    <motion.span
+      layoutId={id}
+      aria-hidden="true"
+      className="absolute inset-0 rounded-full bg-blush"
+      transition={{ type: "spring", stiffness: 420, damping: 36 }}
+    />
+  );
+}
+
 function isActive(pathname: string, href: string): boolean {
   return href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
 }
@@ -86,7 +99,7 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-30 bg-cream">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-2.5 sm:px-6">
-        <Link href="/" className="flex min-h-[44px] items-center gap-2.5">
+        <Link href="/" className="flex min-h-[44px] items-center gap-2.5 hover:opacity-80">
           <Image src="/brand/mark-128.png" width={40} height={40} alt="" priority className="h-10 w-10" />
           <span className="font-display text-2xl font-semibold tracking-tight">{t("brand.name")}</span>
         </Link>
@@ -99,12 +112,13 @@ export function SiteHeader() {
                 key={href}
                 href={href}
                 aria-current={active ? "page" : undefined}
-                className={`flex min-h-[44px] items-center gap-2 rounded-full px-4 font-bold ${
-                  active ? "bg-blush text-red-dark" : "text-ink-soft hover:bg-white/70 hover:text-ink"
+                className={`relative flex min-h-[44px] items-center gap-2 rounded-full px-4 font-bold ${
+                  active ? "text-red-dark" : "text-ink-soft hover:bg-white/70 hover:text-ink"
                 }`}
               >
-                <Icon className="h-5 w-5" />
-                {t(key)}
+                {active && <ActivePill id="header-pill" />}
+                <Icon className="relative h-5 w-5" />
+                <span className="relative">{t(key)}</span>
               </Link>
             );
           })}
@@ -137,12 +151,13 @@ export function TabBar() {
               <Link
                 href={href}
                 aria-current={active ? "page" : undefined}
-                className={`flex min-h-[56px] flex-col items-center justify-center gap-0.5 rounded-full text-[11px] font-extrabold ${
-                  active ? "bg-blush text-red-dark" : "text-ink-soft"
+                className={`relative flex min-h-[56px] flex-col items-center justify-center gap-0.5 rounded-full text-[11px] font-extrabold ${
+                  active ? "text-red-dark" : "text-ink-soft"
                 }`}
               >
-                <Icon className="h-6 w-6" />
-                {t(key)}
+                {active && <ActivePill id="tab-pill" />}
+                <Icon className="relative h-6 w-6" />
+                <span className="relative">{t(key)}</span>
               </Link>
             </li>
           );

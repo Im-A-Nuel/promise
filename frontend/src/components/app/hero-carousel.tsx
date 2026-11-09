@@ -83,16 +83,17 @@ export function HeroCarousel() {
             role="group"
             aria-roledescription="slide"
             aria-label={`${i + 1} / ${SLIDES.length}`}
-            className="w-full shrink-0 snap-center"
+            data-active={i === index}
+            className="slide w-full shrink-0 snap-center"
           >
-            <div className="relative mx-auto aspect-[5/4] w-full overflow-hidden rounded-[36px] bg-gradient-to-b from-[#FFEBDD] via-[#FFE2D3] to-[#FFF1E6] shadow-float">
+            <div className="slide-stage relative mx-auto aspect-[5/4] w-full overflow-hidden rounded-[36px] bg-gradient-to-b from-[#FFEBDD] via-[#FFE2D3] to-[#FFF1E6] shadow-float">
               {/* warm light behind Pao */}
               <div aria-hidden="true" className="absolute left-1/2 top-[44%] h-[78%] w-[78%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(closest-side,#FFF0B8_0%,rgba(255,240,184,0)_100%)]" />
               <Clouds className="absolute inset-x-0 bottom-0 h-[38%] w-full" />
 
               <span className="chip absolute left-4 top-4 bg-white/85">{t(`card.state.${state}`)}</span>
 
-              <Pao mood={mood} label={t(`pao.${mood}`)} className="absolute bottom-[16%] left-1/2 w-[56%] -translate-x-1/2" />
+              <Pao mood={mood} label={t(`pao.${mood}`)} className="pao-pop absolute bottom-[16%] left-1/2 w-[56%] -translate-x-1/2" />
 
               {/* handwritten note with an arrow pointing at Pao */}
               <p className="note absolute right-4 top-5 max-w-[9rem] -rotate-6 text-right sm:right-6 sm:top-7 sm:text-[1.5rem]">
@@ -137,7 +138,7 @@ export function HeroCarousel() {
             aria-current={i === index}
             className="grid h-11 w-9 place-items-center"
           >
-            <span className={`block h-2.5 rounded-full transition-all ${i === index ? "w-6 bg-red" : "w-2.5 bg-[#e6cfc4]"}`} />
+            <span className={`block h-2.5 rounded-full transition-[width,background-color] duration-300 ease-[var(--ease-out)] ${i === index ? "w-6 bg-red" : "w-2.5 bg-[#e6cfc4]"}`} />
           </button>
         ))}
       </div>

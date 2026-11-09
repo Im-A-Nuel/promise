@@ -63,5 +63,5 @@ export function Avatar({ name, className = "" }: { name: string; className?: str
 }
 
 export function Page({ children }: { children: ReactNode }) {
-  return <div className="mx-auto max-w-3xl px-4 pb-8 pt-4 sm:px-6 sm:pt-8">{children}</div>;
+  return <div className="mx-auto max-w-6xl px-4 pb-8 pt-4 sm:px-6 sm:pt-8">{children}</div>;
 }

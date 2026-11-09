@@ -25,6 +25,13 @@
 
   --shadow-soft: 0 18px 40px -22px rgb(155 28 28 / 0.35), 0 2px 6px -2px rgb(122 20 20 / 0.08);
   --shadow-float: 0 20px 50px -18px rgb(122 20 20 / 0.35), 0 4px 14px -6px rgb(122 20 20 / 0.12);
+
+  /* Motion. One easing family and three durations, used everywhere, so nothing moves in its own way. */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --duration-fast: 150ms;
+  --duration: 260ms;
+  --duration-slow: 520ms;
 }
 
 :root {
@@ -83,12 +90,41 @@ li {
   color: var(--color-ink);
 }
 
+/* Every interactive element eases between states. Before this, buttons and links changed instantly. */
+@layer base {
+  a,
+  button,
+  input,
+  select,
+  textarea,
+  label {
+    transition-property: color, background-color, border-color, box-shadow, transform, opacity;
+    transition-duration: var(--duration-fast);
+    transition-timing-function: var(--ease-out);
+  }
+}
+
 @layer components {
-  /* A soft white card. Depth comes from the colored shadow, not from a border. */
+  /* ---------------------------------------------------------------- surfaces
+     Padding scale: p-4 for compact rows, p-6 for cards and forms, p-8 for feature panels. */
   .surface {
     background: rgb(255 255 255 / 0.82);
     border-radius: var(--radius-card);
     box-shadow: var(--shadow-soft);
+  }
+
+  /* A clickable card. It lifts on hover and settles back on press. */
+  .surface-link {
+    transition:
+      transform var(--duration) var(--ease-out),
+      box-shadow var(--duration) var(--ease-out);
+  }
+  .surface-link:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-float);
+  }
+  .surface-link:active {
+    transform: translateY(-1px) scale(0.995);
   }
 
   /* Backdrop blur is used on exactly two things: this class (status pill, tab bar) and nothing else. */
@@ -99,8 +135,10 @@ li {
     box-shadow: var(--shadow-float);
   }
 
-  /* The one chunky element on a screen. */
-  .btn-primary {
+  /* ---------------------------------------------------------------- buttons
+     One family: same font, shape and press behaviour. Primary is the only chunky red element on a screen. */
+  .btn-primary,
+  .btn-soft {
     display: inline-flex;
     min-height: 52px;
     align-items: center;
@@ -111,40 +149,76 @@ li {
     font-family: var(--font-display);
     font-weight: 600;
     font-size: 1.05rem;
+    line-height: 1;
+    text-align: center;
+    transition:
+      transform var(--duration-fast) var(--ease-out),
+      box-shadow var(--duration) var(--ease-out),
+      background var(--duration) var(--ease-out),
+      opacity var(--duration-fast) var(--ease-out);
+  }
+  .btn-sm {
+    min-height: 44px;
+    padding: 0 1.1rem;
+    font-size: 0.95rem;
+  }
+
+  .btn-primary {
     color: #fff;
     background: linear-gradient(180deg, var(--color-red-bright) 0%, var(--color-red) 70%);
     box-shadow:
       inset 0 2px 0 rgb(255 255 255 / 0.28),
       inset 0 -3px 0 rgb(0 0 0 / 0.12),
       0 14px 24px -12px rgb(155 28 28 / 0.7);
-    transition: transform 0.12s ease, box-shadow 0.12s ease;
   }
-  .btn-primary:hover {
+  .btn-primary:hover:not(:disabled) {
+    transform: translateY(-2px);
     background: linear-gradient(180deg, #e2564c 0%, #a61f1f 70%);
+    box-shadow:
+      inset 0 2px 0 rgb(255 255 255 / 0.3),
+      inset 0 -3px 0 rgb(0 0 0 / 0.12),
+      0 18px 28px -12px rgb(155 28 28 / 0.75);
   }
-  .btn-primary:active {
-    transform: translateY(1px);
+  .btn-primary:active:not(:disabled) {
+    transform: translateY(1px) scale(0.98);
     box-shadow:
       inset 0 2px 0 rgb(255 255 255 / 0.2),
       0 6px 12px -8px rgb(155 28 28 / 0.7);
   }
 
   .btn-soft {
-    display: inline-flex;
-    min-height: 48px;
-    align-items: center;
-    justify-content: center;
-    border-radius: var(--radius-control);
-    padding: 0 1.25rem;
-    font-weight: 700;
     color: var(--color-red-dark);
     background: var(--color-blush);
-    transition: background 0.12s ease;
   }
-  .btn-soft:hover {
+  .btn-soft:hover:not(:disabled) {
+    transform: translateY(-1px);
     background: var(--color-peach);
   }
+  .btn-soft:active:not(:disabled) {
+    transform: translateY(1px) scale(0.98);
+  }
 
+  .btn-primary:disabled,
+  .btn-soft:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  /* A text link inside a sentence or a page. One style everywhere. */
+  .link {
+    font-weight: 700;
+    color: var(--color-red-dark);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+    text-decoration-color: rgb(155 28 28 / 0.35);
+  }
+  .link:hover {
+    color: var(--color-red);
+    text-decoration-color: currentColor;
+  }
+
+  /* ---------------------------------------------------------------- chips */
   .chip {
     display: inline-flex;
     align-items: center;
@@ -156,6 +230,18 @@ li {
     font-weight: 800;
     background: var(--color-blush);
     color: var(--color-red-dark);
+  }
+  button.chip {
+    min-height: 44px;
+    padding: 0 1rem;
+    font-size: 0.9rem;
+  }
+  button.chip:hover {
+    background: var(--color-peach);
+    transform: translateY(-1px);
+  }
+  button.chip:active {
+    transform: scale(0.96);
   }
   .chip-good {
     background: var(--color-mint);
@@ -179,6 +265,52 @@ li {
     background-size: 200% 100%;
     animation: shimmer 1.6s ease-in-out infinite;
   }
+
+  /* ---------------------------------------------------------------- inputs */
+  .input {
+    width: 100%;
+    min-height: 48px;
+    border-radius: var(--radius-control);
+    border: 2px solid var(--color-line);
+    background: #fff;
+    padding: 0 1rem;
+    color: var(--color-ink);
+    font: inherit;
+  }
+  .input:hover {
+    border-color: var(--color-peach);
+  }
+  .input:focus-visible {
+    border-color: var(--color-red);
+  }
+  .input[aria-invalid="true"] {
+    border-color: var(--color-red);
+  }
+
+  /* ---------------------------------------------------------------- entrance */
+  /* Content rises into place. Set --delay for a stagger. */
+  /* "backwards" fill, not "both": a lingering transform would trap position: fixed children. */
+  .rise {
+    animation: rise var(--duration-slow) var(--ease-out) backwards;
+    animation-delay: var(--delay, 0ms);
+  }
+  .page-enter {
+    animation: rise var(--duration-slow) var(--ease-out) backwards;
+  }
+
+  /* The carousel: the slide in view is full size, its neighbours sit back. Pao pops when its slide arrives. */
+  .slide-stage {
+    transition:
+      transform var(--duration-slow) var(--ease-out),
+      opacity var(--duration-slow) var(--ease-out);
+  }
+  .slide[data-active="false"] .slide-stage {
+    transform: scale(0.93);
+    opacity: 0.5;
+  }
+  .slide[data-active="true"] .pao-pop {
+    animation: pop 720ms var(--ease-out) backwards;
+  }
 }
 
 @keyframes shimmer {
@@ -190,14 +322,42 @@ li {
   }
 }
 
-/* Pao: a gentle float and a blink. These are the only looping animations in the app. */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* A small bounce with a touch of tilt, like a toy being set down. Uses the separate scale and
+   rotate properties because Tailwind v4 centres Pao with the translate property. */
+@keyframes pop {
+  0% {
+    scale: 0.84;
+    rotate: -4deg;
+  }
+  55% {
+    scale: 1.05;
+    rotate: 1.5deg;
+  }
+  100% {
+    scale: 1;
+    rotate: 0deg;
+  }
+}
+
+/* Pao: a slow float with a little sway, and a blink. These are the only looping animations in the app. */
 @keyframes pao-float {
   0%,
   100% {
-    transform: translateY(0);
+    transform: translateY(0) rotate(-0.8deg);
   }
   50% {
-    transform: translateY(-5px);
+    transform: translateY(-6px) rotate(0.8deg);
   }
 }
 
@@ -225,7 +385,9 @@ li {
 }
 
 .pao-float {
-  animation: pao-float 4.6s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: pao-float 5s ease-in-out infinite;
 }
 
 .pao-blink {
@@ -259,33 +421,18 @@ li {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+  .rise,
+  .page-enter,
+  .slide[data-active="true"] .pao-pop {
+    animation: none;
+  }
+  .slide[data-active="false"] .slide-stage {
+    transform: none;
+    opacity: 1;
+  }
   .pao-float,
   .pao-blink,
   .sparkle {
     animation: none;
-  }
-}
-
-@layer components {
-  /* Text inputs, selects and text areas. */
-  .input {
-    width: 100%;
-    min-height: 48px;
-    border-radius: var(--radius-control);
-    border: 2px solid var(--color-line);
-    background: #fff;
-    padding: 0 1rem;
-    color: var(--color-ink);
-    font: inherit;
-    transition: border-color 0.12s ease;
-  }
-  .input:hover {
-    border-color: var(--color-peach);
-  }
-  .input:focus-visible {
-    border-color: var(--color-red);
-  }
-  .input[aria-invalid="true"] {
-    border-color: var(--color-red);
   }
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { LOCALES, LOCALE_COOKIE, type Locale } from "@/lib/i18n";
 import { useI18n } from "@/lib/i18n/client";
@@ -26,11 +27,19 @@ export function LocaleSwitch() {
           aria-pressed={code === locale}
           aria-label={t(`locale.${code}`)}
           onClick={() => choose(code)}
-          className={`min-h-[44px] min-w-[44px] rounded-full px-2 text-sm font-extrabold ${
-            code === locale ? "bg-red text-white shadow-soft" : "text-red-dark hover:bg-white/60"
+          className={`relative min-h-[44px] min-w-[44px] rounded-full px-2 text-sm font-extrabold ${
+            code === locale ? "text-white" : "text-red-dark hover:bg-white/60"
           }`}
         >
-          {SHORT[code]}
+          {code === locale && (
+            <motion.span
+              layoutId="locale-pill"
+              aria-hidden="true"
+              className="absolute inset-0 rounded-full bg-red shadow-soft"
+              transition={{ type: "spring", stiffness: 420, damping: 36 }}
+            />
+          )}
+          <span className="relative">{SHORT[code]}</span>
         </button>
       ))}
     </div>

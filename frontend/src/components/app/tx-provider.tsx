@@ -1,7 +1,17 @@
 "use client";
 
 import { useQueryClient, type QueryKey } from "@tanstack/react-query";
-import { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef, type ReactNode } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useReducer,
+  useRef,
+  type ReactNode,
+} from "react";
 import { Pao } from "@/components/pao";
 import { useI18n } from "@/lib/i18n/client";
 import type { CallArgs } from "@/lib/near/actions";
@@ -32,7 +42,12 @@ interface TxContextValue {
 const TxContext = createContext<TxContextValue | null>(null);
 
 /** Everything a screen refreshes after any write. Cheap, and always right. */
-export const ALL_CHAIN_QUERIES: QueryKey[] = [["event"], ["events"], ["ledger"], ["balance"]];
+export const ALL_CHAIN_QUERIES: QueryKey[] = [
+  ["event"],
+  ["events"],
+  ["ledger"],
+  ["balance"],
+];
 
 export function TxProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(txReducer, IDLE);
@@ -47,7 +62,10 @@ export function TxProvider({ children }: { children: ReactNode }) {
   const act = useCallback(
     async (options: RunOptions): Promise<TxResult | null> => {
       if (!signer || isBusy(stateRef.current)) return null;
-      stateRef.current = txReducer(stateRef.current, { type: "start", label: options.label });
+      stateRef.current = txReducer(stateRef.current, {
+        type: "start",
+        label: options.label,
+      });
       dispatch({ type: "start", label: options.label });
       try {
         const pending = signer.call(options.call);
@@ -56,8 +74,16 @@ export function TxProvider({ children }: { children: ReactNode }) {
         const problem = findProblem(result.logs);
         if (problem) throw problem;
         dispatch({ type: "confirming" });
-        await Promise.all((options.invalidate ?? ALL_CHAIN_QUERIES).map((queryKey) => queryClient.invalidateQueries({ queryKey })));
-        dispatch({ type: "done", explorerUrl: result.explorerUrl, successKey: options.successKey });
+        await Promise.all(
+          (options.invalidate ?? ALL_CHAIN_QUERIES).map((queryKey) =>
+            queryClient.invalidateQueries({ queryKey }),
+          ),
+        );
+        dispatch({
+          type: "done",
+          explorerUrl: result.explorerUrl,
+          successKey: options.successKey,
+        });
         return result;
       } catch (error) {
         const friendly = toFriendlyError(error);
@@ -69,7 +95,10 @@ export function TxProvider({ children }: { children: ReactNode }) {
   );
 
   const dismiss = useCallback(() => dispatch({ type: "dismiss" }), []);
-  const value = useMemo(() => ({ state, busy: isBusy(state), act, dismiss }), [state, act, dismiss]);
+  const value = useMemo(
+    () => ({ state, busy: isBusy(state), act, dismiss }),
+    [state, act, dismiss],
+  );
 
   return (
     <TxContext.Provider value={value}>
@@ -89,19 +118,32 @@ export function useTx(): TxContextValue {
 function TxToast() {
   const { t } = useI18n();
   const ctx = useContext(TxContext);
-  const state = ctx?.state ?? IDLE;
+  const live = ctx?.state ?? IDLE;
   const dismiss = ctx?.dismiss;
+  // Keep the last message on screen while the card slides away, so it does not blank out mid-exit.
+  const last = useRef<TxState>(live);
+  if (live.status !== "idle") last.current = live;
+  const state = live.status === "idle" ? last.current : live;
 
   useEffect(() => {
-    if (state.status !== "done" || !dismiss) return;
+    if (live.status !== "done" || !dismiss) return;
     const timer = setTimeout(dismiss, 9000);
     return () => clearTimeout(timer);
-  }, [state, dismiss]);
+  }, [live, dismiss]);
 
   if (state.status === "idle") return null;
+  const visible = live.status !== "idle";
 
-  const busy = state.status === "signing" || state.status === "pending" || state.status === "confirming";
-  const mood = state.status === "done" ? "repaid" : state.status === "error" ? "waiting" : "sealed";
+  const busy =
+    state.status === "signing" ||
+    state.status === "pending" ||
+    state.status === "confirming";
+  const mood =
+    state.status === "done"
+      ? "repaid"
+      : state.status === "error"
+        ? "waiting"
+        : "sealed";
 
   let title: string;
   let detail: string | null = null;
@@ -120,33 +162,64 @@ function TxToast() {
   }
 
   return (
-    <div
-      role={state.status === "error" ? "alert" : "status"}
-      aria-live={state.status === "error" ? "assertive" : "polite"}
-      className="surface fixed inset-x-3 bottom-24 bg-white z-50 flex items-center gap-3 p-3 pr-4 shadow-float lg:inset-x-auto lg:bottom-6 lg:right-6 lg:w-[26rem]"
-    >
-      <Pao mood={mood} className="w-14 shrink-0" />
-      <div className="min-w-0 flex-1">
-        <p className="font-display text-lg leading-tight">{title}</p>
-        {detail && (
-          <p className="mt-0.5 text-sm text-ink-soft">
-            {detail}
-            {state.status === "error" && state.code ? <span className="ml-1 text-xs opacity-80">({state.code})</span> : null}
-          </p>
-        )}
-        {state.status === "done" && (
-          <a href={state.explorerUrl} target="_blank" rel="noreferrer" className="text-sm font-bold text-red-dark underline underline-offset-4">
-            {t("tx.view")}
-          </a>
-        )}
-      </div>
-      {!busy && (
-        <button type="button" onClick={dismiss} aria-label={t("tx.dismiss")} className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-ink-soft hover:bg-blush">
-          <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
-            <path d="M6 6l12 12M18 6 6 18" />
-          </svg>
-        </button>
+    <AnimatePresence>
+      {visible && (
+        <motion.div
+          key="toast"
+          initial={{ opacity: 0, y: 24, scale: 0.96 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 16, scale: 0.98 }}
+          transition={{ type: "spring", stiffness: 380, damping: 32 }}
+          role={state.status === "error" ? "alert" : "status"}
+          aria-live={state.status === "error" ? "assertive" : "polite"}
+          className="surface fixed inset-x-3 bottom-24 bg-white z-50 flex items-center gap-3 p-3 pr-4 shadow-float lg:inset-x-auto lg:bottom-6 lg:right-6 lg:w-[26rem]"
+        >
+          <Pao mood={mood} className="w-14 shrink-0" />
+          <div className="min-w-0 flex-1">
+            <p className="font-display text-lg leading-tight">{title}</p>
+            {detail && (
+              <p className="mt-0.5 text-sm text-ink-soft">
+                {detail}
+                {state.status === "error" && state.code ? (
+                  <span className="ml-1 text-xs opacity-80">
+                    ({state.code})
+                  </span>
+                ) : null}
+              </p>
+            )}
+            {state.status === "done" && (
+              <a
+                href={state.explorerUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="link text-sm"
+              >
+                {t("tx.view")}
+              </a>
+            )}
+          </div>
+          {!busy && (
+            <button
+              type="button"
+              onClick={dismiss}
+              aria-label={t("tx.dismiss")}
+              className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-ink-soft hover:bg-blush"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+                className="h-5 w-5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.4"
+                strokeLinecap="round"
+              >
+                <path d="M6 6l12 12M18 6 6 18" />
+              </svg>
+            </button>
+          )}
+        </motion.div>
       )}
-    </div>
+    </AnimatePresence>
   );
 }

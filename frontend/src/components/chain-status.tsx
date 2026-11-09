@@ -11,7 +11,7 @@ export function ChainStatus() {
   const { data, isError, refetch, isFetching } = useHealth();
 
   return (
-    <section className="surface p-5">
+    <section className="surface p-6">
       <StatusPill />
       {isError && (
         <button type="button" onClick={() => void refetch()} disabled={isFetching} className="btn-soft ml-3 disabled:opacity-60">
@@ -25,13 +25,13 @@ export function ChainStatus() {
           <dd className="tabular">{data.block_height}</dd>
           <dt className="text-ink-soft">{t("chain.amplop")}</dt>
           <dd>
-            <a className="break-all underline underline-offset-4" href={explorerAccountUrl(data.amplop)}>
+            <a className="link break-all" href={explorerAccountUrl(data.amplop)}>
               {data.amplop}
             </a>
           </dd>
           <dt className="text-ink-soft">{t("chain.ft")}</dt>
           <dd>
-            <a className="break-all underline underline-offset-4" href={explorerAccountUrl(data.ft)}>
+            <a className="link break-all" href={explorerAccountUrl(data.ft)}>
               {data.ft}
             </a>
           </dd>

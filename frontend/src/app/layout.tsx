@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Caveat, Fredoka, Nunito } from "next/font/google";
 import type { ReactNode } from "react";
+import { Shell } from "@/components/app/shell";
 import { Providers } from "@/components/providers";
 import { env } from "@/lib/env";
 import { getLocale } from "@/lib/i18n/server";
@@ -31,7 +32,9 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   return (
     <html lang={locale} className={`${display.variable} ${sans.variable} ${note.variable}`}>
       <body>
-        <Providers locale={locale}>{children}</Providers>
+        <Providers locale={locale}>
+          <Shell>{children}</Shell>
+        </Providers>
       </body>
     </html>
   );

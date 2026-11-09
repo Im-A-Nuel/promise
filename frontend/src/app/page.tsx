@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { HeroCarousel } from "@/components/app/hero-carousel";
-import { Shell } from "@/components/app/shell";
 import { StatusPill } from "@/components/app/status-pill";
 import { Pao, type PaoMood } from "@/components/pao";
 import { Reveal } from "@/components/reveal";
@@ -19,7 +18,7 @@ export default async function HomePage() {
   const { t } = await getT();
 
   return (
-    <Shell>
+    <>
       {/* Hero. On a phone: pill, headline, copy, the scene, dots, then the button. On a desktop: two columns. */}
       <section className="mx-auto grid max-w-6xl gap-x-12 gap-y-6 px-4 pb-14 pt-4 sm:px-6 lg:grid-cols-12 lg:pb-24 lg:pt-12">
         <div className="text-center lg:col-span-6 lg:row-start-1 lg:self-end lg:text-left">
@@ -36,7 +35,7 @@ export default async function HomePage() {
           <Link href="/demo" className="btn-primary w-full max-w-sm sm:w-auto">
             {t("hero.cta")}
           </Link>
-          <a href="#ledger-story" className="flex min-h-[44px] items-center font-bold text-red-dark underline underline-offset-4">
+          <a href="#ledger-story" className="link flex min-h-[44px] items-center">
             {t("hero.secondary")}
           </a>
         </div>
@@ -44,7 +43,7 @@ export default async function HomePage() {
 
       {/* The problem: one warm note card. */}
       <section className="px-4 sm:px-6">
-        <Reveal className="surface mx-auto flex max-w-3xl flex-col items-center gap-6 p-7 sm:flex-row sm:p-10">
+        <Reveal className="surface mx-auto flex max-w-3xl flex-col items-center gap-6 p-6 sm:flex-row sm:p-8">
           <Pao mood="sealed" className="w-32 shrink-0 sm:w-40" />
           <div>
             <h2 className="text-3xl sm:text-4xl">{t("problem.title")}</h2>
@@ -64,7 +63,7 @@ export default async function HomePage() {
         <ol className="mt-10 grid gap-4 sm:grid-cols-2">
           {STATES.map(({ state, mood }, i) => (
             <li key={state}>
-              <Reveal delay={i * 0.05} className="surface flex h-full items-center gap-5 p-5 sm:p-6">
+              <Reveal delay={i * 0.05} className="surface flex h-full items-center gap-5 p-6">
                 <Pao mood={mood} className="w-24 shrink-0 sm:w-28" />
                 <div>
                   <h3 className="text-2xl">{t(`states.${state}.title`)}</h3>
@@ -126,7 +125,7 @@ export default async function HomePage() {
 
       {/* The call to action. */}
       <section className="px-4 sm:px-6">
-        <div className="mx-auto flex max-w-5xl flex-col items-center gap-6 overflow-hidden rounded-[36px] bg-gradient-to-br from-[#FFE2D3] via-[#FFD8C7] to-[#FFEBD0] p-8 text-center shadow-float sm:flex-row sm:p-12 sm:text-left">
+        <div className="mx-auto flex max-w-5xl flex-col items-center gap-6 overflow-hidden rounded-[36px] bg-gradient-to-br from-[#FFE2D3] via-[#FFD8C7] to-[#FFEBD0] p-8 text-center shadow-float sm:flex-row sm:text-left">
           <div className="flex-1">
             <h2 className="text-3xl sm:text-5xl">{t("cta.title")}</h2>
             <p className="mt-3 max-w-xl text-lg">{t("cta.body")}</p>
@@ -137,6 +136,6 @@ export default async function HomePage() {
           <Pao mood="repaid" className="w-40 shrink-0 sm:w-52" />
         </div>
       </section>
-    </Shell>
+    </>
   );
 }

@@ -65,7 +65,7 @@ export function NewEventForm() {
   const err = (ok: boolean, key: string) => (touched && !ok ? t(key, { max: MAX_TITLE }) : null);
 
   return (
-    <form onSubmit={submit} noValidate className="surface grid gap-5 p-5 sm:p-7">
+    <form onSubmit={submit} noValidate className="surface mt-6 grid max-w-2xl gap-5 p-6">
       <p className="flex items-center gap-2 text-ink-soft">
         <Avatar name={persona.name} className="h-8 w-8 text-sm" />
         {t("eventnew.host_as", { name: persona.name })}

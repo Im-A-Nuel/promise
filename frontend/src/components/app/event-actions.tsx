@@ -84,12 +84,12 @@ export function SealForm({ invitation, suggested, balance }: { invitation: Event
 
       <div className="flex flex-wrap gap-2" role="group" aria-label={t("seal.presets")}>
         {suggested > 0n && (
-          <button type="button" className="chip min-h-[44px] px-4" onClick={() => setAmount(formatAmount(suggested))}>
+          <button type="button" className="chip" onClick={() => setAmount(formatAmount(suggested))}>
             {t("seal.payback", { amount: formatTusdc(suggested) })}
           </button>
         )}
         {PRESETS.map((p) => (
-          <button key={p} type="button" className="chip min-h-[44px] px-4" onClick={() => setAmount(String(p))}>
+          <button key={p} type="button" className="chip" onClick={() => setAmount(String(p))}>
             {p} tUSDC
           </button>
         ))}
@@ -179,7 +179,7 @@ export function InviteForm({ hajat, owners }: { hajat: Hajat; owners: string[] }
   }
 
   return (
-    <form onSubmit={submit} className="surface grid gap-3 p-5" aria-label={t("invite.title")}>
+    <form onSubmit={submit} className="surface grid gap-3 p-6" aria-label={t("invite.title")}>
       <h3 className="text-2xl">{t("invite.title")}</h3>
       <Field id={accountId} label={t("invite.account")} hint={t("invite.hint")} error={accountError}>
         <input id={accountId} list={listId} value={account} onChange={(e) => onAccount(e.target.value)} autoComplete="off" autoCapitalize="none" spellCheck={false} aria-invalid={accountError !== null} placeholder="budi.promisedemo.testnet" className="input" />
@@ -219,7 +219,7 @@ export function CancelControl({ hajat, invitations }: { hajat: Hajat; invitation
     );
   }
   return (
-    <div role="group" aria-label={t("cancel.button")} className="surface grid gap-3 p-5">
+    <div role="group" aria-label={t("cancel.button")} className="surface grid gap-3 p-6">
       <p className="font-bold">{t("cancel.warn")}</p>
       <div className="flex flex-wrap gap-2">
         <button
@@ -256,7 +256,7 @@ export function RsvpForm({ hajat, defaultLabel }: { hajat: Hajat; defaultLabel: 
   }
 
   return (
-    <form onSubmit={submit} className="surface grid gap-3 p-5" aria-label={t("join.title")}>
+    <form onSubmit={submit} className="surface grid gap-3 p-6" aria-label={t("join.title")}>
       <h3 className="text-2xl">{t("join.title")}</h3>
       <Field id={labelId} label={t("join.label")}>
         <input id={labelId} value={label} onChange={(e) => setLabel(e.target.value)} className="input" />

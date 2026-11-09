@@ -44,9 +44,9 @@ function Section({ title, rows, none, tone }: { title: string; rows: LedgerRow[]
         )}
       </div>
       {rows.length === 0 ? (
-        <p className="surface px-5 py-4 text-ink-soft">{none}</p>
+        <p className="surface p-4 text-ink-soft">{none}</p>
       ) : (
-        <ul className="grid gap-3">
+        <ul className="grid gap-4 md:grid-cols-2">
           {rows.map((r) => (
             <Row key={r.counterparty} row={r} />
           ))}

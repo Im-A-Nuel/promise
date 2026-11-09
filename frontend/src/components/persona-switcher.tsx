@@ -18,7 +18,7 @@ export function PersonaSwitcher() {
         {personas.map((p) => {
           const active = p.id === persona?.id;
           return (
-            <li key={p.id} className={`surface flex flex-col p-5 ${active ? "ring-[3px] ring-red" : ""}`}>
+            <li key={p.id} className={`surface flex flex-col p-6 ${active ? "ring-[3px] ring-red" : ""}`}>
               <div className="flex items-center gap-3">
                 <Avatar name={p.name} className="h-12 w-12 text-2xl" />
                 <div>
@@ -29,7 +29,7 @@ export function PersonaSwitcher() {
               <p className="mt-3 flex-1">{p.blurb[locale]}</p>
               <p className="mt-3 break-all text-sm text-ink-soft">
                 {t("persona.account")}:{" "}
-                <a className="underline underline-offset-4" href={explorerAccountUrl(p.account_id)}>
+                <a className="link" href={explorerAccountUrl(p.account_id)}>
                   {p.account_id}
                 </a>
               </p>
@@ -43,7 +43,7 @@ export function PersonaSwitcher() {
                   </Link>
                 </div>
               ) : (
-                <button type="button" aria-pressed={false} onClick={() => select(p.id)} className="btn-primary mt-4 min-h-[48px] w-full">
+                <button type="button" aria-pressed={false} onClick={() => select(p.id)} className="btn-primary btn-sm mt-4 w-full">
                   {t("demo.use", { name: p.name })}
                 </button>
               )}
