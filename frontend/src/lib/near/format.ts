@@ -68,3 +68,17 @@ export function formatDateTime(ms: number, locale: "en" | "id"): string {
     timeZoneName: "short",
   }).format(new Date(ms));
 }
+
+/** "5 minutes ago", "2 hours ago". Falls back to a date after a week. */
+export function formatAgo(ms: number, locale: "en" | "id", now: number = Date.now()): string {
+  const diff = Math.max(0, now - ms);
+  const rtf = new Intl.RelativeTimeFormat(locale === "id" ? "id-ID" : "en-GB", { numeric: "auto" });
+  const minutes = Math.floor(diff / 60_000);
+  if (minutes < 1) return rtf.format(0, "minute");
+  if (minutes < 60) return rtf.format(-minutes, "minute");
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return rtf.format(-hours, "hour");
+  const days = Math.floor(hours / 24);
+  if (days < 7) return rtf.format(-days, "day");
+  return formatDate(ms, locale);
+}

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { explorerTxUrl, formatAmount, formatDate, formatTusdc, parseAmount, shortAccount } from "@/lib/near/format";
+import { explorerTxUrl, formatAgo, formatAmount, formatDate, formatTusdc, parseAmount, shortAccount } from "@/lib/near/format";
 
 describe("formatAmount", () => {
   it("shows two decimals minimum", () => {
@@ -67,5 +67,20 @@ describe("links and dates", () => {
   it("formats dates in UTC", () => {
     expect(formatDate(Date.UTC(2026, 10, 14), "en")).toContain("2026");
     expect(formatDate(Date.UTC(2026, 10, 14), "id")).toContain("2026");
+  });
+});
+
+describe("formatAgo", () => {
+  const now = Date.UTC(2026, 10, 9, 12, 0, 0);
+  it("says how long ago in the viewer's language", () => {
+    expect(formatAgo(now - 5 * 60_000, "en", now)).toBe("5 minutes ago");
+    expect(formatAgo(now - 3 * 3_600_000, "en", now)).toBe("3 hours ago");
+    expect(formatAgo(now - 2 * 86_400_000, "en", now)).toBe("2 days ago");
+  });
+  it("falls back to a date after a week", () => {
+    expect(formatAgo(now - 10 * 86_400_000, "en", now)).toBe("30 Oct 2026");
+  });
+  it("never reports the future", () => {
+    expect(formatAgo(now + 60_000, "en", now)).toBe("this minute");
   });
 });

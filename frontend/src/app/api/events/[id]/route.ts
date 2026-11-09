@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { fromError, ok, problem } from "@/lib/api";
-import { getHajat, getInvitations, getNftToken, suggestReply } from "@/lib/near/contract";
+import { getHajat, getInvitations, getNftToken, getRecentActivity, suggestReply } from "@/lib/near/contract";
 
 const id = z.coerce.number().int().positive();
 const account = z.string().regex(/^[a-z0-9][a-z0-9._-]{1,63}$/);
@@ -19,9 +19,11 @@ export async function GET(req: Request, ctx: { params: Promise<{ id: string }> }
   try {
     const hajat = await getHajat(parsed.data);
     if (!hajat) return problem("NOT_FOUND", "This event does not exist", 404);
-    const [invitations, suggested] = await Promise.all([
+    const [invitations, suggested, activity] = await Promise.all([
       getInvitations(parsed.data, { from: 0, limit: 50 }),
       viewer?.success ? suggestReply(parsed.data, viewer.data) : Promise.resolve(null),
+      // A contract deployed before the log existed answers with an error. The page just shows no history.
+      getRecentActivity(parsed.data, 20).catch(() => []),
     ]);
     const withCards = await Promise.all(
       invitations.map(async (inv) => ({
@@ -29,7 +31,7 @@ export async function GET(req: Request, ctx: { params: Promise<{ id: string }> }
         media: (await getNftToken(inv.token_id).catch(() => null))?.metadata.media ?? null,
       })),
     );
-    return ok({ hajat, invitations: withCards, suggested_reply: suggested });
+    return ok({ hajat, invitations: withCards, suggested_reply: suggested, activity });
   } catch (error) {
     return fromError(error);
   }

@@ -9,8 +9,9 @@ use near_sdk::base64::{engine::general_purpose::STANDARD, Engine};
 
 pub const MAX_SVG_BYTES: usize = 2048;
 
-const PAPER: &str = "#FBF7F0";
-const LINE: &str = "#E6DCCB";
+const PAPER: &str = "#FFF8F1";
+const LINE: &str = "#F0DDD0";
+const CHEEK: &str = "#FF9A8B";
 const INK: &str = "#3A2A1A";
 const INK_SOFT: &str = "#6B5A48";
 const GOLD: &str = "#C9A227";
@@ -81,7 +82,7 @@ pub fn render_svg(inv: &Invitation, hajat: &Hajat) -> String {
     let (body, left, floor, dark) = if status == CardStatus::Void {
         ("#9A9A9A", "#8A8A8A", "#A8A8A8", "#7A7A7A")
     } else {
-        (RED, "#8A1919", "#A62323", "#7A1414")
+        ("#D8453B", "#C23A32", "#CF4036", RED)
     };
     let open = matches!(
         status,
@@ -91,23 +92,23 @@ pub fn render_svg(inv: &Invitation, hajat: &Hajat) -> String {
     let mut s = String::with_capacity(1800);
     s.push_str("<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 360 220'>");
     s.push_str(&format!(
-        "<rect x='.5' y='.5' width='359' height='219' rx='16' fill='{PAPER}' stroke='{LINE}'/>"
+        "<rect x='.5' y='.5' width='359' height='219' rx='28' fill='{PAPER}' stroke='{LINE}'/>"
     ));
     s.push_str(&format!(
-        "<text x='24' y='38' font-size='18' font-weight='600' fill='{INK}' font-family='Georgia,serif'>{}</text>",
+        "<text x='24' y='40' font-size='18' font-weight='700' fill='{INK}' font-family='Trebuchet MS,Verdana,sans-serif'>{}</text>",
         escape(&truncate(&inv.label, 16))
     ));
     s.push_str(&format!(
-        "<text x='24' y='56' font-size='11' fill='{INK_SOFT}'>{}</text>",
+        "<text x='24' y='58' font-size='11' fill='{INK_SOFT}'>{}</text>",
         escape(&truncate(&hajat.title, 28))
     ));
     s.push_str(&format!(
-        "<text x='336' y='38' text-anchor='end' font-size='12' fill='{INK_SOFT}'>#{}</text>",
+        "<text x='336' y='40' text-anchor='end' font-size='12' fill='{INK_SOFT}'>#{}</text>",
         inv.token_id
     ));
     s.push_str(&format!(
-        "<rect x='240' y='46' width='96' height='20' rx='3' fill='none' stroke='{stamp_color}' stroke-width='1.5'/>\
-<text x='288' y='60' text-anchor='middle' font-size='10' font-weight='700' fill='{stamp_color}'>{}</text>",
+        "<rect x='240' y='48' width='96' height='20' rx='10' fill='{stamp_color}' fill-opacity='.12'/>\
+<text x='288' y='62' text-anchor='middle' font-size='10' font-weight='700' fill='{stamp_color}'>{}</text>",
         stamp(status)
     ));
 
@@ -119,8 +120,10 @@ pub fn render_svg(inv: &Invitation, hajat: &Hajat) -> String {
             "<polygon points='70,96 290,96 180,48' fill='{dark}'/>"
         ));
     }
+    // The envelope parts are clipped to a rounded rectangle so the corners are soft.
     s.push_str(&format!(
-        "<rect x='70' y='96' width='220' height='96' rx='6' fill='{body}'/>"
+        "<clipPath id='c'><rect x='70' y='96' width='220' height='96' rx='14'/></clipPath>\
+<g clip-path='url(#c)'><rect x='70' y='96' width='220' height='96' fill='{body}'/>"
     ));
     if open {
         s.push_str("<polygon points='70,96 290,96 180,152' fill='#5E1010'/>");
@@ -133,6 +136,19 @@ pub fn render_svg(inv: &Invitation, hajat: &Hajat) -> String {
     if !open {
         s.push_str(&format!(
             "<polygon points='70,96 290,96 180,160' fill='{dark}'/>"
+        ));
+    }
+    s.push_str("</g>");
+    // Pao's face on the envelope. A sleeping face when the event is cancelled.
+    if status == CardStatus::Void {
+        s.push_str(&format!(
+            "<path d='M146 175q6-5 12 0M202 175q6-5 12 0' fill='none' stroke='{INK}' stroke-width='2' stroke-linecap='round'/>"
+        ));
+    } else {
+        s.push_str(&format!(
+            "<circle cx='152' cy='174' r='3.5' fill='{INK}'/><circle cx='208' cy='174' r='3.5' fill='{INK}'/>\
+<ellipse cx='138' cy='182' rx='6' ry='4' fill='{CHEEK}' opacity='.7'/><ellipse cx='222' cy='182' rx='6' ry='4' fill='{CHEEK}' opacity='.7'/>\
+<path d='M174 180q6 5 12 0' fill='none' stroke='{INK}' stroke-width='2' stroke-linecap='round'/>"
         ));
     }
 
@@ -195,7 +211,7 @@ pub fn render_svg(inv: &Invitation, hajat: &Hajat) -> String {
 fn fallback_card(token_id: u64, stamp: &str) -> String {
     format!(
         "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 360 220'>\
-<rect width='360' height='220' rx='16' fill='{PAPER}' stroke='{LINE}'/>\
+<rect width='360' height='220' rx='28' fill='{PAPER}' stroke='{LINE}'/>\
 <text x='180' y='110' text-anchor='middle' font-size='20' fill='{INK}'>#{token_id} {stamp}</text></svg>"
     )
 }

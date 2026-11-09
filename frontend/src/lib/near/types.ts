@@ -123,11 +123,41 @@ export type EventsResponse = z.infer<typeof eventsSchema>;
 export const eventInvitationSchema = invitationSchema.extend({ media: z.string().nullable() });
 export type EventInvitation = z.infer<typeof eventInvitationSchema>;
 
+export const activityKind = z.enum([
+  "hajat_created",
+  "hajat_cancelled",
+  "invited",
+  "joined",
+  "sealed",
+  "checked_in",
+  "opened",
+  "open_failed",
+  "repaid",
+  "claim_skipped",
+  "refunded",
+  "refund_failed",
+]);
+export type ActivityKind = z.infer<typeof activityKind>;
+
+export const activitySchema = z.object({
+  idx: z.number().int().nonnegative(),
+  at_ms: z.number().int().nonnegative(),
+  kind: activityKind,
+  hajat_id: z.number().int().nonnegative(),
+  /** 0 when the entry is about the event and not one invitation */
+  token_id: z.number().int().nonnegative(),
+  actor: z.string(),
+  amount,
+});
+export type Activity = z.infer<typeof activitySchema>;
+
 export const eventSummarySchema = z.object({
   hajat: hajatSchema,
   invitations: z.array(eventInvitationSchema),
   /** What the viewer still owes this event's host, in base units. Null when no viewer was given. */
   suggested_reply: amount.nullable(),
+  /** Newest first. Empty when the deployed contract has no activity log yet. */
+  activity: z.array(activitySchema).default([]),
 });
 export type EventSummary = z.infer<typeof eventSummarySchema>;
 

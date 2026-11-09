@@ -2,12 +2,14 @@ import { z } from "zod";
 import { env } from "@/lib/env";
 import { viewCall, type RpcOptions } from "@/lib/near/provider";
 import {
+  activitySchema,
   configSchema,
   hajatSchema,
   invitationSchema,
   ledgerSchema,
   nftTokenSchema,
   pairSchema,
+  type Activity,
   type Config,
   type Hajat,
   type InvitationView,
@@ -95,6 +97,11 @@ export function getNftTokensForOwner(account: string, page: Page = {}, options?:
 export async function getTusdcBalance(account: string, options?: RpcOptions): Promise<string> {
   const raw = await viewCall(env.ftId, "ft_balance_of", { account_id: account }, options);
   return z.string().regex(/^\d+$/).parse(raw);
+}
+
+/** Newest first. Scans the last 400 entries of the log, which is plenty for one event. */
+export function getRecentActivity(hajatId: number, limit = 20, options?: RpcOptions): Promise<Activity[]> {
+  return view(z.array(activitySchema), "get_recent_activity", { hajat_id: String(hajatId), limit }, options);
 }
 
 /** Who owes me and whom I owe. Each list is paged separately (limit max 50). */
