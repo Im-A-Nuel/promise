@@ -32,6 +32,8 @@ export interface Config {
   amplop: string;
   personas: { id: string; account: string }[];
   execute: boolean;
+  /** deploy: delete the amplop account and create it again, which erases all of its state */
+  reset: boolean;
   /** seed and demo: print the plan and send nothing */
   dryRun: boolean;
   /** seed and demo: how many hours ahead the events are */
@@ -57,6 +59,7 @@ export function loadConfig(argv: string[], env: NodeJS.ProcessEnv, repoRoot: str
       execute: { type: "boolean", default: false },
       "app-url": { type: "string" },
       "dry-run": { type: "boolean", default: false },
+      reset: { type: "boolean", default: false },
       hours: { type: "string" },
     },
     allowPositionals: false,
@@ -81,6 +84,7 @@ export function loadConfig(argv: string[], env: NodeJS.ProcessEnv, repoRoot: str
     amplop: `amplop.${root}`,
     personas: PERSONA_IDS.map((id) => ({ id, account: `${id}.${root}` })),
     execute: values.execute === true,
+    reset: values.reset === true,
     dryRun: values["dry-run"] === true,
     hours,
     rpcUrl,

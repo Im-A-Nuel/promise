@@ -55,6 +55,7 @@ export class Chain {
         codeHash: hasCode ? view.code_hash : null,
         initialized: null,
         nearBalance: total > usedOnStorage ? total - usedOnStorage : 0n,
+        nearTotal: total,
       };
     } catch (error) {
       if (NOT_FOUND.test(String(error instanceof Error ? error.message : error))) {
@@ -118,6 +119,12 @@ export class Chain {
   /** The contract accounts carry the root public key, so the root key can sign for them. */
   private asContract(account: string): Account {
     return new Account(account, this.provider, this.signer);
+  }
+
+  /** Deletes a contract account. All of its NEAR goes to the root. The root key signs, as it is on the account. */
+  async deleteAccount(account: string): Promise<TxInfo> {
+    const res = await this.asContract(account).deleteAccount(this.rootKey.accountId);
+    return { hash: res.transaction.hash as string };
   }
 
   redeploy(account: string, wasm: Uint8Array): Promise<TxInfo> {

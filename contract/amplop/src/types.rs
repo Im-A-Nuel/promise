@@ -133,6 +133,8 @@ pub struct Config {
     pub token_count: u64,
     /// NEAR left after storage staking, in yocto. Keep it above `MIN_SPARE_BALANCE`.
     pub spare_balance: U128,
+    /// entries in the activity log
+    pub activity_count: u32,
 }
 
 /// Display status derived from stored state (docs/CONTRACTS.md section 3).

@@ -1,5 +1,6 @@
 //! Promise `amplop` contract. Spec: docs/CONTRACTS.md.
 
+mod activity;
 mod constants;
 mod errors;
 mod escrow;
@@ -15,6 +16,7 @@ mod views;
 #[cfg(test)]
 mod tests;
 
+use activity::ActivityEntry;
 use constants::*;
 use errors::*;
 use ledger::{PairIndex, PairLedger};
@@ -44,6 +46,7 @@ enum StorageKey {
     OwesLen,
     OwesItems,
     OwesPos,
+    Activity,
 }
 
 /// All collections are flat maps (no nested collections) so storage usage can be
@@ -75,6 +78,9 @@ pub struct Contract {
     owed_to: PairIndex,
     /// receiver -> givers they owe
     owes: PairIndex,
+    /// activity log, entries 0..activity_len
+    activity: LookupMap<u32, ActivityEntry>,
+    activity_len: u32,
 }
 
 #[near]
@@ -108,6 +114,8 @@ impl Contract {
                 StorageKey::OwesItems,
                 StorageKey::OwesPos,
             ),
+            activity: LookupMap::new(StorageKey::Activity),
+            activity_len: 0,
         }
     }
 
@@ -201,6 +209,7 @@ impl Contract {
         self.pairs.flush();
         self.owed_to.flush();
         self.owes.flush();
+        self.activity.flush();
     }
 
     /// Requires the attached deposit to cover the bytes added since `start_usage`

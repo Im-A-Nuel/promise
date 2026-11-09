@@ -175,6 +175,45 @@ describe("plan", () => {
   });
 });
 
+describe("reset", () => {
+  it("is off unless asked for", () => {
+    expect(cfg().reset).toBe(false);
+    expect(cfg({}, ["--reset"]).reset).toBe(true);
+  });
+
+  it("deletes amplop first and then builds it again, leaving tusdc and the personas alone", () => {
+    const c = cfg({}, ["--reset"]);
+    const steps = buildPlan(c, deployed(c));
+    expect(steps.map((s) => s.kind)).toEqual(["delete-account", "create-contract"]);
+    expect(steps[0]).toMatchObject({ account: c.amplop });
+    expect(steps[1]).toMatchObject({ account: c.amplop, wasm: "amplop", fund: c.fund.amplop });
+  });
+
+  it("does nothing special on a chain where amplop does not exist yet", () => {
+    const c = cfg({}, ["--reset"]);
+    const kinds = buildPlan(c, fresh(c)).map((s) => s.kind);
+    expect(kinds).not.toContain("delete-account");
+  });
+
+  it("does not touch anything without the flag", () => {
+    const c = cfg();
+    expect(buildPlan(c, deployed(c))).toEqual([]);
+  });
+
+  it("says in words that the data is erased", () => {
+    const c = cfg({}, ["--reset"]);
+    expect(describeStep(buildPlan(c, deployed(c))[0]!)).toMatch(/DELETE .*everything/);
+  });
+
+  it("counts the NEAR that the deleted account sends back when checking the budget", () => {
+    const c = cfg({}, ["--reset"]);
+    const steps = buildPlan(c, deployed(c));
+    const poor = 2_700n * 10n ** 21n;
+    expect(checkBudget(poor, steps)).toMatch(/needs/);
+    expect(checkBudget(poor, steps, 7_900n * 10n ** 21n)).toBeNull();
+  });
+});
+
 describe("budget", () => {
   it("the default plan fits in the 19.8 NEAR the root has", () => {
     const c = cfg();

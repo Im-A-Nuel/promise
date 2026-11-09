@@ -7,6 +7,7 @@
 //! Settlement runs only inside `on_open_resolved`, after the money has moved. Storage for the
 //! ledger is paid by the contract account, because a callback cannot receive a deposit.
 
+use crate::activity::ActivityKind;
 use crate::constants::*;
 use crate::events;
 use crate::types::Invitation;
@@ -178,6 +179,13 @@ impl Contract {
             let mut pair = self.pairs.get(&key).cloned().unwrap_or_default();
             if pair.open.len() >= MAX_PAIR_OPEN {
                 events::claim_skipped(token.hajat_id, token.token_id, &guest, host, credit);
+                self.record(
+                    ActivityKind::ClaimSkipped,
+                    token.hajat_id,
+                    token.token_id,
+                    &guest,
+                    credit,
+                );
             } else {
                 pair.open.push(token.token_id);
                 pair.remaining = U128(pair.remaining.0 + credit);

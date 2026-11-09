@@ -7,12 +7,12 @@ use near_sdk::{Gas, PromiseResult};
 
 const UNIT: u128 = 1_000_000;
 
-fn name(n: &str) -> String {
+pub(super) fn name(n: &str) -> String {
     format!("{n}.testnet")
 }
 
 /// A fresh hajat hosted by `host`, event 12 hours away so the host window is open.
-fn hajat_of(c: &mut Contract, host: &str) -> u64 {
+pub(super) fn hajat_of(c: &mut Contract, host: &str) -> u64 {
     testing_env!(ctx(&name(host), 50).build());
     c.create_hajat(
         format!("Acara {host}"),
@@ -25,7 +25,7 @@ fn hajat_of(c: &mut Contract, host: &str) -> u64 {
 }
 
 /// `guest` gets invited to `hajat`, seals `amount` and the host opens it. Returns the token id.
-fn gift(c: &mut Contract, hajat: u64, guest: &str, amount: u128) -> u64 {
+pub(super) fn gift(c: &mut Contract, hajat: u64, guest: &str, amount: u128) -> u64 {
     let host = c.get_hajat(hajat).unwrap().host.to_string();
     testing_env!(ctx(&host, 50).build());
     let token = c.invite(hajat, acct(&name(guest)), guest.to_string()).0;

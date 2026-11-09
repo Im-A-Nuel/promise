@@ -26,7 +26,9 @@ Snippets below show shape, not final code. near-sdk 5.x APIs: `#[near(contract_s
 | `MAX_INVITE_BATCH` | 20 | per `invite_many` |
 | `MAX_SETTLE` | 10 | claims repaid per open |
 | `MAX_PAIR_OPEN` | 50 | open token ids per pair |
-| `MAX_ACTIVITY` | 5000 | on-chain log entries |
+| `MAX_ACTIVITY` | 1000 | log entries kept. The first version of this spec said 5000, but an entry is 107 bytes on chain (measured), so 1000 hold about 1.07 NEAR and 5000 would hold about 5.4 NEAR |
+| `MAX_ACTIVITY_SCAN` | 400 | `get_recent_activity` looks back over at most this many entries |
+| `MIN_SPARE_BALANCE` | 0.25 NEAR | spare balance the contract keeps for storage it pays itself (callbacks, seals, log entries) |
 | `MAX_PAGE` | 50 | view `limit` cap |
 | `OPEN_WINDOW_MS` | 86_400_000 | host may open from `event_at - 24h` |
 | `AUTO_OPEN_MS` | 86_400_000 | anyone may open after `event_at + 24h` |
@@ -325,7 +327,22 @@ EVENT_JSON:{"standard":"promise_amplop","version":"1.0.0","event":"opened","data
 
 Events: `hajat_created`, `hajat_updated`, `hajat_cancelled`, `invited`, `joined`, `sealed`, `checked_in`, `opened`, `open_failed`, `repaid`, `claim_skipped`, `refunded`, `refund_failed`. Mints also emit the NEP-171 `nft_mint` event with `standard: "nep171"`.
 
-On-chain log: `ActivityEntry { idx: u32, at_ms: u64, kind: String, hajat_id: u64, token_id: u64, actor: AccountId, amount: U128 }`. Appended in the same call as the event until `MAX_ACTIVITY`. Read with `get_activity(from, limit)`.
+On-chain log: `ActivityEntry { idx: u32, at_ms: u64, kind, hajat_id: u64, token_id: u64, actor: AccountId, amount: U128 }`, written in the same call that emits the event. `kind` is the NEP-297 event name in snake case.
+
+| kind | actor | token_id | amount |
+| --- | --- | --- | --- |
+| `hajat_created`, `hajat_cancelled` | host | 0 | 0 |
+| `invited` | host | the new invitation | 0 |
+| `joined` | the guest | the new invitation | 0 |
+| `sealed` | the guest | the invitation | the amount of this seal |
+| `checked_in` | host | the invitation | 0 |
+| `opened` | host | the invitation | the released amount |
+| `open_failed` | host | the invitation | the amount that stayed sealed |
+| `repaid` | the guest who pays | the OLDER invitation whose claim was repaid | the amount repaid |
+| `claim_skipped` | the guest | the invitation | the credit that was not recorded |
+| `refunded`, `refund_failed` | the owner | the invitation | the amount |
+
+The log keeps the first `MAX_ACTIVITY` entries and then stops growing; a full log never blocks anything (see `record` in `activity.rs`, which cannot panic because it also runs inside `on_open_resolved`). Entries written by `create_hajat`, `invite`, `invite_many` and `join` are paid by the caller, because they are written before the deposit is measured. Entries written in callbacks, `check_in` and `ft_on_transfer` are paid by the contract, which `MIN_SPARE_BALANCE` keeps funded. An opening with ten repayments writes up to 11 entries.
 
 ## 9. Views
 
@@ -341,7 +358,8 @@ On-chain log: `ActivityEntry { idx: u32, at_ms: u64, kind: String, hajat_id: u64
 | `get_ledger(account_id, from?, limit?)` | `{ owed_to_me: Vec<LedgerRow>, i_owe: Vec<LedgerRow> }`. `from` and `limit` page each list separately (limit max 50) |
 | `get_pair(giver, receiver)` | `{ remaining: U128, open: Vec<U64> }` |
 | `suggest_reply(hajat_id, guest)` | `U128`, equals `get_pair(host_of_hajat, guest).remaining` |
-| `get_activity(from, limit)` | `Vec<ActivityEntry>` |
+| `get_activity(from?, limit?)` | `Vec<ActivityEntry>` in the order they happened, `limit` at most 50 |
+| `get_recent_activity(hajat_id?, token_id?, limit?)` | newest first, optionally only one hajat and/or one invitation, looking back over at most `MAX_ACTIVITY_SCAN` entries. Default limit 20, at most 50. This is what the UI uses for history |
 | `nft_*` | per NEP-171, NEP-177 |
 
 `LedgerRow { counterparty: AccountId, remaining: U128, token_ids: Vec<U64> }`. In `owed_to_me` the counterparty owes me. In `i_owe` I owe the counterparty.
@@ -444,7 +462,7 @@ No burn, no pause, no upgrade path. Testnet toy.
 
 | ID | Finding | Status |
 | --- | --- | --- |
-| F-1 | The open callback grows storage that the contract account pays for. With a thin balance it fails after the tUSDC already moved, and the token is stuck in `Opening` with no way out. Reproduced in `sandbox_security.rs` (host received 5 tUSDC, state `Opening`). | Fixed. `start_open` requires `MIN_SPARE_BALANCE` (0.1 NEAR) of spare balance and fails with `ERR_LOW_BALANCE` before any state change. `ft_on_transfer` hands the tokens back for the same reason. `get_config().spare_balance` exposes the number so a monitor can top up. |
+| F-1 | The open callback grows storage that the contract account pays for. With a thin balance it fails after the tUSDC already moved, and the token is stuck in `Opening` with no way out. Reproduced in `sandbox_security.rs` (host received 5 tUSDC, state `Opening`). | Fixed. `start_open` requires `MIN_SPARE_BALANCE` (0.25 NEAR) of spare balance and fails with `ERR_LOW_BALANCE` before any state change. `ft_on_transfer` hands the tokens back for the same reason. `get_config().spare_balance` exposes the number so a monitor can top up. |
 | F-2 | Gas of the heaviest view. | `nft_tokens(limit 50)` burns 15 Tgas, far below the 200 Tgas view limit. No change. |
 | F-3 | The contract owner keeps the full access key of the `amplop` account, so the owner could redeploy code and move escrowed tUSDC. | Accepted for testnet and stated in the README. Optional: delete the key after the final deploy (irreversible, section 14). |
 | F-4 | The `tusdc` faucet registers each new account at the contract's cost (about 0.00125 NEAR). Many throwaway accounts can drain it. | Accepted, testnet token. Fund `tusdc` with at least 4 NEAR and top it up if the faucet stops answering. |
@@ -454,4 +472,9 @@ No burn, no pause, no upgrade path. Testnet toy.
 
 Checked and found sound: `ft_on_transfer` accepts only the configured token and only the invitation owner; no method can move money to anyone but the host (open) or the token owner (refund); `Opening` and `Refunding` block seal, cancel, a second open and a second refund; callbacks are `#[private]`, never panic on a failed transfer, and are idempotent on a token that is no longer locked; settlement is bounded (10 claims, 50 per pair, 200 invitations); all counters use checked or saturating arithmetic with release overflow checks on (the only overflow found was in the card progress bar, fixed earlier).
 
-Funding rule for deploy: `amplop` needs about 3.1 NEAR just to hold its code, plus at least 0.1 NEAR spare (F-1). The runbook budget of 8 NEAR leaves enough room.
+Funding rule for deploy: `amplop` needs about 3.1 NEAR just to hold its code, plus at least 0.25 NEAR spare (F-1) and about 1.1 NEAR when the activity log is full. The runbook budget of 8 NEAR leaves enough room.
+
+
+- `get_config` also returns `spare_balance` and `activity_count`.
+- The reserve was raised from 0.1 to 0.25 NEAR when the log was added: one opening can now write up to 11 log entries and several ledger entries in its callback, and a few openings can be in flight at once.
+- A redeploy that adds fields to the contract state cannot read the old state. The deploy script's `--reset` deletes the `amplop` account and creates it again, which also clears the demo data before the seed.

@@ -3,6 +3,7 @@
 //! Money moves in two phases. The token is locked as `Opening`, `ft_transfer` runs,
 //! and `on_open_resolved` finishes. Nothing is marked `Opened` before the transfer succeeds.
 
+use crate::activity::ActivityKind;
 use crate::constants::*;
 use crate::errors::*;
 use crate::types::{HajatStatus, InvState, Invitation};
@@ -96,6 +97,13 @@ impl Contract {
         hajat.sealed_total = U128(sealed_total);
 
         events::sealed(hajat.id, token_id, &token.owner, amount.0, sealed);
+        self.record(
+            ActivityKind::Sealed,
+            hajat.id,
+            token_id,
+            &token.owner,
+            amount.0,
+        );
         self.tokens.insert(token_id, token);
         self.hajats.insert(hajat.id, hajat);
         PromiseOrValue::Value(U128(0))
@@ -121,6 +129,7 @@ impl Contract {
         token.checked_in = true;
         let is_sealed = token.state == InvState::Sealed;
         events::checked_in(hajat.id, token_id, &hajat.host, &token.owner);
+        self.record(ActivityKind::CheckedIn, hajat.id, token_id, &hajat.host, 0);
         self.tokens.insert(token_id, token);
 
         if is_sealed {
@@ -168,6 +177,13 @@ impl Contract {
         if !transferred {
             token.state = InvState::Sealed;
             events::open_failed(hajat.id, token_id, &hajat.host, amount.0);
+            self.record(
+                ActivityKind::OpenFailed,
+                hajat.id,
+                token_id,
+                &hajat.host,
+                amount.0,
+            );
             self.tokens.insert(token_id, token);
             return false;
         }
@@ -180,7 +196,15 @@ impl Contract {
         hajat.released_total = U128(hajat.released_total.0.saturating_add(amount.0));
         let repays = self.settle(&mut token, &hajat.host);
         events::opened(hajat.id, token_id, &hajat.host, &token.owner, amount.0);
+        self.record(
+            ActivityKind::Opened,
+            hajat.id,
+            token_id,
+            &hajat.host,
+            amount.0,
+        );
         for (older_id, paid) in repays {
+            self.record(ActivityKind::Repaid, hajat.id, older_id, &token.owner, paid);
             events::repaid(
                 hajat.id,
                 token_id,

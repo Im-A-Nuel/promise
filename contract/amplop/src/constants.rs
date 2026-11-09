@@ -31,6 +31,11 @@ pub const MIN_GAS_REFUND: Gas = Gas::from_tgas(80);
 pub const GAS_CALLBACK_OPEN: Gas = Gas::from_tgas(60);
 pub const MAX_SETTLE: usize = 10;
 pub const MAX_PAIR_OPEN: usize = 50;
-/// 0.1 NEAR. Storage the contract itself pays for (seal notes, ledger entries added in a
+/// 0.25 NEAR. Storage the contract itself pays for (seal notes, ledger and log entries added in a
 /// callback) must always have room, or the open callback could fail after the tUSDC moved.
-pub const MIN_SPARE_BALANCE: u128 = 100_000_000_000_000_000_000_000;
+pub const MIN_SPARE_BALANCE: u128 = 250_000_000_000_000_000_000_000;
+/// Entries kept in the activity log. The spec said 5000, but at about 150 bytes each that is about 7.5 NEAR
+/// of storage the contract would have to hold, so the log keeps the first 1000.
+pub const MAX_ACTIVITY: u32 = 1000;
+/// `get_recent_activity` looks back over at most this many entries, to stay far below the view gas limit.
+pub const MAX_ACTIVITY_SCAN: u32 = 400;

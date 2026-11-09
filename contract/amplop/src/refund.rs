@@ -3,6 +3,7 @@
 //! Refunds mirror the open flow: lock as `Refunding`, `ft_transfer` to the owner,
 //! finish in `on_refund_resolved`. The money always goes to the token owner, never the caller.
 
+use crate::activity::ActivityKind;
 use crate::constants::*;
 use crate::errors::*;
 use crate::escrow::ext_ft;
@@ -37,6 +38,7 @@ impl Contract {
         let host = hajat.host.clone();
         self.hajats.insert(hajat_id, hajat);
         events::hajat_cancelled(hajat_id, &host);
+        self.record(ActivityKind::HajatCancelled, hajat_id, 0, &host, 0);
     }
 
     /// Anyone may trigger a refund. Allowed when the hajat is cancelled, or when the
@@ -86,6 +88,13 @@ impl Contract {
         if !transferred {
             token.state = InvState::Sealed;
             events::refund_failed(hajat.id, token_id, &token.owner, amount.0);
+            self.record(
+                ActivityKind::RefundFailed,
+                hajat.id,
+                token_id,
+                &token.owner,
+                amount.0,
+            );
             self.tokens.insert(token_id, token);
             return false;
         }
@@ -94,6 +103,13 @@ impl Contract {
         token.sealed = U128(0);
         hajat.sealed_total = U128(hajat.sealed_total.0.saturating_sub(amount.0));
         events::refunded(hajat.id, token_id, &token.owner, amount.0);
+        self.record(
+            ActivityKind::Refunded,
+            hajat.id,
+            token_id,
+            &token.owner,
+            amount.0,
+        );
         self.tokens.insert(token_id, token);
         self.hajats.insert(hajat.id, hajat);
         true

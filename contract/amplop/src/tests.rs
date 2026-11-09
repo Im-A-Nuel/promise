@@ -602,3 +602,5 @@ mod refund;
 mod ledger;
 
 mod svg;
+
+mod activity;

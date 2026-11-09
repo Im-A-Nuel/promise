@@ -7,8 +7,10 @@ export interface AccountState {
   codeHash: string | null;
   /** true when the contract answers its init-guarded view, null when there is no code */
   initialized: boolean | null;
-  /** spendable NEAR in yocto, 0 when the account does not exist */
+  /** spendable NEAR in yocto (total minus what is locked for storage), 0 when the account does not exist */
   nearBalance: bigint;
+  /** the whole balance, which is what deleting the account sends back to the root */
+  nearTotal?: bigint;
 }
 
 export interface ChainState {
@@ -20,6 +22,7 @@ export interface ChainState {
 }
 
 export type Step =
+  | { kind: "delete-account"; account: string }
   | { kind: "create-contract"; account: string; wasm: "tusdc" | "amplop"; fund: bigint; init: { method: "new"; args: Record<string, string> } }
   | { kind: "redeploy"; account: string; wasm: "tusdc" | "amplop" }
   | { kind: "init"; account: string; init: { method: "new"; args: Record<string, string> } }
@@ -36,7 +39,8 @@ function missing(): AccountState {
   return { exists: false, codeHash: null, initialized: null, nearBalance: 0n };
 }
 
-export function buildPlan(cfg: Config, state: ChainState): Step[] {
+export function buildPlan(cfg: Config, initial: ChainState): Step[] {
+  let state = initial;
   const steps: Step[] = [];
   const get = (id: string) => state.accounts[id] ?? missing();
 
@@ -47,6 +51,12 @@ export function buildPlan(cfg: Config, state: ChainState): Step[] {
       args: { owner_id: cfg.root, ft_id: cfg.tusdc, app_url: cfg.appUrl },
     } as const,
   };
+
+  // A reset throws away the amplop account and everything in it, then builds it again below.
+  if (cfg.reset && get(cfg.amplop).exists) {
+    steps.push({ kind: "delete-account", account: cfg.amplop });
+    state = { ...state, accounts: { ...state.accounts, [cfg.amplop]: missing() } };
+  }
 
   for (const [wasm, account, fund] of [
     ["tusdc", cfg.tusdc, cfg.fund.tusdc],
@@ -102,6 +112,8 @@ export function nearNeeded(steps: Step[]): bigint {
 
 export function describeStep(step: Step): string {
   switch (step.kind) {
+    case "delete-account":
+      return `DELETE ${step.account} and everything stored in it (its NEAR goes back to the root)`;
     case "create-contract":
       return `create ${step.account} with ${formatNear(step.fund)} NEAR, deploy ${step.wasm}.wasm, call new()`;
     case "redeploy":
@@ -120,8 +132,9 @@ export function describeStep(step: Step): string {
 }
 
 /** Returns a problem description when the root cannot pay for the plan, otherwise null. */
-export function checkBudget(rootBalance: bigint, steps: Step[]): string | null {
+export function checkBudget(rootBalance: bigint, steps: Step[], credit = 0n): string | null {
+  // `credit` is what deleting an account sends back to the root before the new one is funded
   const need = nearNeeded(steps) + ROOT_RESERVE;
-  if (rootBalance >= need) return null;
+  if (rootBalance + credit >= need) return null;
   return `Root has ${formatNear(rootBalance)} NEAR but the plan needs ${formatNear(need)} NEAR (including ${formatNear(ROOT_RESERVE)} for gas). Lower FUND_TUSDC, FUND_AMPLOP or FUND_PERSONA, or add NEAR to the root.`;
 }

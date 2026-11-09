@@ -88,7 +88,9 @@ async function main() {
     steps.forEach((s, i) => console.log(`  ${String(i + 1).padStart(2)}. ${describeStep(s)}`));
   }
 
-  const budget = checkBudget(rootBalance, steps);
+  const old = state.accounts[cfg.amplop];
+  const credit = cfg.reset ? (old?.nearTotal ?? old?.nearBalance ?? 0n) : 0n;
+  const budget = checkBudget(rootBalance, steps, credit);
   if (budget) fail(budget);
 
   if (!cfg.execute) {
@@ -121,6 +123,9 @@ async function main() {
     console.log(`\n[${i + 1}/${steps.length}] ${describeStep(step)}`);
     try {
       switch (step.kind) {
+        case "delete-account":
+          record(step, await chain.deleteAccount(step.account));
+          break;
         case "create-contract":
           record(step, await chain.createContractAccount(step.account, chain.rootPublicKey, step.fund, wasm[step.wasm], step.init));
           break;

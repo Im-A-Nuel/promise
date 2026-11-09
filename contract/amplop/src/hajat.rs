@@ -1,5 +1,6 @@
 //! Hajat lifecycle and invitations: create, policy, invite, invite_many, join.
 
+use crate::activity::ActivityKind;
 use crate::constants::*;
 use crate::errors::*;
 use crate::types::{Hajat, HajatKind, HajatStatus, InviteItem, JoinPolicy};
@@ -54,6 +55,7 @@ impl Contract {
         self.host_hajats.insert((host.clone(), n), id);
         self.host_count.insert(host.clone(), n + 1);
 
+        self.record(ActivityKind::HajatCreated, id, 0, &host, 0);
         self.settle_storage(start);
         events::hajat_created(id, &host, event_at_ms);
         U64(id)
@@ -79,6 +81,7 @@ impl Contract {
         let host = hajat.host.clone();
         self.hajats.insert(hajat_id, hajat);
 
+        self.record(ActivityKind::Invited, hajat_id, token_id, &host, 0);
         self.settle_storage(start);
         events::invited(hajat_id, token_id, &host, &guest);
         events::nft_mint(&guest, token_id);
@@ -104,6 +107,9 @@ impl Contract {
         let host = hajat.host.clone();
         self.hajats.insert(hajat_id, hajat);
 
+        for (token_id, _) in &minted {
+            self.record(ActivityKind::Invited, hajat_id, *token_id, &host, 0);
+        }
         self.settle_storage(start);
         for (token_id, guest) in &minted {
             events::invited(hajat_id, *token_id, &host, guest);
@@ -125,6 +131,7 @@ impl Contract {
         let host = hajat.host.clone();
         self.hajats.insert(hajat_id, hajat);
 
+        self.record(ActivityKind::Joined, hajat_id, token_id, &guest, 0);
         self.settle_storage(start);
         events::joined(hajat_id, token_id, &host, &guest);
         events::nft_mint(&guest, token_id);

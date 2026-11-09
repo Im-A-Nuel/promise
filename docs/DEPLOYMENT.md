@@ -25,7 +25,7 @@ Names assume `promisedemo.testnet` is free. If not, choose another root and set 
 | --- | --- | --- |
 | `promisedemo.testnet` | root, deployer, pays for sub-accounts | from faucet |
 | `tusdc.promisedemo.testnet` | token contract. Code locks about 1.7 NEAR and every new faucet user costs about 0.00125 NEAR | 4 |
-| `amplop.promisedemo.testnet` | main contract. The code alone locks about 3.1 NEAR and `ERR_LOW_BALANCE` stops openings below 0.1 NEAR spare | 8 |
+| `amplop.promisedemo.testnet` | main contract. The code alone locks about 3.1 NEAR and `ERR_LOW_BALANCE` stops openings below 0.25 NEAR spare | 8 |
 | `ayu` `budi` `citra` `dewi` `eko` `.promisedemo.testnet` | personas | 1 each |
 | `relayer.promisedemo.testnet` (P2) | pays gas for delegates | 5 |
 
@@ -58,6 +58,10 @@ pnpm demo                                  # smoke test, prints explorer links
 7. Call `get_config` on `amplop` and `ft_metadata` on `tusdc` and fail loudly if either is wrong.
 
 `scripts/seed.ts` creates the story in DEMO.md section 1 with event times relative to now (host window already open), then prints the transaction list to paste into DEMO.md.
+
+### Reset
+
+`pnpm deploy:testnet -- --reset` is a dry run that shows the plan. With `--execute` it deletes the `amplop` account (all its NEAR goes back to the root) and creates it again from the current wasm. Use it when the contract state layout changed, because a plain redeploy cannot read the old state, and to clear demo data before `pnpm seed`. It never touches `tusdc` or the personas, but it does erase every event, invitation and ledger entry. The script reads the plan from the chain first, so it also tops up persona tUSDC that fell below 500.
 
 ## 4. Manual path (what the script runs)
 
