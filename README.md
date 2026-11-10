@@ -118,6 +118,20 @@ Deploy to your own testnet accounts with `pnpm deploy:testnet` (dry run) and `pn
 | `docs/DEMO.md` | Seed data, demo script, submission checklist |
 | `docs/ROADMAP.md` | Day plan to the deadline (Indonesian) |
 
+## Built during the hackathon
+
+All code in this repository was written inside the hackathon window. The first commit is dated 2026-11-09 and there is no earlier baseline, so there is no pre-hackathon tag. Read the full history with `git log --reverse`.
+
+## Libraries and tools
+
+| Area | What | Notes |
+| --- | --- | --- |
+| Contracts | near-sdk 5.30.1, near-contract-standards 5.30.1, near-workspaces 0.24.0, cargo-near 0.23 | Rust 1.95. No contract template was copied, the escrow, ledger, card and activity log are original |
+| Web | Next.js 15, React 19, Tailwind CSS v4, TanStack Query, framer-motion, zod, near-api-js, qrcode | Next.js route handlers are the only backend, there is no database |
+| Fonts | Fredoka, Nunito, Caveat (Google Fonts, OFL) | Loaded through next/font |
+| Scripts | tsx, vitest, near-api-js | Deploy, seed and demo |
+| Art | The mascot Pao, the clouds and the icons are SVG drawn for this project. The app icon is in `design/` | |
+
 ## License
 
 MIT. Built by Imanuel (GitHub: [Im-A-Nuel](https://github.com/Im-A-Nuel)).
