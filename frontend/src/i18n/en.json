@@ -294,5 +294,11 @@
   "error.body": "Your envelopes are safe on the chain. Try again, or use the menu to go somewhere else.",
   "tx.unconfirmed": "{label} is not confirmed yet",
   "events.released_label": "released",
-  "events.waiting_label": "waiting"
+  "events.waiting_label": "waiting",
+  "carousel.pause": "Pause the slideshow",
+  "carousel.play": "Play the slideshow",
+  "demo.step.go": "Open as {name}",
+  "demo.step.label": "Step {n}",
+  "demo.pao.note": "I switch accounts for you",
+  "demo.pao.label": "Pao, the envelope, watching the pointer"
 }
