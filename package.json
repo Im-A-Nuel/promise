@@ -18,5 +18,10 @@
     "demo": "pnpm --filter @promise/scripts run demo",
     "contracts:build": "cd contract/tusdc && cargo near build non-reproducible-wasm --no-abi && cd ../amplop && cargo near build non-reproducible-wasm --no-abi",
     "contracts:test": "cd contract && cargo test --workspace --lib && cd tusdc && cargo near build non-reproducible-wasm --no-abi && cd ../amplop && cargo near build non-reproducible-wasm --no-abi && cd .. && cargo test --workspace --tests"
+  },
+  "pnpm": {
+    "overrides": {
+      "postcss": "8.5.23"
+    }
   }
 }

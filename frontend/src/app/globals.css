@@ -402,6 +402,104 @@ li {
   animation: sparkle 3.2s ease-in-out infinite;
 }
 
+/* Scroll reveal. Reveal arms a block only when it starts below the fold, so nothing on screen flashes. */
+[data-reveal="armed"] {
+  opacity: 0;
+  transform: translateY(28px) scale(0.98);
+}
+[data-reveal="shown"] {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 700ms var(--ease-out) var(--rd, 0ms),
+    transform 800ms var(--ease-out) var(--rd, 0ms);
+}
+
+/* The headline: each word rises from behind its own line edge. */
+.word {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+  padding-bottom: 0.14em;
+  margin-bottom: -0.14em;
+}
+.word-in {
+  display: inline-block;
+  animation: word-up 800ms var(--ease-out) backwards;
+  animation-delay: var(--wd, 0ms);
+}
+@keyframes word-up {
+  from {
+    transform: translateY(105%) rotate(3deg);
+  }
+  to {
+    transform: none;
+  }
+}
+
+/* The hero arrives in order: pill, headline, copy, scene, buttons. */
+.hero-in {
+  animation: hero-in 900ms var(--ease-out) backwards;
+  animation-delay: var(--hd, 0ms);
+}
+@keyframes hero-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* As the page scrolls, the hero scene drifts up and settles back a little. Browsers without scroll timelines skip it. */
+@supports (animation-timeline: scroll()) {
+  .hero-drift {
+    animation: hero-drift linear both;
+    animation-timeline: scroll(root);
+    animation-range: 0 70vh;
+  }
+}
+@keyframes hero-drift {
+  to {
+    transform: translateY(-28px) scale(0.97);
+    opacity: 0.85;
+  }
+}
+
+/* A glint crosses the main button on hover. */
+.btn-primary {
+  position: relative;
+  overflow: hidden;
+}
+.btn-primary::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 30%, rgb(255 255 255 / 0.38) 50%, transparent 70%);
+  transform: translateX(-120%);
+  transition: transform 700ms var(--ease-out);
+  pointer-events: none;
+}
+.btn-primary:hover:not(:disabled)::after {
+  transform: translateX(120%);
+}
+
+/* Coins pop into the scene in whole steps once their card has scrolled into view. */
+@keyframes pixel-pop {
+  from {
+    transform: scale(0);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+[data-reveal="shown"] .pixel-pop {
+  animation: pixel-pop 420ms steps(4) backwards;
+  animation-delay: calc(var(--rd, 0ms) + 250ms);
+}
+
 /* Pixel art. The ground is a strip of 8 px blocks, and a hop moves in whole steps so it reads as a sprite. */
 .pixel-ground {
   height: 10px;
@@ -467,7 +565,14 @@ li {
   .pao-eye {
     transform: none;
   }
-  .group:hover .pixel-hop {
+  .group:hover .pixel-hop,
+  [data-reveal="shown"] .pixel-pop,
+  .word-in,
+  .hero-in,
+  .hero-drift {
     animation: none;
+  }
+  .btn-primary::after {
+    display: none;
   }
 }
