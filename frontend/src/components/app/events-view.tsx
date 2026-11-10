@@ -56,7 +56,7 @@ export function EventsList() {
 
   return (
     <>
-      <div className="flex flex-wrap items-start justify-between gap-3">
+      <div className="mb-6 flex flex-wrap items-start justify-between gap-x-3 gap-y-4 sm:mb-8 [&>div]:mb-0">
         <PageTitle title={t("events.title")} lead={t("events.lead")} />
         <Link href="/events/new" className="btn-primary">
           {t("events.new")}

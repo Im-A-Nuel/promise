@@ -293,7 +293,7 @@ Standards: NEP-171 (`nft_token`, `nft_tokens_for_owner`, `nft_tokens`, `nft_tota
     "title": "Invitation #7: Ayu & Bima's Wedding",
     "description": "Sealed. Opens at the event.",
     "media": "data:image/svg+xml;base64,PHN2Zy...",
-    "reference": "https://TODO(deploy)/api/nft/7",
+    "reference": "https://APP_URL/api/nft/7",
     "extra": "{\"hajat_id\":1,\"status\":\"Sealed\",\"released\":\"0\",\"reciprocated\":\"0\"}"
   },
   "approved_account_ids": null

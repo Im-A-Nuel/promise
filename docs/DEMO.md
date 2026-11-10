@@ -25,7 +25,12 @@ After seeding, the ledger reads: Ayu owes Budi 5.00 and Citra 2.00. Dewi's 3.00 
 Token ids are assigned in order. `seed.ts` prints the mapping, paste it here after the first run:
 
 ```
-TODO(deploy): token 1 = Budi @ hajat 1, token 2 = Citra @ hajat 1, token 3 = Dewi @ hajat 1, ...
+token 1 = Budi @ hajat 1
+token 2 = Citra @ hajat 1
+token 3 = Dewi @ hajat 1
+token 4 = Ayu @ hajat 2
+token 5 = Citra @ hajat 2
+token 6 = Dewi @ hajat 3
 ```
 
 ## 2. The live walkthrough (matches README "Try it")
