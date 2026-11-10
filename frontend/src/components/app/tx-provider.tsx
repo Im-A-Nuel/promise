@@ -13,6 +13,7 @@ import {
   type ReactNode,
 } from "react";
 import { Pao } from "@/components/pao";
+import { markChainChanged } from "@/lib/api-client";
 import { useI18n } from "@/lib/i18n/client";
 import type { CallArgs } from "@/lib/near/actions";
 import { toFriendlyError } from "@/lib/near/errors";
@@ -94,6 +95,7 @@ export function TxProvider({ children }: { children: ReactNode }) {
         const problem = findProblem(result.logs);
         if (problem) throw problem;
         dispatch({ type: "confirming" });
+        markChainChanged();
         await Promise.all(
           (options.invalidate ?? ALL_CHAIN_QUERIES).map((queryKey) =>
             queryClient.invalidateQueries({ queryKey }),
@@ -108,6 +110,7 @@ export function TxProvider({ children }: { children: ReactNode }) {
       } catch (error) {
         // A timeout does not mean it failed. Refresh anyway, so the screen shows whatever the chain ended up with.
         if (error instanceof TxTimeoutError) {
+          markChainChanged();
           void Promise.all(ALL_CHAIN_QUERIES.map((queryKey) => queryClient.invalidateQueries({ queryKey })));
         }
         const friendly = toFriendlyError(error);
