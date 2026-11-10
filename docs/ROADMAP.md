@@ -63,7 +63,7 @@ Hari 10 dan 11 November berkapasitas rendah karena ada komitmen lain. Rencana di
 
 - [ ] `settle`, `pairs`, `owed_to`, `owes`, `get_ledger`, `get_pair`, `suggest_reply`
 - [ ] Tes T-20 sampai T-27 termasuk tes properti invarian
-- [ ] `render_svg`, `nft_token` dinamis, escape, ukuran di bawah 2 KB, T-29 sampai T-31
+- [ ] `render_svg`, `nft_token` dinamis, escape, ukuran di bawah 3 KB, T-29 sampai T-31
 - [ ] Skrip `deploy.ts` dan `seed.ts`
 - [ ] Scaffold frontend: tema, `AppSigner`, `DemoSigner`, `/demo`, `/app/hajat/new`
 
