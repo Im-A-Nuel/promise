@@ -3,7 +3,7 @@ import type { Persona } from "@/lib/demo/personas";
 import type { CallArgs } from "@/lib/near/actions";
 import { extractErrorCode } from "@/lib/near/errors";
 import { explorerTxUrl } from "@/lib/near/format";
-import { ContractPanicError } from "@/lib/near/provider";
+import { ContractPanicError, RpcUnreachableError } from "@/lib/near/provider";
 
 export interface TxResult {
   txHash: string;
@@ -52,18 +52,27 @@ export class DemoSigner implements AppSigner {
     const secret = this.persona.secret_key;
     if (!secret) throw new Error("This demo account has no key yet. Run pnpm deploy:testnet first.");
 
+    // Say so at once instead of waiting for the retries of a request that cannot leave the device.
+    if (typeof navigator !== "undefined" && navigator.onLine === false) throw new RpcUnreachableError("The device is offline");
+
     // near-api-js is large, so it is only loaded when someone actually signs.
     const near = await import("near-api-js");
     try {
       return await this.send(near, env.rpcUrl, secret, args);
     } catch (error) {
       if (!isTransport(error)) throw error;
-      return await this.send(near, env.rpcFallbackUrl, secret, args);
+      try {
+        return await this.send(near, env.rpcFallbackUrl, secret, args);
+      } catch (second) {
+        if (isTransport(second)) throw new RpcUnreachableError("Neither testnet endpoint answered");
+        throw second;
+      }
     }
   }
 
   private async send(near: NearModule, rpcUrl: string, secret: string, args: CallArgs): Promise<TxResult> {
-    const provider = new near.JsonRpcProvider({ url: rpcUrl });
+    // The library default is 12 retries, which is minutes of a frozen screen. Two is enough, the second endpoint is the real fallback.
+    const provider = new near.JsonRpcProvider({ url: rpcUrl }, { retries: 2, wait: 500, backoff: 2 });
     const signer = near.KeyPairSigner.fromSecretKey(secret as KeyPairString);
     const account = new near.Account(this.persona.account_id, provider, signer);
 

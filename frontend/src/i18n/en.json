@@ -287,5 +287,10 @@
   "door.host_title": "Check in {name}",
   "door.host_body": "You opened a door pass. Check this guest in, and the envelope can be opened.",
   "door.not_host": "This door pass is for the host. Pick the host account to check the guest in.",
-  "door.not_found": "This door pass does not match a guest of this event."
+  "door.not_found": "This door pass does not match a guest of this event.",
+  "err.tx_timeout": "It may still go through. Check the event before you try again.",
+  "net.offline": "You are offline. Data may be out of date.",
+  "error.title": "Something broke on our side",
+  "error.body": "Your envelopes are safe on the chain. Try again, or use the menu to go somewhere else.",
+  "tx.unconfirmed": "{label} is not confirmed yet"
 }

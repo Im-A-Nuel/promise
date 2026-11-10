@@ -287,5 +287,10 @@
   "door.host_title": "Check-in {name}",
   "door.host_body": "Kamu membuka tiket pintu. Check-in tamu ini, lalu amplopnya bisa dibuka.",
   "door.not_host": "Tiket pintu ini untuk tuan rumah. Pilih akun tuan rumah untuk check-in tamu.",
-  "door.not_found": "Tiket pintu ini tidak cocok dengan tamu acara ini."
+  "door.not_found": "Tiket pintu ini tidak cocok dengan tamu acara ini.",
+  "err.tx_timeout": "Bisa saja tetap berhasil. Cek acaranya dulu sebelum mencoba lagi.",
+  "net.offline": "Kamu offline. Data mungkin usang.",
+  "error.title": "Ada yang rusak di pihak kami",
+  "error.body": "Amplopmu aman di chain. Coba lagi, atau pakai menu untuk pindah halaman.",
+  "tx.unconfirmed": "{label} belum terkonfirmasi"
 }

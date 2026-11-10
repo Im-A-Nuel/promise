@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { dictionaries } from "@/lib/i18n";
 import { ERROR_CODES, extractErrorCode, toFriendlyError } from "@/lib/near/errors";
-import { ContractMissingError, ContractPanicError, RpcUnreachableError } from "@/lib/near/provider";
+import { ContractMissingError, ContractPanicError, RpcUnreachableError, TxTimeoutError } from "@/lib/near/provider";
 
 describe("error codes", () => {
   it("every contract code has a message in both languages", () => {
@@ -41,6 +41,7 @@ describe("toFriendlyError", () => {
   it("maps network problems and a missing contract", () => {
     expect(toFriendlyError(new RpcUnreachableError("down")).key).toBe("err.rpc");
     expect(toFriendlyError(new ContractMissingError("x.testnet")).key).toBe("err.not_deployed");
+    expect(toFriendlyError(new TxTimeoutError()).key).toBe("err.tx_timeout");
   });
 
   it("never throws on odd input", () => {

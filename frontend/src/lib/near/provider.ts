@@ -8,6 +8,14 @@ export class RpcUnreachableError extends Error {
   }
 }
 
+/** The chain did not confirm in time. The transaction may still go through, so the UI never says it failed. */
+export class TxTimeoutError extends Error {
+  constructor() {
+    super("The transaction was not confirmed in time");
+    this.name = "TxTimeoutError";
+  }
+}
+
 /** The account does not exist or has no contract code. Normal before the first deploy. */
 export class ContractMissingError extends Error {
   constructor(public readonly contractId: string) {
