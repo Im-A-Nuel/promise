@@ -136,7 +136,7 @@ Prioritas: P0 wajib untuk demo, P1 dikerjakan jika P0 selesai, P2 hanya jika ada
 
 - Performa: view call lewat route handler dengan cache 10 detik dijawab p95 di bawah 1.5 detik; halaman `/` interaktif di bawah 3 detik pada 4G.
 - Gas: `open` dengan 10 pelunasan di bawah 120 Tgas total; `ft_on_transfer` di bawah 30 Tgas; semua view di bawah 50 Tgas.
-- Ukuran wasm: `amplop` di bawah 180 KB, `tusdc` di bawah 150 KB, dibangun dengan `opt-level = "z"`, `lto = true`.
+- Ukuran wasm: diukur 307 KB untuk `amplop` dan 168 KB untuk `tusdc` (target awal 180 dan 150 KB tidak tercapai). Tidak memblokir deploy, hanya menambah biaya storage sekitar 3 NEAR. Dibangun dengan `opt-level = "z"`, `lto = true`. Pengecilan dicatat sebagai pekerjaan opsional.
 - Keamanan: semua method mutasi memeriksa `predecessor_account_id`; callback bertanda `#[private]`; tidak ada loop tanpa batas; tidak ada rahasia di repo selain kunci persona demo.
 - Ketersediaan: target testnet dengan RPC `https://test.rpc.fastnear.com` dan cadangan `https://rpc.testnet.near.org`. Tidak ada janji uptime.
 - Aksesibilitas: kontras teks minimal 4.5:1, semua tombol dapat dijangkau keyboard, animasi mati jika `prefers-reduced-motion`.

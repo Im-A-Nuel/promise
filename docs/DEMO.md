@@ -16,16 +16,21 @@ Last updated: 2026-11-09. Read https://nearhackathon.com/HACKATHON.md again befo
 
 | Hajat | Host | Title | Policy | Seeded state |
 | --- | --- | --- | --- | --- |
-| 1 | Ayu | Pernikahan Ayu & Bima | OpenLink | Budi sealed 5 and opened, Citra sealed 2 and opened, Dewi Invited |
-| 2 | Budi | Syukuran khitanan Raka | InviteOnly | Ayu Invited, Citra Invited. Nothing sealed |
-| 3 | Eko | Selamatan rumah baru | InviteOnly | Dewi sealed 3, hajat Cancelled, refund not yet claimed |
+| 1 | Ayu | Ayu & Bima's Wedding | OpenLink | Budi sealed 5 and opened, Citra sealed 2 and opened, Dewi Invited |
+| 2 | Budi | Raka's Celebration | InviteOnly | Ayu Invited, Citra Invited. Nothing sealed |
+| 3 | Eko | Eko's Housewarming | InviteOnly | Dewi sealed 3, hajat Cancelled, refund not yet claimed |
 
 After seeding, the ledger reads: Ayu owes Budi 5.00 and Citra 2.00. Dewi's 3.00 sits in hajat 3 waiting for a refund call.
 
 Token ids are assigned in order. `seed.ts` prints the mapping, paste it here after the first run:
 
 ```
-TODO(deploy): token 1 = Budi @ hajat 1, token 2 = Citra @ hajat 1, token 3 = Dewi @ hajat 1, ...
+token 1 = Budi @ hajat 1
+token 2 = Citra @ hajat 1
+token 3 = Dewi @ hajat 1
+token 4 = Ayu @ hajat 2
+token 5 = Citra @ hajat 2
+token 6 = Dewi @ hajat 3
 ```
 
 ## 2. The live walkthrough (matches README "Try it")
@@ -81,7 +86,7 @@ Record at 1080p with the phone frame in a desktop browser or a real phone screen
 - Fastest check: `pnpm demo`. No wallet, no setup beyond `pnpm install` and a root key for the demo personas (their keys are in the repo).
 - No-install check: open `/demo`.
 - Contract check: `near contract call-function as-read-only amplop.promisedemo.testnet nft_token json-args '{"token_id":"1"}' network-config testnet now`, decode `media`.
-- Where to look for depth: `contracts/amplop/src/ledger.rs` (settlement and invariants), `svg.rs` (card), `escrow.rs` (two-phase transfer and rollback), `tests/` (T-01 to T-40).
+- Where to look for depth: `contract/amplop/src/ledger.rs` (settlement and invariants), `svg.rs` (card), `escrow.rs` (two-phase transfer and rollback), `tests/` (T-01 to T-40).
 
 ## 6. Post on X (the human writes and publishes it)
 

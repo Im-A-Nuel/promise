@@ -1,6 +1,6 @@
 # Smart Contract Specification
 
-Last updated: 2026-11-09. Applies to `contracts/amplop` and `contracts/tusdc`. If code and this file disagree, fix one of them in the same commit.
+Last updated: 2026-11-09. Applies to `contract/amplop` and `contract/tusdc`. If code and this file disagree, fix one of them in the same commit.
 
 Snippets below show shape, not final code. near-sdk 5.x APIs: `#[near(contract_state)]`, `#[near(serializers=[json, borsh])]`, `near_sdk::store` collections, `env::block_timestamp_ms()`, `NearToken`.
 
@@ -26,7 +26,9 @@ Snippets below show shape, not final code. near-sdk 5.x APIs: `#[near(contract_s
 | `MAX_INVITE_BATCH` | 20 | per `invite_many` |
 | `MAX_SETTLE` | 10 | claims repaid per open |
 | `MAX_PAIR_OPEN` | 50 | open token ids per pair |
-| `MAX_ACTIVITY` | 5000 | on-chain log entries |
+| `MAX_ACTIVITY` | 1000 | log entries kept. The first version of this spec said 5000, but an entry is 107 bytes on chain (measured), so 1000 hold about 1.07 NEAR and 5000 would hold about 5.4 NEAR |
+| `MAX_ACTIVITY_SCAN` | 400 | `get_recent_activity` looks back over at most this many entries |
+| `MIN_SPARE_BALANCE` | 0.25 NEAR | spare balance the contract keeps for storage it pays itself (callbacks, seals, log entries) |
 | `MAX_PAGE` | 50 | view `limit` cap |
 | `OPEN_WINDOW_MS` | 86_400_000 | host may open from `event_at - 24h` |
 | `AUTO_OPEN_MS` | 86_400_000 | anyone may open after `event_at + 24h` |
@@ -34,7 +36,8 @@ Snippets below show shape, not final code. near-sdk 5.x APIs: `#[near(contract_s
 | `ABANDON_MS` | 2_592_000_000 | 30 days after `event_at`, owner may refund a still-sealed envelope |
 | `MAX_EVENT_AHEAD_MS` | 31_536_000_000 | event date at most 365 days ahead |
 | `GAS_FT_TRANSFER` | 30 Tgas | |
-| `GAS_CALLBACK` | 25 Tgas | |
+| `GAS_CALLBACK` | 25 Tgas | callbacks of `refund` |
+| `GAS_CALLBACK_OPEN` | 60 Tgas | `on_open_resolved`, which also settles up to `MAX_SETTLE` claims. A callback that runs out of gas would leave the token in `Opening`, so this is deliberately generous (measured: the whole `check_in` with 10 repayments burns 12 Tgas) |
 | `MIN_GAS_OPEN` | 120 Tgas | `check_in`, `open` assert `prepaid_gas` at least this |
 | `MIN_GAS_REFUND` | 80 Tgas | |
 
@@ -48,15 +51,17 @@ pub struct Contract {
     app_url: String,                           // for NEP-177 `reference`
     next_hajat: u64,                           // starts at 1
     next_token: u64,                           // starts at 1
-    hajats: IterableMap<u64, Hajat>,
-    tokens: IterableMap<u64, Invitation>,
-    tokens_by_hajat: LookupMap<u64, Vector<u64>>,
-    tokens_by_owner: LookupMap<AccountId, IterableSet<u64>>,
-    hajats_by_host: LookupMap<AccountId, IterableSet<u64>>,
+    hajats: LookupMap<u64, Hajat>,                 // ids are 1..next_hajat
+    tokens: LookupMap<u64, Invitation>,            // ids are 1..next_token
+    hajat_tokens: LookupMap<(u64, u32), u64>,      // (hajat, position) -> token, length = invite_count
     invite_of: LookupMap<(u64, AccountId), u64>,   // dedupe: (hajat, guest) -> token
-    pairs: LookupMap<String, PairLedger>,          // key "giver|receiver"
-    owed_to: LookupMap<AccountId, IterableSet<AccountId>>,  // giver -> receivers with remaining > 0
-    owes: LookupMap<AccountId, IterableSet<AccountId>>,     // receiver -> givers with remaining > 0
+    owner_count: LookupMap<AccountId, u32>,        // tokens are soulbound, so lists are append-only
+    owner_tokens: LookupMap<(AccountId, u32), u64>,
+    host_count: LookupMap<AccountId, u32>,
+    host_hajats: LookupMap<(AccountId, u32), u64>,
+    pairs: LookupMap<(AccountId, AccountId), PairLedger>,  // key (giver, receiver): what the receiver owes the giver
+    owed_to: PairIndex,   // giver -> receivers that owe them. Three flat maps (len, items, position), O(1) add and remove
+    owes: PairIndex,      // receiver -> givers they owe
     activity: Vector<ActivityEntry>,
 }
 
@@ -91,6 +96,10 @@ pub enum HajatStatus { Open, Cancelled }
 pub enum InvState { Invited, Sealed, Opening, Opened, Refunding, Refunded }
 pub enum CardStatus { Invited, Sealed, Opened, PartiallyRepaid, Repaid, Reply, Refunded, Void }
 ```
+
+Why flat maps: `near_sdk::store` collections write lazily, so storage usage measured inside a method is only exact after `flush()`. Nested collections (a set inside a map) cannot be flushed from outside, which would break the storage deposit rule in section 5. Every collection here is flat and `settle_storage` flushes them all before measuring. The `owed_to` and `owes` ledger indexes in section 6 must follow the same rule.
+
+All amounts in stored types are `U128` (decimal strings in JSON). Ids and timestamps are plain numbers.
 
 `CardStatus` is derived for display only:
 
@@ -151,6 +160,27 @@ Storage rule for every method marked payable: measure `env::storage_usage()` bef
 | `refund(token_id)` | any | no | see time table, gas >= MIN_GAS_REFUND | state Refunding, FT transfer to owner | none until callback |
 | `on_open_resolved(token_id, amount)` | self | no | `#[private]` | see 6 | `opened`, `repaid` |
 | `on_refund_resolved(token_id, amount)` | self | no | `#[private]` | state Refunded or back to Sealed | `refunded` |
+
+Behavior notes for the implemented writes:
+
+- A host cannot invite themselves or `join` their own hajat (`ERR_BAD_INPUT`). Their own envelope would repay themselves.
+- Titles and labels must contain a non-blank character. Venue may be empty.
+- `invite_many` requires 1 to 20 items and is all or nothing.
+- `create_hajat` accepts `event_at_ms` equal to now. Past dates give `ERR_BAD_TIME`.
+- Views take optional `from` (offset) and `limit` (default 50, max 50). `get_hajats` and `get_hajats_by_host` are newest first, `get_invitations` is oldest first.
+- `get_config` returns an object `{owner, ft, app_url, hajat_count, token_count}`.
+- `msg` of `ft_transfer_call` carries `token_id` as a decimal string, as in the example in 5.2. A bare number is rejected as `ERR_BAD_MSG`.
+- `check_in` and `open` need the hajat to be `Open`. After `cancel_hajat` the host can no longer pull sealed money; guests get it back through `refund`.
+- `check_in` and `open` assert `prepaid_gas >= MIN_GAS_OPEN` on every call, including a `check_in` that only records attendance.
+- A top-up while a token is `Opening` is a soft rejection (`ERR_BAD_STATE`), so the tokens go back to the sender.
+- `on_open_resolved` never panics. A panic there would leave the token stuck in `Opening`. If the token is not `Opening`, it does nothing and returns `false`.
+- The `#[private]` guard lives in the generated wrapper, so it is checked in the sandbox test `callback_is_private`, not in unit tests.
+- `cancel_hajat` loops over the hajat's tokens (at most 200) and refuses with `ERR_HAS_OPENED` if any is `Opened` or `Opening`. It moves no money; guests (or anyone) then call `refund`.
+- `refund` needs `prepaid_gas >= MIN_GAS_REFUND` and sends the tokens to the owner. `on_refund_resolved` never panics either; a failed transfer puts the token back to `Sealed` so the refund can be retried.
+- `nft_transfer` and `nft_transfer_call` are `#[payable]` so a standard wallet call with 1 yoctoNEAR reaches `ERR_SOULBOUND`.
+- `nft_token(token_id)` takes the id as a string and returns `None` for an unknown or malformed id. `metadata.media` is the card from `svg.rs` as a base64 data URI, built on every call. The amount is only in `extra` and on the card once the envelope is `Opened`.
+- `nft_tokens` and `nft_tokens_for_owner` take `from_index` and `limit` (capped at 50).
+- The contract pays for the bytes a seal adds (the note and `sealed_at_ms`, at most about 150 bytes per token), because `ft_on_transfer` cannot receive a deposit. Keep the contract account funded as described in section 11.
 
 `check_in` on an Invited token (guest came but sealed nothing) only records attendance. It does not move money.
 
@@ -260,10 +290,10 @@ Standards: NEP-171 (`nft_token`, `nft_tokens_for_owner`, `nft_tokens`, `nft_tota
   "token_id": "7",
   "owner_id": "dewi.promisedemo.testnet",
   "metadata": {
-    "title": "Invitation #7: Pernikahan Ayu & Bima",
+    "title": "Invitation #7: Ayu & Bima's Wedding",
     "description": "Sealed. Opens at the event.",
     "media": "data:image/svg+xml;base64,PHN2Zy...",
-    "reference": "https://TODO(deploy)/api/nft/7",
+    "reference": "https://APP_URL/api/nft/7",
     "extra": "{\"hajat_id\":1,\"status\":\"Sealed\",\"released\":\"0\",\"reciprocated\":\"0\"}"
   },
   "approved_account_ids": null
@@ -297,7 +327,22 @@ EVENT_JSON:{"standard":"promise_amplop","version":"1.0.0","event":"opened","data
 
 Events: `hajat_created`, `hajat_updated`, `hajat_cancelled`, `invited`, `joined`, `sealed`, `checked_in`, `opened`, `open_failed`, `repaid`, `claim_skipped`, `refunded`, `refund_failed`. Mints also emit the NEP-171 `nft_mint` event with `standard: "nep171"`.
 
-On-chain log: `ActivityEntry { idx: u32, at_ms: u64, kind: String, hajat_id: u64, token_id: u64, actor: AccountId, amount: U128 }`. Appended in the same call as the event until `MAX_ACTIVITY`. Read with `get_activity(from, limit)`.
+On-chain log: `ActivityEntry { idx: u32, at_ms: u64, kind, hajat_id: u64, token_id: u64, actor: AccountId, amount: U128 }`, written in the same call that emits the event. `kind` is the NEP-297 event name in snake case.
+
+| kind | actor | token_id | amount |
+| --- | --- | --- | --- |
+| `hajat_created`, `hajat_cancelled` | host | 0 | 0 |
+| `invited` | host | the new invitation | 0 |
+| `joined` | the guest | the new invitation | 0 |
+| `sealed` | the guest | the invitation | the amount of this seal |
+| `checked_in` | host | the invitation | 0 |
+| `opened` | host | the invitation | the released amount |
+| `open_failed` | host | the invitation | the amount that stayed sealed |
+| `repaid` | the guest who pays | the OLDER invitation whose claim was repaid | the amount repaid |
+| `claim_skipped` | the guest | the invitation | the credit that was not recorded |
+| `refunded`, `refund_failed` | the owner | the invitation | the amount |
+
+The log keeps the first `MAX_ACTIVITY` entries and then stops growing; a full log never blocks anything (see `record` in `activity.rs`, which cannot panic because it also runs inside `on_open_resolved`). Entries written by `create_hajat`, `invite`, `invite_many` and `join` are paid by the caller, because they are written before the deposit is measured. Entries written in callbacks, `check_in` and `ft_on_transfer` are paid by the contract, which `MIN_SPARE_BALANCE` keeps funded. An opening with ten repayments writes up to 11 entries.
 
 ## 9. Views
 
@@ -310,10 +355,11 @@ On-chain log: `ActivityEntry { idx: u32, at_ms: u64, kind: String, hajat_id: u64
 | `get_invitations(hajat_id, from, limit)` | `Vec<InvitationView>` (token plus `card_status`) |
 | `get_invitation(token_id)` | `Option<InvitationView>` |
 | `get_invitation_for(hajat_id, account)` | `Option<InvitationView>` |
-| `get_ledger(account_id)` | `{ owed_to_me: Vec<LedgerRow>, i_owe: Vec<LedgerRow> }` |
+| `get_ledger(account_id, from?, limit?)` | `{ owed_to_me: Vec<LedgerRow>, i_owe: Vec<LedgerRow> }`. `from` and `limit` page each list separately (limit max 50) |
 | `get_pair(giver, receiver)` | `{ remaining: U128, open: Vec<U64> }` |
 | `suggest_reply(hajat_id, guest)` | `U128`, equals `get_pair(host_of_hajat, guest).remaining` |
-| `get_activity(from, limit)` | `Vec<ActivityEntry>` |
+| `get_activity(from?, limit?)` | `Vec<ActivityEntry>` in the order they happened, `limit` at most 50 |
+| `get_recent_activity(hajat_id?, token_id?, limit?)` | newest first, optionally only one hajat and/or one invitation, looking back over at most `MAX_ACTIVITY_SCAN` entries. Default limit 20, at most 50. This is what the UI uses for history |
 | `nft_*` | per NEP-171, NEP-177 |
 
 `LedgerRow { counterparty: AccountId, remaining: U128, token_ids: Vec<U64> }`. In `owed_to_me` the counterparty owes me. In `i_owe` I owe the counterparty.
@@ -357,7 +403,7 @@ Unit tests (pure functions, no VM): `settle`, `render_svg` escaping and size, `c
 | T-15 | `ft_on_transfer` called by a stranger | panic `ERR_WRONG_TOKEN` |
 | T-16 | host check_in before window | `ERR_TOO_EARLY` |
 | T-17 | host check_in in window | Opened, host balance +amount, `released_total` updated |
-| T-18 | stranger opens before auto window | `ERR_TOO_EARLY`; after fast-forward past `event_at + 24h` succeeds |
+| T-18 | stranger opens before auto window | `ERR_TOO_EARLY`; at `event_at + 24h` succeeds. Sandbox checks the rejection, the exact boundary is a unit test because `fast_forward` over 24 hours of blocks does not finish in reasonable time |
 | T-19 | host not registered on tusdc | open fails, state back to Sealed, tokens still in contract |
 | T-20 | first gift, no older claim | credit = amount, pair created, `owed_to`/`owes` linked |
 | T-21 | reply exactly equals debt | `settled` = amount, credit 0, status Reply, older token Repaid, pair removed |
@@ -400,3 +446,35 @@ No burn, no pause, no upgrade path. Testnet toy.
 - Build with `cargo near build non-reproducible-wasm` during development. Final submission build can be reproducible if Docker is available, but this is optional.
 - State is not migrated. A redeploy during the hackathon means re-running `seed.ts`. Freeze the contract on 2026-11-13 and do not touch it after.
 - After the final deploy, deleting the full access key of `amplop` is optional and irreversible. Only do it if you are sure no further deploys are needed.
+
+## 15. Notes from implementing the ledger and the card
+
+- Settlement runs in `on_open_resolved` after the FT transfer succeeded. A failed transfer leaves the ledger untouched (sandbox test `host_not_registered_leaves_the_ledger_untouched`).
+- The contract account pays for the ledger bytes, because a callback cannot receive a deposit. This is at most one pair entry, two index entries and the changes to older tokens per opening. Keep the contract account funded as in section 11.
+- A claim that cannot be added because the pair already has `MAX_PAIR_OPEN` open claims is not recorded. The card of that token then stays `Opened` and is never repaid. This is the documented limit; the `claim_skipped` event marks it.
+- `repaid` event data: `hajat_id`, `token_id` (the new token), `older_token_id`, `giver`, `receiver`, `amount`.
+- Both directions of a pair can hold claims at the same time. When a reply is larger than `MAX_SETTLE` claims can absorb, the old pair keeps its remainder and the leftover credit opens the opposite pair (unit test T-25).
+- Card layout: SVG viewBox 360x220 using the palette in section 7. The `Opened` and `PartiallyRepaid` footer shows the released amount; `Reply` shows "Repaid N envelope(s)". Label is cut to 16 characters and the hajat title to 28, then escaped. If the result would reach 2048 bytes a minimal card with no user text is returned instead.
+- Measured: `nft_token` size and the worst case escaping case are tests (T-30). Wasm size after this phase: `amplop` 307 KB.
+- T-26 is four tests (one per seed). The mocked storage of unit tests lives per thread, so a second `Contract::new` inside one test would start on the first one's data.
+
+## 16. Pre-deploy review (self-review, not an independent audit)
+
+| ID | Finding | Status |
+| --- | --- | --- |
+| F-1 | The open callback grows storage that the contract account pays for. With a thin balance it fails after the tUSDC already moved, and the token is stuck in `Opening` with no way out. Reproduced in `sandbox_security.rs` (host received 5 tUSDC, state `Opening`). | Fixed. `start_open` requires `MIN_SPARE_BALANCE` (0.25 NEAR) of spare balance and fails with `ERR_LOW_BALANCE` before any state change. `ft_on_transfer` hands the tokens back for the same reason. `get_config().spare_balance` exposes the number so a monitor can top up. |
+| F-2 | Gas of the heaviest view. | `nft_tokens(limit 50)` burns 15 Tgas, far below the 200 Tgas view limit. No change. |
+| F-3 | The contract owner keeps the full access key of the `amplop` account, so the owner could redeploy code and move escrowed tUSDC. | Accepted for testnet and stated in the README. Optional: delete the key after the final deploy (irreversible, section 14). |
+| F-4 | The `tusdc` faucet registers each new account at the contract's cost (about 0.00125 NEAR). Many throwaway accounts can drain it. | Accepted, testnet token. Fund `tusdc` with at least 4 NEAR and top it up if the faucet stops answering. |
+| F-5 | A host can invite any account, so a victim sees an unwanted soulbound card in their wallet. The host pays the storage. | Accepted. No transfer or approval can move it, and it holds no money. |
+| F-6 | A guest can fill their own pair with 50 dust claims, after which a further gift is not recorded (`claim_skipped`). | Accepted, documented limit. Only the filling guest loses the record. |
+| F-7 | A seal adds at most about 150 bytes (note and timestamp) paid by the contract. | Accepted. A joined guest pays about three times that for the invitation itself, so this cannot drain the contract, and F-1 stops sealing when the balance is low. |
+
+Checked and found sound: `ft_on_transfer` accepts only the configured token and only the invitation owner; no method can move money to anyone but the host (open) or the token owner (refund); `Opening` and `Refunding` block seal, cancel, a second open and a second refund; callbacks are `#[private]`, never panic on a failed transfer, and are idempotent on a token that is no longer locked; settlement is bounded (10 claims, 50 per pair, 200 invitations); all counters use checked or saturating arithmetic with release overflow checks on (the only overflow found was in the card progress bar, fixed earlier).
+
+Funding rule for deploy: `amplop` needs about 3.1 NEAR just to hold its code, plus at least 0.25 NEAR spare (F-1) and about 1.1 NEAR when the activity log is full. The runbook budget of 8 NEAR leaves enough room.
+
+
+- `get_config` also returns `spare_balance` and `activity_count`.
+- The reserve was raised from 0.1 to 0.25 NEAR when the log was added: one opening can now write up to 11 log entries and several ledger entries in its callback, and a few openings can be in flight at once.
+- A redeploy that adds fields to the contract state cannot read the old state. The deploy script's `--reset` deletes the `amplop` account and creates it again, which also clears the demo data before the seed.

@@ -36,7 +36,7 @@ Hari 10 dan 11 November berkapasitas rendah karena ada komitmen lain. Rencana di
 **Tujuan**: toolchain jalan, repo berdiri, dua kontrak berkompilasi.
 
 - [ ] Buat repo `promise`, commit pertama, `.gitignore`, MIT license
-- [ ] Workspace pnpm dan cargo (`contracts/`, `web/`, `scripts/`)
+- [ ] Workspace pnpm dan cargo (`contract/`, `frontend/`, `scripts/`)
 - [ ] Pasang toolchain (Rust target wasm, cargo-near, near-cli-rs), kunci versi
 - [ ] Buat akun root dari faucet, cek saldo, putuskan nama root final
 - [ ] `tusdc`: NEP-141, `faucet`, `faucet_next_at`, `mint`, tes T-37 dan T-38
@@ -65,7 +65,7 @@ Hari 10 dan 11 November berkapasitas rendah karena ada komitmen lain. Rencana di
 - [ ] Tes T-20 sampai T-27 termasuk tes properti invarian
 - [ ] `render_svg`, `nft_token` dinamis, escape, ukuran di bawah 2 KB, T-29 sampai T-31
 - [ ] Skrip `deploy.ts` dan `seed.ts`
-- [ ] Scaffold web: tema, `AppSigner`, `DemoSigner`, `/demo`, `/app/hajat/new`
+- [ ] Scaffold frontend: tema, `AppSigner`, `DemoSigner`, `/demo`, `/app/hajat/new`
 
 ### Fase 5: Aplikasi dan demo (Jum 13 Nov, hari penuh)
 **Tujuan**: seluruh cerita bisa diklik.

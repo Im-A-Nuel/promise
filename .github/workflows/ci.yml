@@ -1,0 +1,44 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # The pnpm version comes from "packageManager" in package.json.
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm test:web
+      - run: pnpm --filter @promise/scripts typecheck
+      - run: pnpm --filter @promise/scripts test
+      - run: pnpm build
+
+  contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # rust-toolchain.toml pins Rust 1.95 and the wasm target, rustup installs them on first use.
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            contract/target
+          key: cargo-${{ hashFiles('contract/Cargo.lock', 'rust-toolchain.toml') }}
+      # Unit tests only. The sandbox tests need a wasm build and a neard download, run them with `pnpm contracts:test`.
+      - run: cargo test --workspace --lib
+        working-directory: contract

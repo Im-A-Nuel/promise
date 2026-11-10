@@ -10,7 +10,7 @@ None, by design (ARCHITECTURE.md decision D6). State lives in the `amplop` and `
 
 Rule: every u128 amount is a decimal string. Every timestamp is milliseconds since epoch as a number. tUSDC has 6 decimals, so `"5000000"` means 5.00.
 
-These TypeScript types live in `web/src/lib/near/types.ts` and are mirrored from `docs/CONTRACTS.md`.
+These TypeScript types live in `frontend/src/lib/near/types.ts` and are mirrored from `docs/CONTRACTS.md`.
 
 ```ts
 export type HajatKind = "Wedding" | "Khitan" | "Birth" | "Syukuran" | "Duka" | "Other";
@@ -58,7 +58,7 @@ export interface InvitationView {
 export interface LedgerRow {
   counterparty: string;
   remaining: string;
-  token_ids: number[];
+  token_ids: string[];   // U64 values are decimal strings in JSON
 }
 
 export interface Ledger {
@@ -123,7 +123,7 @@ Codes: `BAD_REQUEST` (400), `NOT_FOUND` (404), `RATE_LIMITED` (429), `RPC_ERROR`
 ### GET /api/health
 
 - Description: liveness and chain wiring check.
-- Response 200: `{ "ok": true, "network": "testnet", "amplop": "amplop.promisedemo.testnet", "ft": "tusdc.promisedemo.testnet", "block_height": 123456789 }`
+- Response 200: `{ "ok": true, "network": "testnet", "amplop": "amplop.promisedemo.testnet", "ft": "tusdc.promisedemo.testnet", "block_height": 123456789, "deployed": true }`. `deployed` is false while the amplop account does not exist on testnet yet, so the UI can say so instead of showing an error.
 - Errors: 502 if the RPC is unreachable.
 
 ### GET /api/hajat/:id/summary
@@ -143,7 +143,7 @@ Codes: `BAD_REQUEST` (400), `NOT_FOUND` (404), `RATE_LIMITED` (429), `RPC_ERROR`
 ### GET /api/nft/:tokenId
 
 - Description: NEP-177 style JSON for wallets and marketplaces. This is the URL stored in the token's `reference` field.
-- Response 200: `{ "title", "description", "media": "https://APP/api/nft/{id}/image.svg", "attributes": [{ "trait_type": "status", "value": "Sealed" }, { "trait_type": "hajat", "value": "Pernikahan Ayu & Bima" }] }`
+- Response 200: `{ "title", "description", "media": "https://APP/api/nft/{id}/image.svg", "attributes": [{ "trait_type": "status", "value": "Sealed" }, { "trait_type": "hajat", "value": "Ayu & Bima's Wedding" }] }`
 - Errors: 404 if the token does not exist.
 
 ### GET /api/nft/:tokenId/image.svg
@@ -160,7 +160,7 @@ Codes: `BAD_REQUEST` (400), `NOT_FOUND` (404), `RATE_LIMITED` (429), `RPC_ERROR`
 
 - Description: public persona list for the demo switcher. Keys are testnet only and intentionally published.
 - Response 200: `{ "personas": [{ "id": "ayu", "name": "Ayu", "role": "Host", "account_id": "ayu.promisedemo.testnet", "blurb": "Hosts the wedding", "secret_key": "ed25519:..." }] }`
-- The same data is bundled client-side from `web/src/lib/demo/personas.public.json`, so the endpoint is a convenience for scripts.
+- The same data is bundled client-side from `frontend/src/lib/demo/personas.public.json`, so the endpoint is a convenience for scripts.
 
 ### POST /api/relay (P2)
 
@@ -172,7 +172,7 @@ Codes: `BAD_REQUEST` (400), `NOT_FOUND` (404), `RATE_LIMITED` (429), `RPC_ERROR`
 
 ## Environment variables
 
-`web/.env.example`:
+`frontend/.env.example`:
 
 ```
 NEXT_PUBLIC_NETWORK=testnet
@@ -196,7 +196,7 @@ ROOT_PRIVATE_KEY=ed25519:...
 NETWORK=testnet
 ```
 
-`RELAYER_PRIVATE_KEY` and `ROOT_PRIVATE_KEY` are the only real secrets. Persona keys are public and live in `web/src/lib/demo/personas.public.json`.
+`RELAYER_PRIVATE_KEY` and `ROOT_PRIVATE_KEY` are the only real secrets. Persona keys are public and live in `frontend/src/lib/demo/personas.public.json`.
 
 ## Contract interface index
 
