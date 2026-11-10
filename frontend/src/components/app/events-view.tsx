@@ -7,7 +7,12 @@ import { useParams, useSearchParams } from "next/navigation";
 import { getJson, ApiError } from "@/lib/api-client";
 import { findPersona } from "@/lib/demo/personas";
 import { useI18n } from "@/lib/i18n/client";
-import { formatDate, formatTusdc, shortAccount } from "@/lib/near/format";
+import {
+  formatAmount,
+  formatDate,
+  formatTusdc,
+  shortAccount,
+} from "@/lib/near/format";
 import { canSeal } from "@/lib/near/rules";
 import {
   balanceSchema,
@@ -17,7 +22,9 @@ import {
   type Hajat,
 } from "@/lib/near/types";
 import { usePersona } from "@/lib/persona";
+import { Amount } from "@/components/coin";
 import { ActivityList } from "./activity-list";
+import { KindTile } from "./kind-tile";
 import { DoorPass } from "./door-pass";
 import {
   CancelControl,
@@ -34,6 +41,36 @@ function hostName(account: string): string {
   return known && known.account_id === account
     ? known.name
     : shortAccount(account, 22);
+}
+
+/** Up to three small envelopes overlapping, then the count. Says how full the guest list is at a glance. */
+function GuestDots({ count, label }: { count: number; label: string }) {
+  return (
+    <span className="flex shrink-0 items-center">
+      <span aria-hidden="true" className="flex">
+        {Array.from({ length: Math.min(count, 3) }, (_, i) => (
+          <span
+            key={i}
+            className="-ml-2 grid h-7 w-7 place-items-center rounded-full bg-peach text-red-dark ring-2 ring-cream first:ml-0"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              className="h-3.5 w-3.5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <rect x="3.5" y="6" width="17" height="12" rx="3" />
+              <path d="m4.5 8 7.5 5 7.5-5" />
+            </svg>
+          </span>
+        ))}
+      </span>
+      <span className="ml-2 text-sm font-bold">{label}</span>
+    </span>
+  );
 }
 
 function StatusChip({ status }: { status: Hajat["status"] }) {
@@ -91,27 +128,54 @@ export function EventsList() {
             >
               <Link
                 href={`/events/${e.id}`}
-                className="surface surface-link block h-full p-6"
+                className="surface surface-link group flex h-full flex-col gap-5 p-6"
               >
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="chip">{t(`kind.${e.kind}`)}</span>
-                  <StatusChip status={e.status} />
+                <div className="flex items-start gap-4">
+                  <KindTile kind={e.kind} muted={e.status !== "Open"} />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                      <span className="text-sm font-extrabold text-ink-soft">
+                        {t(`kind.${e.kind}`)}
+                      </span>
+                      <StatusChip status={e.status} />
+                    </div>
+                    <h2 className="mt-1 text-2xl leading-tight">{e.title}</h2>
+                    <p className="mt-1 text-sm text-ink-soft">
+                      {formatDate(e.event_at_ms, locale)}
+                    </p>
+                  </div>
                 </div>
-                <h2 className="mt-3 text-2xl">{e.title}</h2>
-                <p className="mt-1 text-ink-soft">
-                  {formatDate(e.event_at_ms, locale)}
-                  {" · "}
-                  {t("events.host", { host: hostName(e.host) })}
-                </p>
-                <p className="tabular mt-3 text-sm font-bold">
-                  {t("events.invited", { count: e.invite_count })}
-                  {" · "}
-                  {t("events.released", {
-                    amount: formatTusdc(e.released_total),
-                  })}
-                  {BigInt(e.sealed_total) > 0n &&
-                    ` · ${t("events.waiting", { amount: formatTusdc(e.sealed_total) })}`}
-                </p>
+                <div className="mt-auto grid gap-3 rounded-[20px] bg-cream/80 p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="flex min-w-0 items-center gap-2 text-sm">
+                      <Avatar
+                        name={hostName(e.host)}
+                        className="h-7 w-7 text-xs"
+                      />
+                      <span className="truncate">
+                        {t("events.host", { host: hostName(e.host) })}
+                      </span>
+                    </span>
+                    <GuestDots
+                      count={e.invite_count}
+                      label={t("events.invited", { count: e.invite_count })}
+                    />
+                  </div>
+                  <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 border-t border-line pt-3">
+                    <span className="flex items-center gap-2">
+                      <Amount units={e.released_total} showUnit={false} />
+                      <span className="text-sm text-ink-soft">
+                        {t("events.released_label")}
+                      </span>
+                    </span>
+                    {BigInt(e.sealed_total) > 0n && (
+                      <span className="chip">
+                        {formatAmount(e.sealed_total)}{" "}
+                        {t("events.waiting_label")}
+                      </span>
+                    )}
+                  </div>
+                </div>
               </Link>
             </li>
           ))}
@@ -273,25 +337,32 @@ export function EventDetail() {
                 return (
                   <li
                     key={inv.token_id}
-                    className={`surface overflow-hidden p-3 ${isMine ? "ring-[3px] ring-red/70 sm:col-span-2 lg:col-span-3" : ""}`}
+                    className={`surface group overflow-hidden p-4 ${isMine ? "bg-gradient-to-b from-white to-blush/50 ring-2 ring-red/40 sm:col-span-2 lg:col-span-3" : ""}`}
                   >
-                    {inv.media ? (
-                      // The card is a data URI drawn by the contract, so it cannot go through next/image.
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={inv.media}
-                        alt={`${t("event.card_of", { name: inv.label })}, ${status}${amount}`}
-                        className={`block h-auto w-full rounded-[20px] ${isMine ? "mx-auto max-w-md" : ""}`}
-                      />
-                    ) : (
-                      <div
-                        aria-hidden="true"
-                        className="skeleton aspect-[360/220]"
-                      />
-                    )}
-                    <div className="flex items-center justify-between gap-2 px-2 pb-1 pt-3">
-                      <p className="truncate font-display text-xl">
-                        {inv.label}
+                    {/* The card sits on a warm stage and lifts a little when you reach for it. */}
+                    <div className="rounded-[24px] bg-gradient-to-b from-[#FFEBDD] to-[#FFF8F1] p-3 transition-transform duration-500 ease-[var(--ease-out)] group-hover:-translate-y-1 group-hover:-rotate-[0.6deg]">
+                      {inv.media ? (
+                        // The card is a data URI drawn by the contract, so it cannot go through next/image.
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={inv.media}
+                          alt={`${t("event.card_of", { name: inv.label })}, ${status}${amount}`}
+                          className={`block h-auto w-full rounded-[18px] shadow-[0_16px_28px_-18px_rgba(122,20,20,0.55)] ${isMine ? "mx-auto max-w-md" : ""}`}
+                        />
+                      ) : (
+                        <div
+                          aria-hidden="true"
+                          className="skeleton aspect-[360/220]"
+                        />
+                      )}
+                    </div>
+                    <div className="flex items-center justify-between gap-3 px-1 pb-1 pt-4">
+                      <p className="flex min-w-0 items-center gap-2.5 truncate font-display text-xl">
+                        <Avatar
+                          name={inv.label}
+                          className="h-9 w-9 shrink-0 text-base"
+                        />
+                        <span className="truncate">{inv.label}</span>
                         {isMine && (
                           <span className="ml-2 text-sm font-bold text-red-dark">
                             {t("event.you")}

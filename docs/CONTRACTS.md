@@ -315,7 +315,7 @@ Card layout (viewBox 360x220): cream background `#FBF7F0`, red envelope `#9B1C1C
 | Refunded | Faded envelope, ribbon "RETURNED" |
 | Void | Grey envelope, ribbon "EVENT CANCELLED" |
 
-Escape every user string (`& < > " '`) before inserting into SVG. Output must stay under 2 KB.
+Escape every user string (`& < > " '`) before inserting into SVG. Output must stay under 3 KB.
 
 ## 8. Events and activity log
 
@@ -415,7 +415,7 @@ Unit tests (pure functions, no VM): `settle`, `render_svg` escaping and size, `c
 | T-27 | `suggest_reply` equals `get_pair(host, guest).remaining` | equal |
 | T-28 | `nft_transfer` and `nft_transfer_call` | `ERR_SOULBOUND` |
 | T-29 | `nft_token` for each status | `media` decodes to valid SVG, `extra` JSON matches state |
-| T-30 | user label with `<script>` and quotes | escaped in SVG, size under 2 KB |
+| T-30 | user label with `<script>` and quotes | escaped in SVG, size under 3 KB |
 | T-31 | `nft_tokens_for_owner` pagination | correct slices, limit capped at 50 |
 | T-32 | cancel hajat with only Sealed tokens | Cancelled; `refund` returns money to owner, not caller |
 | T-33 | cancel after one Opened | `ERR_HAS_OPENED` |

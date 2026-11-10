@@ -7,7 +7,7 @@
 use crate::types::{card_status, CardStatus, Hajat, Invitation};
 use near_sdk::base64::{engine::general_purpose::STANDARD, Engine};
 
-pub const MAX_SVG_BYTES: usize = 2048;
+pub const MAX_SVG_BYTES: usize = 3072;
 
 const PAPER: &str = "#FFF8F1";
 const LINE: &str = "#F0DDD0";
@@ -90,12 +90,23 @@ pub fn render_svg(inv: &Invitation, hajat: &Hajat) -> String {
     );
 
     let mut s = String::with_capacity(1800);
-    s.push_str("<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 360 220'>");
+    // One font for the whole card. Without it every text but the name fell back to a serif.
     s.push_str(&format!(
-        "<rect x='.5' y='.5' width='359' height='219' rx='28' fill='{PAPER}' stroke='{LINE}'/>"
+        "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 360 220' font-family='Trebuchet MS,Verdana,Arial,sans-serif'>\
+<defs><linearGradient id='b' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='{PAPER}'/><stop offset='1' stop-color='#FFE6DC'/></linearGradient></defs>\
+<rect x='.5' y='.5' width='359' height='219' rx='28' fill='url(#b)' stroke='{LINE}'/>"
     ));
+    if status != CardStatus::Void {
+        // warm light behind the envelope and two small sparkles
+        s.push_str(&format!(
+            "<circle cx='180' cy='142' r='84' fill='#FFF0B8' opacity='.5'/>\
+<path d='M52 112l3 7 7 3-7 3-3 7-3-7-7-3 7-3zM312 96l2.5 6 6 2.5-6 2.5-2.5 6-2.5-6-6-2.5 6-2.5z' fill='{GOLD}' opacity='.85'/>"
+        ));
+    }
+    // A long name gets a smaller size so it never runs into the stamp on the right.
+    let label_size = if inv.label.chars().count() > 11 { 14 } else { 18 };
     s.push_str(&format!(
-        "<text x='24' y='40' font-size='18' font-weight='700' fill='{INK}' font-family='Trebuchet MS,Verdana,sans-serif'>{}</text>",
+        "<text x='24' y='40' font-size='{label_size}' font-weight='700' fill='{INK}'>{}</text>",
         escape(&truncate(&inv.label, 16))
     ));
     s.push_str(&format!(
@@ -120,6 +131,7 @@ pub fn render_svg(inv: &Invitation, hajat: &Hajat) -> String {
             "<polygon points='70,96 290,96 180,48' fill='{dark}'/>"
         ));
     }
+    s.push_str("<ellipse cx='180' cy='196' rx='108' ry='6' fill='#7A1414' opacity='.12'/>");
     // The envelope parts are clipped to a rounded rectangle so the corners are soft.
     s.push_str(&format!(
         "<clipPath id='c'><rect x='70' y='96' width='220' height='96' rx='14'/></clipPath>\
@@ -172,17 +184,26 @@ pub fn render_svg(inv: &Invitation, hajat: &Hajat) -> String {
     }
 
     // Footer. The amount stays hidden while the envelope is sealed.
-    let footer = match status {
+    match status {
         CardStatus::Opened | CardStatus::PartiallyRepaid | CardStatus::Repaid => {
-            Some(format!("{} tUSDC", format_amount(released)))
+            let text = format!("{} tUSDC", format_amount(released));
+            // The coin and the text are centered together. Eight pixels per character is close enough for this font.
+            let width = text.len() as u32 * 8;
+            let start = 180u32.saturating_sub((24 + width) / 2);
+            s.push_str(&format!(
+                "<circle cx='{}' cy='209' r='9' fill='{GOLD}' stroke='#A57A14' stroke-width='1'/>\
+<text x='{}' y='213' text-anchor='middle' font-size='11' font-weight='700' fill='#8A6410'>$</text>\
+<text x='{}' y='214' font-size='14' font-weight='700' fill='{INK}'>{text}</text>",
+                start + 9,
+                start + 9,
+                start + 24
+            ));
         }
-        CardStatus::Reply => Some(format!("Repaid {} envelope(s)", inv.repays.len())),
-        _ => None,
-    };
-    if let Some(text) = footer {
-        s.push_str(&format!(
-            "<text x='180' y='213' text-anchor='middle' font-size='12' fill='{INK_SOFT}'>{text}</text>"
-        ));
+        CardStatus::Reply => s.push_str(&format!(
+            "<text x='180' y='213' text-anchor='middle' font-size='12' fill='{INK_SOFT}'>Repaid {} envelope(s)</text>",
+            inv.repays.len()
+        )),
+        _ => {}
     }
     if status == CardStatus::PartiallyRepaid && credit > 0 {
         // Scale both down first when `* 220` could overflow, so a huge amount can never make
@@ -210,7 +231,7 @@ pub fn render_svg(inv: &Invitation, hajat: &Hajat) -> String {
 /// A minimal card with no user text. Used only if the full card would pass `MAX_SVG_BYTES`.
 fn fallback_card(token_id: u64, stamp: &str) -> String {
     format!(
-        "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 360 220'>\
+        "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 360 220' font-family='Trebuchet MS,Verdana,Arial,sans-serif'>\
 <rect width='360' height='220' rx='28' fill='{PAPER}' stroke='{LINE}'/>\
 <text x='180' y='110' text-anchor='middle' font-size='20' fill='{INK}'>#{token_id} {stamp}</text></svg>"
     )

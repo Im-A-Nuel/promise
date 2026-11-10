@@ -292,5 +292,7 @@
   "net.offline": "Kamu offline. Data mungkin usang.",
   "error.title": "Ada yang rusak di pihak kami",
   "error.body": "Amplopmu aman di chain. Coba lagi, atau pakai menu untuk pindah halaman.",
-  "tx.unconfirmed": "{label} belum terkonfirmasi"
+  "tx.unconfirmed": "{label} belum terkonfirmasi",
+  "events.released_label": "cair",
+  "events.waiting_label": "menunggu"
 }

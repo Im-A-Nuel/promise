@@ -292,5 +292,7 @@
   "net.offline": "You are offline. Data may be out of date.",
   "error.title": "Something broke on our side",
   "error.body": "Your envelopes are safe on the chain. Try again, or use the menu to go somewhere else.",
-  "tx.unconfirmed": "{label} is not confirmed yet"
+  "tx.unconfirmed": "{label} is not confirmed yet",
+  "events.released_label": "released",
+  "events.waiting_label": "waiting"
 }
