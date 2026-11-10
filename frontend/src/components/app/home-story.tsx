@@ -22,7 +22,7 @@ const SOFT = { K: "#B9A590" };
 /** A coin that hops when the card it sits in is hovered. The hop moves in whole steps, like a sprite would. */
 function Coin({ scale = 3 }: { scale?: number }) {
   return (
-    <span className="pixel-hop inline-block">
+    <span className="pixel-hop pixel-pop inline-block">
       <PixelArt sprite={COIN} scale={scale} />
     </span>
   );

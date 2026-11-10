@@ -1,9 +1,11 @@
 import Link from "next/link";
+import type { CSSProperties } from "react";
 import { LedgerStory, Limits } from "@/components/app/home-story";
 import { HeroCarousel } from "@/components/app/hero-carousel";
 import { StatusPill } from "@/components/app/status-pill";
 import { Pao, type PaoMood } from "@/components/pao";
 import { Reveal } from "@/components/reveal";
+import { RiseWords } from "@/components/rise-words";
 import { getT } from "@/lib/i18n/server";
 
 const STATES: {
@@ -24,20 +26,33 @@ export default async function HomePage() {
       {/* Hero. On a phone: pill, headline, copy, the scene, dots, then the button. On a desktop: two columns. */}
       <section className="mx-auto grid max-w-6xl gap-x-12 gap-y-6 px-4 pb-14 pt-4 sm:px-6 lg:grid-cols-12 lg:pb-24 lg:pt-12">
         <div className="text-center lg:col-span-6 lg:row-start-1 lg:self-end lg:text-left">
-          <StatusPill />
+          <div className="hero-in" style={{ "--hd": "0ms" } as CSSProperties}>
+            <StatusPill />
+          </div>
           <h1 className="mt-6 text-[2.6rem] sm:text-6xl lg:text-7xl">
-            {t("hero.title")}
+            <RiseWords text={t("hero.title")} />
           </h1>
-          <p className="mx-auto mt-4 max-w-md text-lg text-ink-soft lg:mx-0 lg:max-w-lg lg:text-xl">
+          <p
+            className="hero-in mx-auto mt-4 max-w-md text-lg text-ink-soft lg:mx-0 lg:max-w-lg lg:text-xl"
+            style={{ "--hd": "520ms" } as CSSProperties}
+          >
             {t("hero.lead")}
           </p>
         </div>
 
-        <div className="lg:col-span-6 lg:col-start-7 lg:row-span-2 lg:row-start-1 lg:self-center">
-          <HeroCarousel />
+        <div
+          className="hero-in lg:col-span-6 lg:col-start-7 lg:row-span-2 lg:row-start-1 lg:self-center"
+          style={{ "--hd": "250ms" } as CSSProperties}
+        >
+          <div className="hero-drift">
+            <HeroCarousel />
+          </div>
         </div>
 
-        <div className="flex flex-col items-center gap-2 lg:col-span-6 lg:row-start-2 lg:items-start lg:self-start">
+        <div
+          className="hero-in flex flex-col items-center gap-2 lg:col-span-6 lg:row-start-2 lg:items-start lg:self-start"
+          style={{ "--hd": "680ms" } as CSSProperties}
+        >
           <Link href="/demo" className="btn-primary w-full max-w-sm sm:w-auto">
             {t("hero.cta")}
           </Link>
@@ -101,7 +116,7 @@ export default async function HomePage() {
 
       {/* The call to action. */}
       <section className="px-4 sm:px-6">
-        <div className="mx-auto flex max-w-5xl flex-col items-center gap-6 overflow-hidden rounded-[36px] bg-gradient-to-br from-[#FFE2D3] via-[#FFD8C7] to-[#FFEBD0] p-8 text-center shadow-float sm:flex-row sm:text-left">
+        <Reveal className="mx-auto flex max-w-5xl flex-col items-center gap-6 overflow-hidden rounded-[36px] bg-gradient-to-br from-[#FFE2D3] via-[#FFD8C7] to-[#FFEBD0] p-8 text-center shadow-float sm:flex-row sm:text-left">
           <div className="flex-1">
             <h2 className="text-3xl sm:text-5xl">{t("cta.title")}</h2>
             <p className="mt-3 max-w-xl text-lg">{t("cta.body")}</p>
@@ -110,7 +125,7 @@ export default async function HomePage() {
             </Link>
           </div>
           <Pao mood="repaid" className="w-40 shrink-0 sm:w-52" />
-        </div>
+        </Reveal>
       </section>
     </>
   );

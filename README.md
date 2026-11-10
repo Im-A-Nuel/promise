@@ -24,7 +24,7 @@ The card image is an SVG generated inside the contract's view function. A wallet
 
 ## Try it in five minutes
 
-Run `pnpm dev` and open http://localhost:3000/demo. No wallet needed. Demo mode signs with pre-funded testnet personas. A hosted link will be added here once the frontend is deployed.
+Open https://promise-near.vercel.app/demo, or run `pnpm dev` and open http://localhost:3000/demo. No wallet needed. Demo mode signs with pre-funded testnet personas.
 
 | Step | Do | See |
 | --- | --- | --- |
