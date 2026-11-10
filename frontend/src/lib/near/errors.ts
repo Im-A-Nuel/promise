@@ -1,4 +1,4 @@
-import { ContractMissingError, ContractPanicError, RpcUnreachableError, TxProblemError } from "@/lib/near/provider";
+import { ContractMissingError, ContractPanicError, RpcUnreachableError, TxProblemError, TxTimeoutError } from "@/lib/near/provider";
 
 /** Every ERR_* code in docs/CONTRACTS.md section 10, plus ERR_COOLDOWN from the tUSDC faucet. */
 export const ERROR_CODES = [
@@ -53,6 +53,7 @@ export interface FriendlyError {
 /** Maps anything thrown by the near layer to an i18n key. Unknown input maps to `err.unknown`. */
 export function toFriendlyError(error: unknown): FriendlyError {
   if (error instanceof RpcUnreachableError) return { key: "err.rpc", code: null };
+  if (error instanceof TxTimeoutError) return { key: "err.tx_timeout", code: null };
   if (error instanceof ContractMissingError) return { key: "err.not_deployed", code: null };
   if (error instanceof TxProblemError) return { key: error.key, code: null };
 

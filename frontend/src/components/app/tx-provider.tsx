@@ -16,6 +16,7 @@ import { Pao } from "@/components/pao";
 import { useI18n } from "@/lib/i18n/client";
 import type { CallArgs } from "@/lib/near/actions";
 import { toFriendlyError } from "@/lib/near/errors";
+import { TxTimeoutError } from "@/lib/near/provider";
 import type { TxResult } from "@/lib/near/signer";
 import { findProblem } from "@/lib/near/tx-logs";
 import { IDLE, isBusy, txReducer, type TxState } from "@/lib/tx-state";
@@ -49,6 +50,25 @@ export const ALL_CHAIN_QUERIES: QueryKey[] = [
   ["balance"],
 ];
 
+/** A normal transaction is final in a few seconds. Past this the screen stops waiting and says so. */
+const TX_DEADLINE_MS = 45_000;
+
+function withDeadline<T>(work: Promise<T>, ms: number): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => reject(new TxTimeoutError()), ms);
+    work.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (error: unknown) => {
+        clearTimeout(timer);
+        reject(error);
+      },
+    );
+  });
+}
+
 export function TxProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(txReducer, IDLE);
   const stateRef = useRef<TxState>(IDLE);
@@ -70,7 +90,7 @@ export function TxProvider({ children }: { children: ReactNode }) {
       try {
         const pending = signer.call(options.call);
         dispatch({ type: "sent" });
-        const result = await pending;
+        const result = await withDeadline(pending, TX_DEADLINE_MS);
         const problem = findProblem(result.logs);
         if (problem) throw problem;
         dispatch({ type: "confirming" });
@@ -86,6 +106,10 @@ export function TxProvider({ children }: { children: ReactNode }) {
         });
         return result;
       } catch (error) {
+        // A timeout does not mean it failed. Refresh anyway, so the screen shows whatever the chain ended up with.
+        if (error instanceof TxTimeoutError) {
+          void Promise.all(ALL_CHAIN_QUERIES.map((queryKey) => queryClient.invalidateQueries({ queryKey })));
+        }
         const friendly = toFriendlyError(error);
         dispatch({ type: "fail", key: friendly.key, code: friendly.code });
         return null;
@@ -148,7 +172,8 @@ function TxToast() {
   let title: string;
   let detail: string | null = null;
   if (state.status === "error") {
-    title = t("tx.failed", { label: state.label });
+    // A timeout is not a failure: the transaction may still land, so the title must not claim it did not work.
+    title = state.key === "err.tx_timeout" ? t("tx.unconfirmed", { label: state.label }) : t("tx.failed", { label: state.label });
     detail = t(state.key);
   } else if (state.status === "done") {
     title = t(state.successKey);

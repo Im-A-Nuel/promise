@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { SiteFooter } from "@/components/site-footer";
 import { getT } from "@/lib/i18n/server";
+import { NetworkBanner } from "./network-banner";
 import { SiteHeader, TabBar } from "./nav";
 
 /** Header, content, footer and the phone tab bar. Pages render only their own sections. */
@@ -15,7 +16,8 @@ export async function Shell({ children }: { children: ReactNode }) {
         {t("nav.skip")}
       </a>
       <SiteHeader />
-      <main id="content" className="pb-6 lg:pb-12">
+      <NetworkBanner />
+      <main id="content" className="min-h-[calc(100dvh-4.5rem)] pb-6 lg:pb-12">
         {children}
       </main>
       <SiteFooter t={t} />

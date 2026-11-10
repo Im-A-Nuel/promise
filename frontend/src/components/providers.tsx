@@ -10,7 +10,7 @@ import { TxProvider } from "@/components/app/tx-provider";
 
 export function Providers({ locale, children }: { locale: Locale; children: ReactNode }) {
   const [client] = useState(
-    () => new QueryClient({ defaultOptions: { queries: { staleTime: 5_000, retry: 1, refetchOnWindowFocus: false } } }),
+    () => new QueryClient({ defaultOptions: { queries: { staleTime: 5_000, retry: 1, refetchOnWindowFocus: false, networkMode: "always" } } }),
   );
   return (
     <I18nProvider locale={locale}>
