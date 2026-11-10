@@ -19,6 +19,9 @@ export const env = schema.parse({
   amplopId: process.env.NEXT_PUBLIC_AMPLOP_ID ?? "amplop.promisedemo.testnet",
   ftId: process.env.NEXT_PUBLIC_FT_ID ?? "tusdc.promisedemo.testnet",
   explorerUrl: process.env.NEXT_PUBLIC_EXPLORER_URL ?? "https://testnet.nearblocks.io",
-  appUrl: process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
+  // On Vercel the production domain is a system variable, so link previews get the right address without extra setup.
+  appUrl:
+    process.env.NEXT_PUBLIC_APP_URL ??
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : "http://localhost:3000"),
   defaultLocale: process.env.NEXT_PUBLIC_DEFAULT_LOCALE ?? "en",
 });
