@@ -402,6 +402,24 @@ li {
   animation: sparkle 3.2s ease-in-out infinite;
 }
 
+/* Pixel art. The ground is a strip of 8 px blocks, and a hop moves in whole steps so it reads as a sprite. */
+.pixel-ground {
+  height: 10px;
+  background: repeating-linear-gradient(90deg, #e9dccb 0 8px, #f3e8da 8px 16px);
+}
+@keyframes pixel-hop {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+.group:hover .pixel-hop {
+  animation: pixel-hop 520ms steps(4) 1;
+}
+
 /* Pao looks at the pointer. --gx and --gy (-1 to 1) are written by use-gaze. The face leans a little, the eyes lean more. */
 .pao-face {
   transform: translate(calc(var(--gx, 0) * 3px), calc(var(--gy, 0) * 2.5px));
@@ -448,5 +466,8 @@ li {
   .pao-face,
   .pao-eye {
     transform: none;
+  }
+  .group:hover .pixel-hop {
+    animation: none;
   }
 }
