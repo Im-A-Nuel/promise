@@ -294,5 +294,11 @@
   "error.body": "Amplopmu aman di chain. Coba lagi, atau pakai menu untuk pindah halaman.",
   "tx.unconfirmed": "{label} belum terkonfirmasi",
   "events.released_label": "cair",
-  "events.waiting_label": "menunggu"
+  "events.waiting_label": "menunggu",
+  "carousel.pause": "Jeda tayangan",
+  "carousel.play": "Putar tayangan",
+  "demo.step.go": "Buka sebagai {name}",
+  "demo.step.label": "Langkah {n}",
+  "demo.pao.note": "Aku yang gantiin akunnya",
+  "demo.pao.label": "Pao, si amplop, mengikuti pointer"
 }

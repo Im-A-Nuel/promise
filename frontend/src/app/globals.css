@@ -402,6 +402,16 @@ li {
   animation: sparkle 3.2s ease-in-out infinite;
 }
 
+/* Pao looks at the pointer. --gx and --gy (-1 to 1) are written by use-gaze. The face leans a little, the eyes lean more. */
+.pao-face {
+  transform: translate(calc(var(--gx, 0) * 3px), calc(var(--gy, 0) * 2.5px));
+  transition: transform 180ms var(--ease-out);
+}
+.pao-eye {
+  transform: translate(calc(var(--gx, 0) * 6.5px), calc(var(--gy, 0) * 5px));
+  transition: transform 140ms var(--ease-out);
+}
+
 /* Hide the horizontal scrollbar of the carousel but keep it scrollable. */
 .no-scrollbar {
   scrollbar-width: none;
@@ -434,5 +444,9 @@ li {
   .pao-blink,
   .sparkle {
     animation: none;
+  }
+  .pao-face,
+  .pao-eye {
+    transform: none;
   }
 }

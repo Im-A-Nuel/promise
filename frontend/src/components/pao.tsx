@@ -1,4 +1,7 @@
-import { useId, type ReactNode } from "react";
+"use client";
+
+import { useId, useRef, type ReactNode } from "react";
+import { useGaze } from "@/lib/use-gaze";
 
 export type PaoMood = "waiting" | "sealed" | "opened" | "repaid";
 
@@ -24,6 +27,8 @@ interface PaoProps {
  */
 export function Pao({ mood, label, className, animated = true }: PaoProps) {
   const uid = useId().replace(/:/g, "");
+  const svg = useRef<SVGSVGElement>(null);
+  useGaze(svg);
   const id = (name: string) => `${uid}-${name}`;
   const open = mood === "waiting" || mood === "opened";
   const closedEyes = mood === "sealed" || mood === "repaid";
@@ -32,7 +37,7 @@ export function Pao({ mood, label, className, animated = true }: PaoProps) {
     closedEyes ? (
       <path d={`M${cx - 11} 164 Q${cx} 148 ${cx + 11} 164`} fill="none" stroke="#2A1A12" strokeWidth="5.5" strokeLinecap="round" />
     ) : (
-      <g>
+      <g className="pao-eye">
         <ellipse cx={cx} cy={160} rx={9.5} ry={12.5} fill="#2A1A12" />
         <circle cx={cx + (mood === "waiting" ? 3.5 : 3)} cy={mood === "waiting" ? 153.5 : 155} r={3.6} fill="#fff" />
         <circle cx={cx - 3.5} cy={166} r={1.7} fill="#fff" opacity="0.85" />
@@ -92,13 +97,15 @@ export function Pao({ mood, label, className, animated = true }: PaoProps) {
       )}
 
       {/* face */}
-      <g className={animated ? "pao-blink" : undefined}>
-        {eye(90)}
-        {eye(150)}
+      <g className="pao-face">
+        <g className={animated ? "pao-blink" : undefined}>
+          {eye(90)}
+          {eye(150)}
+        </g>
+        {mouth}
+        <ellipse cx="66" cy="178" rx="13" ry="8" fill={`url(#${id("blush")})`} />
+        <ellipse cx="174" cy="178" rx="13" ry="8" fill={`url(#${id("blush")})`} />
       </g>
-      {mouth}
-      <ellipse cx="66" cy="178" rx="13" ry="8" fill={`url(#${id("blush")})`} />
-      <ellipse cx="174" cy="178" rx="13" ry="8" fill={`url(#${id("blush")})`} />
 
       {/* coin popping out */}
       {mood === "opened" && (
@@ -120,7 +127,7 @@ export function Pao({ mood, label, className, animated = true }: PaoProps) {
   );
 
   return (
-    <svg viewBox="0 0 240 226" role={label ? "img" : undefined} aria-label={label || undefined} aria-hidden={label ? undefined : true} className={className}>
+    <svg ref={svg} viewBox="0 0 240 226" role={label ? "img" : undefined} aria-label={label || undefined} aria-hidden={label ? undefined : true} className={className}>
       <defs>
         <linearGradient id={id("body")} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#E9594E" />
