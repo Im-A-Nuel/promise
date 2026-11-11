@@ -87,7 +87,8 @@ function AccountChip() {
       <span aria-hidden="true" className="grid h-9 w-9 place-items-center rounded-full bg-peach font-display text-base text-red-dark">
         {persona ? persona.name.slice(0, 1) : "?"}
       </span>
-      <span className="hidden sm:inline">{persona ? persona.name : t("account.none")}</span>
+      {/* Always written out: a bare "?" on a phone does not say what the chip is for. */}
+      <span>{persona ? persona.name : t("account.none")}</span>
     </Link>
   );
 }

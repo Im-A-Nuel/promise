@@ -27,9 +27,9 @@ export function PersonaSwitcher() {
                 </div>
               </div>
               <p className="mt-3 flex-1">{p.blurb[locale]}</p>
-              <p className="mt-3 break-all text-sm text-ink-soft">
-                {t("persona.account")}:{" "}
-                <a className="link" href={explorerAccountUrl(p.account_id)}>
+              <p className="mt-3 flex flex-wrap items-center gap-x-1.5 break-all text-sm text-ink-soft">
+                {t("persona.account")}:
+                <a className="link inline-flex min-h-[44px] items-center" href={explorerAccountUrl(p.account_id)}>
                   {p.account_id}
                 </a>
               </p>
