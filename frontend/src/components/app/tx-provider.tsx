@@ -169,7 +169,7 @@ function TxToast() {
     state.status === "done"
       ? "repaid"
       : state.status === "error"
-        ? "waiting"
+        ? "oops"
         : "sealed";
 
   let title: string;

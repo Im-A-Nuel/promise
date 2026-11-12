@@ -6,7 +6,7 @@ export default async function NotFound() {
   return (
     <>
       <Page>
-        <Empty title={t("notfound.title")} body={t("notfound.body")} href="/" cta={t("notfound.home")} />
+        <Empty mood="oops" title={t("notfound.title")} body={t("notfound.body")} href="/" cta={t("notfound.home")} />
       </Page>
     </>
   );

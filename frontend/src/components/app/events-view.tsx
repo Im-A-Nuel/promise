@@ -151,6 +151,7 @@ export function EventsList() {
                     <span className="flex min-w-0 items-center gap-2 text-sm">
                       <Avatar
                         name={hostName(e.host)}
+                        seed={e.host}
                         className="h-7 w-7 text-xs"
                       />
                       <span className="truncate">
@@ -267,7 +268,7 @@ export function EventDetail() {
           </div>
           <h1 className="mt-3 text-4xl sm:text-5xl">{hajat.title}</h1>
           <p className="mt-2 flex items-center gap-2 text-ink-soft">
-            <Avatar name={hostName(hajat.host)} className="h-8 w-8 text-sm" />
+            <Avatar name={hostName(hajat.host)} seed={hajat.host} className="h-8 w-8" />
             {t("events.host", { host: hostName(hajat.host) })}
           </p>
           <p className="tabular mt-3 font-bold">
@@ -356,6 +357,7 @@ export function EventDetail() {
                       <p className="flex min-w-0 items-center gap-2.5 truncate font-display text-xl">
                         <Avatar
                           name={inv.label}
+                          seed={inv.owner}
                           className="h-9 w-9 shrink-0 text-base"
                         />
                         <span className="truncate">{inv.label}</span>

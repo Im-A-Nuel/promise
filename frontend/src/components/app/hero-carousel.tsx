@@ -173,7 +173,8 @@ export function HeroCarousel() {
               <Pao
                 mood={mood}
                 label={t(`pao.${mood}`)}
-                className="pao-pop absolute bottom-[16%] left-1/2 w-[56%] -translate-x-1/2"
+                priority={i === 0}
+                className="pao-pop absolute bottom-[14%] left-1/2 w-[60%] -translate-x-1/2"
               />
 
               {/* handwritten note with an arrow pointing at Pao */}
@@ -235,7 +236,7 @@ export function HeroCarousel() {
                 state: t(`card.state.${state}`),
               })}
               aria-current={i === index}
-              className="grid h-11 w-9 place-items-center"
+              className="grid h-11 w-11 place-items-center"
             >
               <span
                 className={`block h-2.5 rounded-full transition-[width,background-color] duration-300 ease-[var(--ease-out)] ${i === index ? "w-6 bg-red" : "w-2.5 bg-[#e6cfc4]"}`}

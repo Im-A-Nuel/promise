@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { LocaleSwitch } from "@/components/locale-switch";
+import { Avatar } from "./states";
 import { useI18n } from "@/lib/i18n/client";
 import { usePersona } from "@/lib/persona";
 
@@ -84,9 +85,13 @@ function AccountChip() {
       aria-label={persona ? `${t("account.change")}: ${persona.name}` : t("account.none")}
       className="flex min-h-[44px] items-center gap-2 rounded-full bg-white/80 py-1 pl-1 pr-3 text-sm font-extrabold shadow-soft hover:bg-white sm:pr-4"
     >
-      <span aria-hidden="true" className="grid h-9 w-9 place-items-center rounded-full bg-peach font-display text-base text-red-dark">
-        {persona ? persona.name.slice(0, 1) : "?"}
-      </span>
+      {persona ? (
+        <Avatar name={persona.name} seed={persona.account_id} className="h-9 w-9" />
+      ) : (
+        <span aria-hidden="true" className="grid h-9 w-9 place-items-center rounded-full bg-peach font-display text-base text-red-dark">
+          ?
+        </span>
+      )}
       {/* Always written out: a bare "?" on a phone does not say what the chip is for. */}
       <span>{persona ? persona.name : t("account.none")}</span>
     </Link>

@@ -39,7 +39,7 @@ export function NewEventForm() {
 
   if (!ready) return null;
   if (!persona) {
-    return <Empty title={t("eventnew.need_account")} href="/demo" cta={t("ledgerPage.pick_cta")} />;
+    return <Empty mood="sleepy" title={t("eventnew.need_account")} href="/demo" cta={t("ledgerPage.pick_cta")} />;
   }
 
   const whenMs = new Date(when).getTime();
@@ -67,7 +67,7 @@ export function NewEventForm() {
   return (
     <form onSubmit={submit} noValidate className="surface mt-6 grid max-w-2xl gap-5 p-6">
       <p className="flex items-center gap-2 text-ink-soft">
-        <Avatar name={persona.name} className="h-8 w-8 text-sm" />
+        <Avatar name={persona.name} seed={persona.account_id} className="h-8 w-8" />
         {t("eventnew.host_as", { name: persona.name })}
       </p>
 

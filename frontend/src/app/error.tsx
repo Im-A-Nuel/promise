@@ -10,7 +10,7 @@ export default function RouteError({ reset }: { error: Error & { digest?: string
   return (
     <Page>
       <div role="alert" className="surface mx-auto flex max-w-md flex-col items-center px-6 py-10 text-center">
-        <Pao mood="waiting" className="w-36" />
+        <Pao mood="oops" className="w-36" />
         <h1 className="mt-4 text-2xl">{t("error.title")}</h1>
         <p className="mt-2 text-ink-soft">{t("error.body")}</p>
         <button type="button" onClick={reset} className="btn-primary mt-6">

@@ -21,6 +21,7 @@ export const PALETTE: Record<string, string> = {
   O: "#FF9A8B", // blush
   H: "#2A1A12", // black
   h: "#2A1A12", // hair, usually overridden
+  c: "#3A2A1A", // cap, usually overridden
   r: "#D8453B", // shirt, usually overridden
 };
 

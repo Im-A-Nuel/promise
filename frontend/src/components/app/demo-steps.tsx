@@ -21,11 +21,11 @@ const STEPS = [
 
 /** A soft tint per person, so the story can be followed by color as well as by name. */
 const TINT: Record<string, string> = {
-  ayu: "bg-peach text-red-dark",
-  budi: "bg-mint text-green",
-  dewi: "bg-blush text-red-dark",
-  citra: "bg-gold-soft text-ink",
-  eko: "bg-line text-ink",
+  ayu: "bg-peach",
+  budi: "bg-mint",
+  dewi: "bg-blush",
+  citra: "bg-gold-soft",
+  eko: "bg-line",
 };
 
 /**
@@ -55,7 +55,8 @@ export function DemoSteps() {
                 <span className="relative">
                   <Avatar
                     name={name}
-                    className={`h-14 w-14 text-2xl ring-4 ring-cream ${TINT[who] ?? "bg-peach text-red-dark"}`}
+                    seed={person?.account_id}
+                    className={`h-14 w-14 ring-4 ring-cream ${TINT[who] ?? "bg-peach"}`}
                   />
                   <span
                     aria-hidden="true"

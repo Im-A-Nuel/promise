@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { Amount } from "@/components/coin";
+import { SealBadge } from "@/components/pao";
 import type { CardStatus } from "@/lib/near/types";
 
 type Pose = "open-empty" | "sealed" | "open-coin" | "sleeping";
@@ -15,13 +16,13 @@ const POSE: Record<CardStatus, Pose> = {
   Void: "sleeping",
 };
 
-// The artwork is a 640 px square per pose, cropped and aligned so the envelope body keeps one width and one
+// The artwork is an 800 px square per pose, cropped and aligned so the envelope body keeps one width and one
 // baseline across poses. Swapping the pose of a card therefore never makes the envelope jump.
 const SRC: Record<Pose, string> = {
-  "open-empty": "/cards/pao-open-empty.webp",
-  sealed: "/cards/pao-sealed.webp",
-  "open-coin": "/cards/pao-open-coin.webp",
-  sleeping: "/cards/pao-sleeping.webp",
+  "open-empty": "/art/pao-open-empty.webp",
+  sealed: "/art/pao-sealed.webp",
+  "open-coin": "/art/pao-open-coin.webp",
+  sleeping: "/art/pao-sleeping.webp",
 };
 
 const showsAmount = (s: CardStatus) => s === "Opened" || s === "PartiallyRepaid" || s === "Repaid";
@@ -32,23 +33,6 @@ function paidShare(released: string, settled: string, reciprocated: string): num
   if (credit <= 0n) return 0;
   const paid = BigInt(reciprocated) < credit ? BigInt(reciprocated) : credit;
   return Number((paid * 100n) / credit);
-}
-
-function Badge({ kind }: { kind: "repaid" | "reply" }) {
-  return (
-    <span
-      aria-hidden="true"
-      className="absolute left-1/2 top-[63.5%] grid h-[17%] w-[17%] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-[#2F6B3F] text-white shadow-[0_6px_12px_-4px_rgba(20,60,30,0.6)] ring-[3px] ring-[#E9F3EA]"
-    >
-      <svg viewBox="0 0 24 24" className="h-[58%] w-[58%]" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
-        {kind === "repaid" ? (
-          <path d="m5 12.5 4.6 4.6L19 7.5" />
-        ) : (
-          <path d="M5 9h13m-4-4 4 4-4 4M19 15H6m4-4-4 4 4 4" />
-        )}
-      </svg>
-    </span>
-  );
 }
 
 /**
@@ -99,8 +83,8 @@ export function InvitationCard({
         } ${status === "Refunded" ? "opacity-50" : ""}`}
       >
         {/* Static artwork from /public. The files are small, so the image optimizer adds nothing. */}
-        <Image src={SRC[POSE[status]]} alt="" width={640} height={640} unoptimized priority={false} className="h-auto w-full" />
-        {(status === "Repaid" || status === "Reply") && <Badge kind={status === "Repaid" ? "repaid" : "reply"} />}
+        <Image src={SRC[POSE[status]]} alt="" width={800} height={800} unoptimized priority={false} className="h-auto w-full" />
+        {(status === "Repaid" || status === "Reply") && <SealBadge kind={status === "Repaid" ? "repaid" : "reply"} />}
       </div>
       {showsAmount(status) && (
         <span

@@ -102,6 +102,25 @@ li {
     transition-duration: var(--duration-fast);
     transition-timing-function: var(--ease-out);
   }
+
+  /* A reset leaves buttons with the arrow cursor. Anything that can be pressed says so, anything disabled says so too. */
+  a[href],
+  button:not(:disabled),
+  summary,
+  select:not(:disabled),
+  label[for],
+  [role="button"]:not([aria-disabled="true"]),
+  [role="tab"],
+  [role="switch"],
+  input[type="checkbox"]:not(:disabled),
+  input[type="radio"]:not(:disabled) {
+    cursor: pointer;
+  }
+  button:disabled,
+  select:disabled,
+  [aria-disabled="true"] {
+    cursor: not-allowed;
+  }
 }
 
 @layer components {
@@ -350,7 +369,7 @@ li {
   }
 }
 
-/* Pao: a slow float with a little sway, and a blink. These are the only looping animations in the app. */
+/* Pao: a slow float with a little sway. It is the only looping animation in the app. */
 @keyframes pao-float {
   0%,
   100% {
@@ -358,17 +377,6 @@ li {
   }
   50% {
     transform: translateY(-6px) rotate(0.8deg);
-  }
-}
-
-@keyframes pao-blink {
-  0%,
-  92%,
-  100% {
-    transform: scaleY(1);
-  }
-  95% {
-    transform: scaleY(0.1);
   }
 }
 
@@ -388,12 +396,6 @@ li {
   transform-box: fill-box;
   transform-origin: 50% 100%;
   animation: pao-float 5s ease-in-out infinite;
-}
-
-.pao-blink {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: pao-blink 5.2s ease-in-out infinite;
 }
 
 .sparkle {
@@ -518,16 +520,6 @@ li {
   animation: pixel-hop 520ms steps(4) 1;
 }
 
-/* Pao looks at the pointer. --gx and --gy (-1 to 1) are written by use-gaze. The face leans a little, the eyes lean more. */
-.pao-face {
-  transform: translate(calc(var(--gx, 0) * 3px), calc(var(--gy, 0) * 2.5px));
-  transition: transform 180ms var(--ease-out);
-}
-.pao-eye {
-  transform: translate(calc(var(--gx, 0) * 6.5px), calc(var(--gy, 0) * 5px));
-  transition: transform 140ms var(--ease-out);
-}
-
 /* Hide the horizontal scrollbar of the carousel but keep it scrollable. */
 .no-scrollbar {
   scrollbar-width: none;
@@ -557,13 +549,8 @@ li {
     opacity: 1;
   }
   .pao-float,
-  .pao-blink,
   .sparkle {
     animation: none;
-  }
-  .pao-face,
-  .pao-eye {
-    transform: none;
   }
   .group:hover .pixel-hop,
   [data-reveal="shown"] .pixel-pop,
