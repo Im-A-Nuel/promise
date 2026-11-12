@@ -70,7 +70,7 @@ Exit code is 0 only when every expected state matches. Minimum 12 explorer links
 | 0:00 | Photo of a paper guest book, then cut to a blank phone | "At weddings in Indonesia the envelope is a debt of honor. The record is a paper book people lose." |
 | 0:15 | Landing page, press Try demo | "Promise puts that envelope on NEAR as an NFT. This is testnet and these are demo accounts." |
 | 0:25 | Ayu's hajat page | "Ayu hosts a wedding. Each guest holds a soulbound invitation." |
-| 0:40 | Dewi seals 5 | "Dewi locks five test dollars in her invitation. The card is drawn by the contract, so the amount stays hidden until the event." |
+| 0:40 | Dewi seals 5 | "Dewi locks five test dollars in her invitation. The card turns Sealed, so the amount stays hidden until the event." |
 | 1:00 | Ayu checks Dewi in, card flips | "Check-in opens the envelope. The money moves, the card changes." |
 | 1:20 | Neraca | "The contract now remembers that Ayu owes Dewi, Budi and Citra." |
 | 1:40 | Budi's khitan, Ayu pays back | "Months later Ayu goes to Budi's event. The app already knows what she owes." |
@@ -99,7 +99,7 @@ Built Promise at NEAR HACKATHON.
 
 At weddings in Indonesia the envelope is a debt of honor, and the record is a paper guest book that gets lost.
 
-Promise makes each guest invitation a soulbound NFT that holds the money until the event, then keeps a ledger of who owes whom. The card is drawn by the contract itself.
+Promise makes each guest invitation a soulbound NFT that holds the money until the event, then keeps a ledger of who owes whom. The contract also draws each card as an SVG, so the state can be read without our server.
 
 Testnet, demo accounts, repo + video below.
 ```

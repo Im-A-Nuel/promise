@@ -17,7 +17,7 @@ Promise feels like a warm gift, not a finance tool. The one motif is **Pao**, a 
 | Opened | flap open, a gold coin pops out, big smile |
 | Repaid | green check badge, happy eyes, sparkles |
 
-Pao appears in the hero, in empty states and on the account screens. The real invitation card, drawn by the contract, is never replaced by Pao: it is shown as it is.
+Pao appears in the hero, in empty states and on the account screens. On the event pages each guest card shows the Pao pose of its state, with the amount and a check drawn by the app. The contract draws its own plain SVG of the card on chain, which wallets, explorers and `/api/nft/:id/image.svg` show. The app must not say that the picture on the page is that SVG.
 
 The app icon is the glossy red squircle envelope with a gold seal (`design/`). It is the favicon and the header mark.
 
@@ -75,4 +75,4 @@ Friendly, plain, specific. Amounts always with the unit (`5.00 tUSDC`). No em da
 
 - Pao is the character, not a logo. The icon is the logo mark.
 - No testimonials, statistics, partner logos or FAQ.
-- The four cards on the home page are drawings of the states. Real cards, drawn by the contract, appear on the event pages.
+- The four cards on the home page are drawings of the states. The event pages show the same poses for real invitations, driven by the status the contract reports.
