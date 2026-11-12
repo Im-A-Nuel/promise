@@ -23,7 +23,7 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* Hero. On a phone: pill, headline, copy, the scene, dots, then the button. On a desktop: two columns. */}
+      {/* Hero. On a phone: pill, headline, copy, the button, then the scene and its dots. On a desktop: two columns. */}
       <section className="mx-auto grid max-w-6xl gap-x-12 gap-y-6 px-4 pb-14 pt-4 sm:px-6 lg:grid-cols-12 lg:pb-24 lg:pt-12">
         <div className="text-center lg:col-span-6 lg:row-start-1 lg:self-end lg:text-left">
           <div className="hero-in" style={{ "--hd": "0ms" } as CSSProperties}>
@@ -40,8 +40,9 @@ export default async function HomePage() {
           </p>
         </div>
 
+        {/* On a phone the button comes before the scene (order-3), so the first screen already shows what to press. */}
         <div
-          className="hero-in lg:col-span-6 lg:col-start-7 lg:row-span-2 lg:row-start-1 lg:self-center"
+          className="hero-in order-3 lg:order-none lg:col-span-6 lg:col-start-7 lg:row-span-2 lg:row-start-1 lg:self-center"
           style={{ "--hd": "250ms" } as CSSProperties}
         >
           <div className="hero-drift">
@@ -50,7 +51,7 @@ export default async function HomePage() {
         </div>
 
         <div
-          className="hero-in flex flex-col items-center gap-2 lg:col-span-6 lg:row-start-2 lg:items-start lg:self-start"
+          className="hero-in order-2 flex flex-col items-center gap-2 lg:order-none lg:col-span-6 lg:row-start-2 lg:items-start lg:self-start"
           style={{ "--hd": "680ms" } as CSSProperties}
         >
           <Link href="/demo" className="btn-primary w-full max-w-sm sm:w-auto">

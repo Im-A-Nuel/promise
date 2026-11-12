@@ -25,13 +25,13 @@ export function ChainStatus() {
           <dd className="tabular">{data.block_height}</dd>
           <dt className="text-ink-soft">{t("chain.amplop")}</dt>
           <dd>
-            <a className="link break-all" href={explorerAccountUrl(data.amplop)}>
+            <a className="link inline-flex min-h-[44px] items-center break-all" href={explorerAccountUrl(data.amplop)}>
               {data.amplop}
             </a>
           </dd>
           <dt className="text-ink-soft">{t("chain.ft")}</dt>
           <dd>
-            <a className="link break-all" href={explorerAccountUrl(data.ft)}>
+            <a className="link inline-flex min-h-[44px] items-center break-all" href={explorerAccountUrl(data.ft)}>
               {data.ft}
             </a>
           </dd>
