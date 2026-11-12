@@ -8,7 +8,7 @@ export const contentType = "image/png";
 
 // The social preview card shown when a link is shared on X and other apps.
 export default async function OpenGraphImage() {
-  const icon = await readFile(join(process.cwd(), "public", "brand", "mark-256.png"));
+  const icon = await readFile(join(process.cwd(), "public", "art", "og-pao.png"));
   const src = `data:image/png;base64,${icon.toString("base64")}`;
 
   return new ImageResponse(
@@ -25,7 +25,7 @@ export default async function OpenGraphImage() {
       >
         <div style={{ display: "flex", flexDirection: "column", flex: 1, paddingRight: 48 }}>
           <div style={{ display: "flex", fontSize: 34, fontWeight: 700, color: "#7A1414" }}>Promise</div>
-          <div style={{ display: "flex", marginTop: 24, fontSize: 84, lineHeight: 1.05, fontWeight: 800, color: "#3A2A1A" }}>
+          <div style={{ display: "flex", marginTop: 24, fontSize: 72, lineHeight: 1.08, fontWeight: 800, color: "#3A2A1A" }}>
             Every gift is a promise to give back.
           </div>
           <div style={{ display: "flex", marginTop: 28, fontSize: 30, color: "#6B5A48" }}>
@@ -33,7 +33,7 @@ export default async function OpenGraphImage() {
           </div>
         </div>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={src} width={340} height={340} alt="" />
+        <img src={src} width={420} height={338} alt="" />
       </div>
     ),
     size,

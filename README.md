@@ -130,7 +130,7 @@ All code in this repository was written inside the hackathon window. The first c
 | Web | Next.js 15, React 19, Tailwind CSS v4, TanStack Query, framer-motion, zod, near-api-js, qrcode | Next.js route handlers are the only backend, there is no database |
 | Fonts | Fredoka, Nunito, Caveat (Google Fonts, OFL) | Loaded through next/font |
 | Scripts | tsx, vitest, near-api-js | Deploy, seed and demo |
-| Art | The mascot Pao, the clouds and the icons are SVG drawn for this project. The app icon is in `design/` | |
+| Art | The mascot Pao is 3D artwork made with an AI image generator and prepared by the author (`frontend/public/art`). The clouds, the icons, the pixel sprites and the avatars are drawn in code. The app icon is in `design/` | |
 
 ## License
 

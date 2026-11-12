@@ -70,7 +70,7 @@ function Row({
       style={{ "--delay": `${Math.min(index, 8) * 60}ms` } as CSSProperties}
     >
       <span className="relative shrink-0">
-        <Avatar name={name} className="h-14 w-14 text-2xl" />
+        <Avatar name={name} seed={row.counterparty} className="h-14 w-14" />
         <Direction
           tone={tone}
           className="absolute -bottom-1 -right-1 h-6 w-6"
@@ -163,6 +163,7 @@ export function LedgerView() {
       <>
         {head}
         <Empty
+          mood="sleepy"
           title={t("ledgerPage.pick")}
           href="/demo"
           cta={t("ledgerPage.pick_cta")}
@@ -175,7 +176,7 @@ export function LedgerView() {
     <>
       {head}
       <p className="mb-2 flex items-center gap-2 text-ink-soft">
-        <Avatar name={persona.name} className="h-8 w-8 text-sm" />
+        <Avatar name={persona.name} seed={persona.account_id} className="h-8 w-8" />
         {t("ledgerPage.viewing", { name: persona.name })}
       </p>
       {query.isPending && <Loading label={t("ledgerPage.loading")} />}

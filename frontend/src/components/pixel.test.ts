@@ -6,7 +6,7 @@ const all = Object.entries(sprites).filter(([, value]) => Array.isArray(value)) 
 
 describe("pixel sprites", () => {
   it("has every sprite", () => {
-    expect(all.map(([name]) => name).sort()).toEqual(["ARROW", "BOOK", "CHECK", "CHEST", "COIN", "ENVELOPE", "EYE", "FLASK", "LANTERN", "PERSON"]);
+    expect(all.map(([name]) => name).sort()).toEqual(["ARROW", "BOOK", "CAP", "CHECK", "CHEST", "COIN", "ENVELOPE", "EYE", "FLASK", "GLASSES", "HAIR_BUN", "HAIR_CURLY", "HAIR_LONG", "LANTERN", "PERSON"]);
   });
 
   it.each(all)("%s has rows of one length", (_, sprite) => {

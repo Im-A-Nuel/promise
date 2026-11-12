@@ -20,7 +20,7 @@ export function PersonaSwitcher() {
           return (
             <li key={p.id} className={`surface flex flex-col p-6 ${active ? "ring-[3px] ring-red" : ""}`}>
               <div className="flex items-center gap-3">
-                <Avatar name={p.name} className="h-12 w-12 text-2xl" />
+                <Avatar name={p.name} seed={p.account_id} className="h-12 w-12" />
                 <div>
                   <h3 className="text-2xl">{p.name}</h3>
                   <p className="text-sm font-bold text-ink-soft">{p.role[locale]}</p>
