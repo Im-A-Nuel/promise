@@ -11,7 +11,7 @@
   "hero.lead": "Amplop pernikahan di NEAR. Undangan menyimpan kadonya, kontrak mengingat siapa berutang pada siapa.",
   "hero.cta": "Coba demo lima menit",
   "hero.secondary": "Lihat cara balasan dihitung",
-  "hero.caption": "Gambar empat status satu kartu. Di halaman demo, kartu digambar oleh kontrak itu sendiri.",
+  "hero.caption": "Gambar empat status satu kartu. Kontrak juga menggambar SVG sederhana dari setiap kartu di chain.",
   "card.state.invited": "Diundang",
   "card.state.sealed": "Disegel",
   "card.state.opened": "Dibuka",

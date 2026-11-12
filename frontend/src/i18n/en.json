@@ -11,7 +11,7 @@
   "hero.lead": "Wedding envelopes on NEAR. The invitation holds the gift, and the contract remembers who owes whom.",
   "hero.cta": "Try the five-minute demo",
   "hero.secondary": "See how repayment works",
-  "hero.caption": "Drawing of the four states of one card. In the demo, the card is drawn by the contract itself.",
+  "hero.caption": "Drawing of the four states of one card. The contract also draws a plain SVG of every card on chain.",
   "card.state.invited": "Invited",
   "card.state.sealed": "Sealed",
   "card.state.opened": "Opened",

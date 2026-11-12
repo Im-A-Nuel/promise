@@ -20,7 +20,7 @@ Digital angpao apps exist and they send money. They do not remember what you owe
 4. A guest can show a QR door pass. The host opens it on their phone and checks that guest in.
 5. The contract stores the gift as a claim. When the host later attends the guest's own event and gives an envelope, the contract repays the oldest claim first and the original card flips to "repaid". Anything above the debt becomes a new claim in the other direction.
 
-The card image is an SVG generated inside the contract's view function. A wallet or explorer shows the current state without trusting our server. The contract also keeps its own activity log, so the event page can show a history with no indexer.
+The card image is an SVG generated inside the contract's view function. A wallet or explorer shows the current state without trusting our server. The web app shows the same states with its own Pao artwork, so what you see on a page is not that SVG. The contract also keeps its own activity log, so the event page can show a history with no indexer.
 
 ## Try it in five minutes
 
