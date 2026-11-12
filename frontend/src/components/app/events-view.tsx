@@ -26,6 +26,7 @@ import { Amount } from "@/components/coin";
 import { ActivityList } from "./activity-list";
 import { KindTile } from "./kind-tile";
 import { DoorPass } from "./door-pass";
+import { InvitationCard } from "./invitation-card";
 import {
   CancelControl,
   CheckInButton,
@@ -341,20 +342,15 @@ export function EventDetail() {
                   >
                     {/* The card sits on a warm stage and lifts a little when you reach for it. */}
                     <div className="rounded-[24px] bg-gradient-to-b from-[#FFEBDD] to-[#FFF8F1] p-3 transition-transform duration-500 ease-[var(--ease-out)] group-hover:-translate-y-1 group-hover:-rotate-[0.6deg]">
-                      {inv.media ? (
-                        // The card is a data URI drawn by the contract, so it cannot go through next/image.
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={inv.media}
-                          alt={`${t("event.card_of", { name: inv.label })}, ${status}${amount}`}
-                          className={`block h-auto w-full rounded-[18px] shadow-[0_16px_28px_-18px_rgba(122,20,20,0.55)] ${isMine ? "mx-auto max-w-md" : ""}`}
-                        />
-                      ) : (
-                        <div
-                          aria-hidden="true"
-                          className="skeleton aspect-[360/220]"
-                        />
-                      )}
+                      <InvitationCard
+                        status={inv.card_status}
+                        tokenId={inv.token_id}
+                        released={inv.released}
+                        settled={inv.settled}
+                        reciprocated={inv.reciprocated}
+                        alt={`${t("event.card_of", { name: inv.label })}, ${status}${amount}`}
+                        className={isMine ? "mx-auto max-w-md" : ""}
+                      />
                     </div>
                     <div className="flex items-center justify-between gap-3 px-1 pb-1 pt-4">
                       <p className="flex min-w-0 items-center gap-2.5 truncate font-display text-xl">
